@@ -7,6 +7,7 @@ import { Field, FieldContent, FieldGroup, FieldLabel } from '~/components/ui/fie
 import { productFormSchema, type ProductFormSchema } from '~/features/authenticate/manageProduct/validator'
 import SortableImage from '~/features/authenticate/manageProduct/components/SortableImage'
 import Upload from '~/components/Upload'
+import TextEditor from '~/components/TextEditor'
 
 export default function ProductInformationForm() {
   const form = useForm<ProductFormSchema>({
@@ -80,6 +81,10 @@ export default function ProductInformationForm() {
               )}
             </SortableContext>
           </DndContext> */}
+        </FieldContent>
+        <FieldContent>
+          <FieldLabel>Description</FieldLabel>
+          <TextEditor />
         </FieldContent>
       </FieldGroup>
     </form>
