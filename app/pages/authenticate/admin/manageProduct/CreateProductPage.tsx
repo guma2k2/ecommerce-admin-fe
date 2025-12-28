@@ -69,7 +69,7 @@ export default function CreateProductPage() {
       <div className='w-5xl mx-auto p-4'>
         <header>Add Product</header>
         <div className='grid grid-cols-[2fr_1fr] gap-5'>
-          <div className='h-screen bg-white rounded-lg p-4'>
+          <div className='h-full bg-white rounded-lg p-4'>
             <ProductInformationForm />
           </div>
           <div className='h-screen bg-white rounded-lg p-4'></div>
