@@ -7,7 +7,7 @@ import { Field, FieldContent, FieldGroup, FieldLabel } from '~/components/ui/fie
 import { productFormSchema, type ProductFormSchema } from '~/features/authenticate/manageProduct/validator'
 import SortableImage from '~/features/authenticate/manageProduct/components/SortableImage'
 import Upload from '~/components/Upload'
-import TextEditor from '~/components/TextEditor'
+import TextEditor from '~/components/tiptap/TextEditor'
 
 export default function ProductInformationForm() {
   const form = useForm<ProductFormSchema>({
@@ -52,6 +52,10 @@ export default function ProductInformationForm() {
       <FieldGroup>
         <FormInput control={control} name='title' label='Title' />
         <FieldContent>
+          <FieldLabel>Description</FieldLabel>
+          <TextEditor />
+        </FieldContent>
+        <FieldContent>
           <FieldLabel>Media</FieldLabel>
           <div className='w-40 h-40'>
             <Upload />
@@ -81,10 +85,6 @@ export default function ProductInformationForm() {
               )}
             </SortableContext>
           </DndContext> */}
-        </FieldContent>
-        <FieldContent>
-          <FieldLabel>Description</FieldLabel>
-          <TextEditor />
         </FieldContent>
       </FieldGroup>
     </form>

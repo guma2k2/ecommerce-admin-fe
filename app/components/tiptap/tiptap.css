@@ -1,0 +1,10 @@
+.ProseMirror p.is-editor-empty:first-child::before {
+  /* content: "Start writing or press '/' for commands..."; */
+  pointer-events: none;
+  float: left;
+  height: 0;
+}
+
+.ProseMirror a {
+  text-decoration: underline;
+}
