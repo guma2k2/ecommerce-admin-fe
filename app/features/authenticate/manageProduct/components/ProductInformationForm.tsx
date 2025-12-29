@@ -7,7 +7,7 @@ import { Field, FieldContent, FieldGroup, FieldLabel } from '~/components/ui/fie
 import { productFormSchema, type ProductFormSchema } from '~/features/authenticate/manageProduct/validator'
 import SortableImage from '~/features/authenticate/manageProduct/components/SortableImage'
 import Upload from '~/components/Upload'
-import TextEditor from '~/components/tiptap/TextEditor'
+import { TextEditor } from '~/components/TextEditor'
 
 export default function ProductInformationForm() {
   const form = useForm<ProductFormSchema>({
@@ -57,34 +57,9 @@ export default function ProductInformationForm() {
         </FieldContent>
         <FieldContent>
           <FieldLabel>Media</FieldLabel>
-          <div className='w-40 h-40'>
+          <div className='w-full min-h-20'>
             <Upload />
           </div>
-          {/* <DndContext collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-            <SortableContext items={medias.map((i) => i.id)} strategy={rectSortingStrategy}>
-              {medias.length > 0 && (
-                <>
-                  <div className='grid grid-cols-12 gap-4'>
-                    <div className='col-span-12 md:col-span-4'>
-                      <SortableImage image={medias[0]} />
-                    </div>
-                    <div className='col-span-12 md:col-span-8'>
-                      <div className='grid grid-cols-4 grid-rows-2 gap-3 h-full'>
-                        {medias.slice(1, 9).map((img, i) => (
-                          <SortableImage key={img.id} image={img} />
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                  <div className='grid grid-cols-6 gap-4'>
-                    {medias.slice(9).map((img, i) => (
-                      <SortableImage key={img.id} image={img} />
-                    ))}
-                  </div>
-                </>
-              )}
-            </SortableContext>
-          </DndContext> */}
         </FieldContent>
       </FieldGroup>
     </form>

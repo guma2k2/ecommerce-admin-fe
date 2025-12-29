@@ -17,7 +17,7 @@ export default function SortableImage({ image }: SortableImageProps) {
       style={style}
       {...attributes}
       {...listeners}
-      className='rounded-lg overflow-hidden border cursor-grab active:cursor-grabbing'
+      className='rounded-lg overflow-hidden border cursor-grab active:cursor-grabbing relative z-21'
     >
       <img src={image.url} alt='Image' className='w-full h-full object-cover aspect-square' />
     </div>
