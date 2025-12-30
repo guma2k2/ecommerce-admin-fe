@@ -45,7 +45,7 @@ export default function Upload({ onChange }: UploadProps) {
     }))
 
     // Add new files to state
-    setMedias((prev) => [...newFiles, ...prev])
+    setMedias((prev) => [...prev, ...newFiles])
 
     // Upload ONLY newly added files
     const uploadPromises = newFiles.map(async (item) => {
@@ -66,7 +66,6 @@ export default function Upload({ onChange }: UploadProps) {
         setMedias((prev) => prev.map((f) => (f.id === item.id ? { ...f, progress: 100, status: 'success' } : f)))
       } catch (error) {
         console.error(error)
-
         setMedias((prev) => prev.map((f) => (f.id === item.id ? { ...f, status: 'error' } : f)))
       }
     })
@@ -132,28 +131,37 @@ export default function Upload({ onChange }: UploadProps) {
     setMedias(newMedias)
   }
 
-  console.log(medias)
+  const normalizeMedias = (list: UploadType[]): UploadType[] => {
+    const filtered = list.filter((m) => m.file !== null)
+    const emptyFile = list.find((m) => m.file === null)
+    if (filtered && emptyFile) {
+      return [...filtered, emptyFile]
+    }
+    return []
+  }
+
+  const currentMedias = normalizeMedias(medias)
 
   return (
     <DndContext collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-      <SortableContext items={medias.map((i) => i.id)} strategy={rectSortingStrategy}>
-        {medias.length > 0 && (
+      <SortableContext items={currentMedias.map((i) => i.id)} strategy={rectSortingStrategy}>
+        {currentMedias.length > 0 && (
           <>
-            {medias.length == 1 && <div className='w-full h-30'>{renderUploadComponent(medias[0])}</div>}
-            {medias.length > 1 && (
+            {currentMedias.length == 1 && <div className='w-full h-30'>{renderUploadComponent(currentMedias[0])}</div>}
+            {currentMedias.length > 1 && (
               <>
                 <div className='grid grid-cols-12 gap-2'>
-                  <div className='col-span-12 md:col-span-4 h-full'>{renderUploadComponent(medias[0])}</div>
+                  <div className='col-span-12 md:col-span-4 h-full'>{renderUploadComponent(currentMedias[0])}</div>
                   <div className='col-span-12 md:col-span-8 h-full'>
                     <div className='grid grid-cols-4 grid-rows-2 gap-2 h-full'>
-                      {medias.slice(1, 9).map((img) => (
+                      {currentMedias.slice(1, 9).map((img) => (
                         <Fragment key={img.id}>{renderUploadComponent(img)}</Fragment>
                       ))}
                     </div>
                   </div>
                 </div>
                 <div className='grid grid-cols-6 gap-2 mt-2'>
-                  {medias.slice(9).map((img) => (
+                  {currentMedias.slice(9).map((img) => (
                     <Fragment key={img.id}>{renderUploadComponent(img)}</Fragment>
                   ))}
                 </div>
