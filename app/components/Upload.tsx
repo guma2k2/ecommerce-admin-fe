@@ -26,6 +26,7 @@ export default function Upload({ onChange }: UploadProps) {
     { progress: 0, status: 'idle', url: '', id: crypto.randomUUID(), file: null }
   ])
   const [preview, setPreview] = useState<string | null>(null)
+  const [isDragging, setIsDragging] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   const getUrl = (file: File) => {
@@ -94,7 +95,7 @@ export default function Upload({ onChange }: UploadProps) {
     return (
       <div
         className={cn(
-          'relative w-full h-full rounded-md border border-dashed border-gray-500 bg-gray-100',
+          'group relative w-full h-full rounded-md border border-dashed border-gray-500 bg-gray-100',
           'hover:bg-gray-200 cursor-pointer',
           medias.length > 1 && 'aspect-square'
         )}
@@ -117,7 +118,24 @@ export default function Upload({ onChange }: UploadProps) {
           {uploadType.status === 'uploading' && <span className='text-xs text-gray-500'>Uploading...</span>}
           {uploadType.status === 'error' && <span className='text-red-500'>Error</span>}
         </div>
-        {uploadType.url && uploadType.status === 'success' && <SortableImage key={preview} image={uploadType} />}
+        {uploadType.url && uploadType.status === 'success' && (
+          <>
+            <SortableImage image={uploadType} />
+
+            <div
+              className={cn(
+                'absolute inset-0 bg-black/40 transition-opacity duration-200 z-22',
+                'opacity-0 ',
+                'pointer-events-none',
+                !isDragging && 'group-hover:opacity-100'
+              )}
+            >
+              <div className='absolute top-2 right-2 pointer-events-auto'>
+                <input type='checkbox' className='h-4 w-4 accent-white' onClick={(e) => e.stopPropagation()} />
+              </div>
+            </div>
+          </>
+        )}
       </div>
     )
   }
@@ -129,6 +147,7 @@ export default function Upload({ onChange }: UploadProps) {
     const newIndex = medias.findIndex((i) => i.id === over.id)
     const newMedias = arrayMove(medias, oldIndex, newIndex)
     setMedias(newMedias)
+    setIsDragging(false)
   }
 
   const normalizeMedias = (list: UploadType[]): UploadType[] => {
@@ -141,9 +160,8 @@ export default function Upload({ onChange }: UploadProps) {
   }
 
   const currentMedias = normalizeMedias(medias)
-
   return (
-    <DndContext collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+    <DndContext collisionDetection={closestCenter}>
       <SortableContext items={currentMedias.map((i) => i.id)} strategy={rectSortingStrategy}>
         {currentMedias.length > 0 && (
           <>
