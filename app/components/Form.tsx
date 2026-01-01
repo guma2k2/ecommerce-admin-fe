@@ -13,7 +13,7 @@ type FormControlProps<
   TTransformedValues = TFieldValues
 > = {
   name: TName
-  label: ReactNode
+  label?: ReactNode
   description?: ReactNode
   control: ControllerProps<TFieldValues, TName, TTransformedValues>['control']
 }

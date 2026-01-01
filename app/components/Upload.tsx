@@ -96,8 +96,9 @@ export default function Upload({ onChange }: UploadProps) {
       <div
         className={cn(
           'group relative w-full h-full rounded-md border border-dashed border-gray-500 bg-gray-100',
-          'hover:bg-gray-200 cursor-pointer',
-          medias.length > 1 && 'aspect-square'
+          ' cursor-pointer',
+          medias.length > 1 && 'aspect-square',
+          isDragging && 'hover:bg-gray-200'
         )}
         onClick={handleClickUpload}
       >
@@ -142,12 +143,12 @@ export default function Upload({ onChange }: UploadProps) {
 
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event
+    setIsDragging(false)
     if (!over || active.id === over.id) return
     const oldIndex = medias.findIndex((i) => i.id === active.id)
     const newIndex = medias.findIndex((i) => i.id === over.id)
     const newMedias = arrayMove(medias, oldIndex, newIndex)
     setMedias(newMedias)
-    setIsDragging(false)
   }
 
   const normalizeMedias = (list: UploadType[]): UploadType[] => {
@@ -161,7 +162,7 @@ export default function Upload({ onChange }: UploadProps) {
 
   const currentMedias = normalizeMedias(medias)
   return (
-    <DndContext collisionDetection={closestCenter}>
+    <DndContext collisionDetection={closestCenter} onDragMove={() => setIsDragging(true)} onDragEnd={handleDragEnd}>
       <SortableContext items={currentMedias.map((i) => i.id)} strategy={rectSortingStrategy}>
         {currentMedias.length > 0 && (
           <>
