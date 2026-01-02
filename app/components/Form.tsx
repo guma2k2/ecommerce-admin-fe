@@ -41,7 +41,7 @@ type FormControlFunc<ExtraProps extends Record<string, unknown> = Record<never, 
   props: FormControlProps<TFieldValues, TName, TTransformedValues> & ExtraProps
 ) => ReactNode
 
-function FormBase<
+export default function FormBase<
   TFieldValues extends FieldValues = FieldValues,
   TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>,
   TTransformedValues = TFieldValues
@@ -92,8 +92,23 @@ function FormBase<
   )
 }
 
-export const FormInput: FormControlFunc = (props) => {
-  return <FormBase {...props}>{(field) => <Input {...field} />}</FormBase>
+export const FormInput: FormControlFunc<{ onChangeCustom?: (e: React.ChangeEvent<HTMLInputElement>) => void }> = ({
+  onChangeCustom,
+  ...props
+}) => {
+  return (
+    <FormBase {...props}>
+      {(field) => (
+        <Input
+          {...field}
+          onChange={(e) => {
+            onChangeCustom?.(e)
+            field.onChange(e)
+          }}
+        />
+      )}
+    </FormBase>
+  )
 }
 
 export const FormSelect: FormControlFunc<{ children: ReactNode }> = ({ children, ...props }) => {
