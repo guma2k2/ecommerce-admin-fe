@@ -50,3 +50,7 @@ export function getUrlFromString(str: string) {
     return null
   }
 }
+
+export function cartesian<T>(arrays: T[][]): T[][] {
+  return arrays.reduce<T[][]>((acc, curr) => acc.flatMap((a) => curr.map((c) => [...a, c])), [[]])
+}
