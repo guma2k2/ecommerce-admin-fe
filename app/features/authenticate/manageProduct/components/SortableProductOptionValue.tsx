@@ -1,26 +1,29 @@
 import { useSortable } from '@dnd-kit/sortable'
 import { GripVertical, Trash } from 'lucide-react'
-import { useFieldArray } from 'react-hook-form'
+import { useFieldArray, type Control, type FieldArrayWithId } from 'react-hook-form'
 import FormBase from '~/components/Form'
 import { InputGroup, InputGroupAddon, InputGroupButton, InputGroupInput } from '~/components/ui/input-group'
 import { CSS } from '@dnd-kit/utilities'
-
+import type { ProductVariantFormSchema } from '~/features/authenticate/manageProduct/validator'
+import { useProductVariantForm } from '~/features/authenticate/manageProduct/contexts/ProductVariantFormContext'
+type OptionValueField = FieldArrayWithId<ProductVariantFormSchema, `options.${number}.values`, 'id'>
 type SortableProductOptionValueProps = {
-  field: any
+  field: OptionValueField
   index: number
-  control: any
   optionIndex: number
+  fields: OptionValueField[]
+  append: any
+  remove: any
 }
 export default function SortableProductOptionValue({
   field,
   index,
   optionIndex,
-  control
+  fields,
+  append,
+  remove
 }: SortableProductOptionValueProps) {
-  const { fields, append, remove } = useFieldArray({
-    control: control,
-    name: `options.${optionIndex}.values`
-  })
+  const { control } = useProductVariantForm()
   const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id: field.id })
   const isHasTwoValidValues = fields.filter((f: any) => f.value.trim() !== '').length >= 2
   const optionValueLength = fields.length
@@ -28,18 +31,13 @@ export default function SortableProductOptionValue({
     transform: CSS.Transform.toString(transform),
     transition
   }
+
   return (
-    <div
-      ref={setNodeRef}
-      style={style}
-      {...attributes}
-      {...listeners}
-      className='cursor-grab active:cursor-grabbing relative z-21'
-    >
+    <div ref={setNodeRef} style={style} {...attributes} className='cursor-grab active:cursor-grabbing'>
       <FormBase control={control} name={`options.${optionIndex}.values.${index}.value`}>
         {(field) => (
           <div className='relative'>
-            <GripVertical className='absolute top-1/2 -left-5 -translate-y-1/2' size={16} />
+            <GripVertical {...listeners} className='absolute top-1/2 -left-5 -translate-y-1/2' size={16} />
             <InputGroup>
               <InputGroupInput
                 {...field}

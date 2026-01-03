@@ -1,20 +1,18 @@
 import { closestCenter, DndContext, type DragEndEvent } from '@dnd-kit/core'
 import { arrayMove, rectSortingStrategy, SortableContext, useSortable } from '@dnd-kit/sortable'
-import { GripVertical, Trash } from 'lucide-react'
 import { useFieldArray, type Control } from 'react-hook-form'
 import FormBase, { FormInput } from '~/components/Form'
 import { FieldLabel } from '~/components/ui/field'
-import { Input } from '~/components/ui/input'
-import { InputGroup, InputGroupAddon, InputGroupButton, InputGroupInput } from '~/components/ui/input-group'
 import SortableProductOptionValue from '~/features/authenticate/manageProduct/components/SortableProductOptionValue'
+import { useProductVariantForm } from '~/features/authenticate/manageProduct/contexts/ProductVariantFormContext'
 import type { ProductVariantFormSchema } from '~/features/authenticate/manageProduct/validator'
 
 type ProductOptionValueFormProps = {
   optionIndex: number
-  control: Control<ProductVariantFormSchema>
 }
-export default function ProductOptionValueForm({ control, optionIndex }: ProductOptionValueFormProps) {
-  const { fields, append, remove } = useFieldArray({
+export default function ProductOptionValueForm({ optionIndex }: ProductOptionValueFormProps) {
+  const { control, getValues, setValue } = useProductVariantForm()
+  const { fields, append, remove, move, update, replace } = useFieldArray({
     control: control,
     name: `options.${optionIndex}.values`
   })
@@ -24,10 +22,28 @@ export default function ProductOptionValueForm({ control, optionIndex }: Product
     if (!over || active.id === over.id) return
     const oldIndex = fields.findIndex((i) => i.id === active.id)
     const newIndex = fields.findIndex((i) => i.id === over.id)
-    const newMedias = arrayMove(fields, oldIndex, newIndex)
-    // setMedias(newMedias) // Todo
+    if (oldIndex === -1 || newIndex === -1) return
+
+    move(oldIndex, newIndex)
+
+    const newOrder = arrayMove(fields, oldIndex, newIndex)
+    newOrder.forEach((item, idx) => {
+      update(idx, { ...item, position: idx + 1 })
+    })
   }
-  const renderOptionValue = (field: any, index: number) => {}
+
+  const handleRemoveOptionValue = (valueIndex: number) => {
+    remove(valueIndex)
+
+    const reordered = getValues(`options.${optionIndex}.values`) ?? []
+
+    replace(
+      reordered.map((item: any, i: number) => ({
+        ...item,
+        position: i + 1
+      }))
+    )
+  }
   return (
     <div className=''>
       <FieldLabel>Option values</FieldLabel>
@@ -35,11 +51,13 @@ export default function ProductOptionValueForm({ control, optionIndex }: Product
         <SortableContext items={fields.map((i) => i.id)} strategy={rectSortingStrategy}>
           {fields.map((field, index) => (
             <SortableProductOptionValue
-              control={control}
+              key={field.id}
+              fields={fields}
+              append={append}
+              remove={handleRemoveOptionValue}
               field={field}
               index={index}
               optionIndex={optionIndex}
-              key={field.id}
             />
           ))}
         </SortableContext>
