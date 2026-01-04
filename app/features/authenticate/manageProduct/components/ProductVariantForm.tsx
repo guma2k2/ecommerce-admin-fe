@@ -1,12 +1,13 @@
-import { closestCenter, DndContext, type DragEndEvent } from '@dnd-kit/core'
-import { rectSortingStrategy, SortableContext } from '@dnd-kit/sortable'
+import { closestCenter, DndContext, DragOverlay, type DragEndEvent } from '@dnd-kit/core'
+import { rectSortingStrategy, SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { PlusCircle } from 'lucide-react'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useFieldArray, useForm, useWatch } from 'react-hook-form'
 import FormBase from '~/components/Form'
 import { Button } from '~/components/ui/button'
 import { Input } from '~/components/ui/input'
+import ProductOptionDragPreview from '~/features/authenticate/manageProduct/components/ProductOptionDragPreview'
 import SortableProductOption from '~/features/authenticate/manageProduct/components/SortableProductOption'
 import { ProductVariantFormProvider } from '~/features/authenticate/manageProduct/contexts/ProductVariantFormContext'
 import {
@@ -17,6 +18,8 @@ import type { ProductVariant } from '~/types/ProductVariant'
 import { cartesian } from '~/utils/appUtils'
 
 export default function ProductVariantForm() {
+  const [activeId, setActiveId] = useState<string | null>(null)
+
   const form = useForm<ProductVariantFormSchema>({
     resolver: zodResolver(productVariantFormSchema),
     defaultValues: {
@@ -117,6 +120,7 @@ export default function ProductVariantForm() {
       <div className='border border-gray-200 rounded-md'>
         <ProductVariantFormProvider
           value={{
+            productOptionFields: productOptionFields,
             control,
             getValues,
             setValue,
@@ -124,11 +128,22 @@ export default function ProductVariantForm() {
             removeOption: handleRemoveOption
           }}
         >
-          <DndContext collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-            <SortableContext items={productOptionFields.map((i) => i.id)} strategy={rectSortingStrategy}>
+          <DndContext
+            collisionDetection={closestCenter}
+            onDragStart={(e) => setActiveId(e.active.id as string)}
+            onDragEnd={(e) => {
+              setActiveId(null)
+              handleDragEnd(e)
+            }}
+            onDragCancel={() => setActiveId(null)}
+          >
+            <SortableContext items={productOptionFields.map((i) => i.id)} strategy={verticalListSortingStrategy}>
               {productOptionFields.map((field, index) => (
                 <SortableProductOption key={field.id} field={field} index={index} />
               ))}
+              <DragOverlay adjustScale={false} dropAnimation={null}>
+                {activeId ? <ProductOptionDragPreview optionId={activeId} /> : null}
+              </DragOverlay>
             </SortableContext>
           </DndContext>
         </ProductVariantFormProvider>

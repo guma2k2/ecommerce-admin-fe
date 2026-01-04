@@ -1,0 +1,39 @@
+import { GripVertical } from 'lucide-react'
+import { useWatch } from 'react-hook-form'
+import { Badge } from '~/components/ui/badge'
+import { useProductVariantForm } from '~/features/authenticate/manageProduct/contexts/ProductVariantFormContext'
+import { cn } from '~/lib/utils'
+
+type ProductOptionDragPreviewProps = {
+  optionId: string
+}
+export default function ProductOptionDragPreview({ optionId }: ProductOptionDragPreviewProps) {
+  const { control, productOptionFields } = useProductVariantForm()
+  // Resolve index from id
+  const index = productOptionFields.findIndex((f) => f.id === optionId)
+  if (index === -1) return null
+
+  const option = useWatch({
+    control,
+    name: `options.${index}`
+  })
+
+  if (!option) return null
+  return (
+    <div className={cn('border border-blue-500 p-3 space-y-2 pl-12 relative z-99')}>
+      <GripVertical className='absolute top-5 left-5 ' size={16} />
+      <div className='space-y-2 w-full'>
+        <div>{option.name}</div>
+        {option.values &&
+          option.values.length > 0 &&
+          option.values
+            .filter((item: any) => item.value.trim() !== '')
+            .map((val: any, index: any) => (
+              <Badge key={`${index}-${val}`} variant={'secondary'}>
+                {val.value}
+              </Badge>
+            ))}
+      </div>
+    </div>
+  )
+}
