@@ -1,8 +1,9 @@
 import React, { useContext, type ReactNode } from 'react'
-import type { Control, UseFieldArrayUpdate, UseFormGetValues, UseFormSetValue } from 'react-hook-form'
+import type { Control, FieldArrayWithId, UseFieldArrayUpdate, UseFormGetValues, UseFormSetValue } from 'react-hook-form'
 import type { ProductVariantFormSchema } from '~/features/authenticate/manageProduct/validator'
 
 type ProductVariantFormContextValue = {
+  productOptionFields: FieldArrayWithId<ProductVariantFormSchema, 'options', 'id'>[]
   control: Control<ProductVariantFormSchema>
   getValues: UseFormGetValues<ProductVariantFormSchema>
   setValue: UseFormSetValue<ProductVariantFormSchema>
