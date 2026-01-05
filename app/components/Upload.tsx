@@ -25,7 +25,6 @@ export default function Upload({ onChange }: UploadProps) {
   const [medias, setMedias] = useState<UploadType[]>([
     { progress: 0, status: 'idle', url: '', id: crypto.randomUUID(), file: null }
   ])
-  const [preview, setPreview] = useState<string | null>(null)
   const [isDragging, setIsDragging] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
