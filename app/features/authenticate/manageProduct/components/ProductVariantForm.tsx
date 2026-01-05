@@ -5,6 +5,7 @@ import { PlusCircle } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { useFieldArray, useForm, useWatch } from 'react-hook-form'
 import FormBase from '~/components/Form'
+import InputFile from '~/components/InputFile'
 import { Button } from '~/components/ui/button'
 import { Input } from '~/components/ui/input'
 import ProductOptionDragPreview from '~/features/authenticate/manageProduct/components/ProductOptionDragPreview'
@@ -161,10 +162,15 @@ export default function ProductVariantForm() {
             <div className='col-span-2'>Available</div>
           </div>
 
-          <div>
+          <div className='space-y-3'>
             {productVariantFields.map((field, index) => (
-              <div className='grid grid-cols-12' key={field.id}>
-                <div className='col-span-6'>{field.name}</div>
+              <div className='grid grid-cols-12 gap-3 items-center' key={field.id}>
+                <div className='col-span-6 grid grid-cols-12 items-center gap-3'>
+                  <div className='col-span-3'>
+                    <InputFile />
+                  </div>
+                  <div className='col-span-9'>{field.name}</div>
+                </div>
                 <div className='col-span-4'>
                   <FormBase control={control} name={`variants.${index}.price`}>
                     {(field) => <Input {...field} />}

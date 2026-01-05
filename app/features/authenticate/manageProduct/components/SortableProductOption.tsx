@@ -27,7 +27,7 @@ export default function SortableProductOption({ field, index }: SortableProductO
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
-    opacity: isDragging ? 0 : 1
+    opacity: isDragging ? 0.3 : 1
   }
 
   if (!option) return null
@@ -38,7 +38,7 @@ export default function SortableProductOption({ field, index }: SortableProductO
       style={style}
       {...attributes}
       className={cn(
-        'border-b border-b-gray-200 p-3 space-y-2 pl-12 relative z-99',
+        'border-b border-b-gray-200 p-3 space-y-2 pl-12 relative z-50',
         !field.showing && 'hover:bg-gray-100'
       )}
       key={field.id}

@@ -20,7 +20,7 @@ export default function ProductOptionDragPreview({ optionId }: ProductOptionDrag
 
   if (!option) return null
   return (
-    <div className={cn('border border-blue-500 p-3 space-y-2 pl-12 relative z-99')}>
+    <div className={cn('border-2 border-blue-500 p-3 space-y-2 pl-12 relative z-51 bg-white rounded-md')}>
       <GripVertical className='absolute top-5 left-5 ' size={16} />
       <div className='space-y-2 w-full'>
         <div>{option.name}</div>
