@@ -5,8 +5,10 @@ import { Input } from '~/components/ui/input'
 import { Spinner } from '~/components/ui/spinner'
 import type { UploadType } from '~/types/Upload'
 import { cn } from '~/utils/appUtils'
-
-export default function InputFile() {
+type InputFileProps = {
+  onChange?: (url: string) => void
+}
+export default function InputFile({ onChange }: InputFileProps) {
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [upload, setUpload] = useState<UploadType>({
     file: null,
@@ -41,6 +43,7 @@ export default function InputFile() {
           setUpload((prev) => ({ ...prev, progress }))
         }
       })
+      onChange?.(newUploadData.url)
       setUpload((prev) => ({ ...prev, status: 'success' }))
     } catch (error) {
       setUpload({ ...newUploadData, status: 'error' })
