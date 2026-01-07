@@ -104,6 +104,10 @@ export default function ProductVariantForm() {
     }))
   }
 
+  const handleChangeProductImage = (index: number, url: string) => {
+    setValue(`variants.${index}.image`, url)
+  }
+
   useEffect(() => {
     const normalized = productOptions
       .filter((o) => o.name.trim())
@@ -167,7 +171,7 @@ export default function ProductVariantForm() {
               <div className='grid grid-cols-12 gap-3 items-center' key={field.id}>
                 <div className='col-span-6 grid grid-cols-12 items-center gap-3'>
                   <div className='col-span-3'>
-                    <InputFile />
+                    <InputFile onChange={(url: string) => handleChangeProductImage(index, url)} />
                   </div>
                   <div className='col-span-9'>{field.name}</div>
                 </div>
