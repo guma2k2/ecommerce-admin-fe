@@ -8,20 +8,20 @@ export const productFormSchema = z.object({
 })
 
 export const productValue = z.object({
-  value: z.string(),
+  value: z.string().trim().min(1, 'This field is required'),
   position: z.number(),
   image: z.string()
 })
 
 export const productOption = z.object({
-  name: z.string(),
+  name: z.string().trim().min(1, 'This field is required'),
   position: z.number(),
   showing: z.boolean(),
   values: z.array(productValue)
 })
 
 export const productVariant = z.object({
-  name: z.string(),
+  name: z.string().trim().min(1, 'This field is required'),
   price: z.number(),
   quantity: z.number(),
   image: z.string()
