@@ -1,11 +1,12 @@
 import { useSortable } from '@dnd-kit/sortable'
 import { GripVertical, Trash } from 'lucide-react'
-import { useFieldArray, type Control, type FieldArrayWithId } from 'react-hook-form'
+import { useFieldArray, useWatch, type Control, type FieldArrayWithId } from 'react-hook-form'
 import FormBase from '~/components/Form'
 import { InputGroup, InputGroupAddon, InputGroupButton, InputGroupInput } from '~/components/ui/input-group'
 import { CSS } from '@dnd-kit/utilities'
 import type { ProductVariantFormSchema } from '~/features/authenticate/manageProduct/validator'
 import { useProductVariantForm } from '~/features/authenticate/manageProduct/contexts/ProductVariantFormContext'
+import { useRef } from 'react'
 type OptionValueField = FieldArrayWithId<ProductVariantFormSchema, `options.${number}.values`, 'id'>
 type SortableProductOptionValueProps = {
   field: OptionValueField
@@ -23,7 +24,9 @@ export default function SortableProductOptionValue({
   append,
   remove
 }: SortableProductOptionValueProps) {
-  const { control } = useProductVariantForm()
+  const { control, setValue } = useProductVariantForm()
+  const lastKeywordRef = useRef('')
+  const keyword = useWatch({ control: control, name: `options.${optionIndex}.values.${index}.value` })
   const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id: field.id })
   const isHasTwoValidValues = fields.filter((f: any) => f.value.trim() !== '').length >= 2
   const optionValueLength = fields.length
@@ -45,7 +48,22 @@ export default function SortableProductOptionValue({
                   if (index === fields.length - 1 && e.target.value.trim() && fields.length === index + 1) {
                     append({ value: '', position: optionValueLength + 1, image: '' }, { shouldFocus: false })
                   }
+                  lastKeywordRef.current = field.value ?? ''
                   field.onChange(e)
+                }}
+                // onFocus={() => {
+                //   lastKeywordRef.current = field.value ?? ''
+                // }}
+                onBlur={(e) => {
+                  field.onBlur()
+                  console.log(lastKeywordRef.current)
+                  console.log(field.value)
+                  if (field.value.trim() === '') {
+                    setValue(`options.${optionIndex}.values.${index}.value`, lastKeywordRef.current, {
+                      shouldDirty: false,
+                      shouldTouch: false
+                    })
+                  }
                 }}
               />
               {isHasTwoValidValues && index !== optionValueLength - 1 && (
