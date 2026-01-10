@@ -3,12 +3,14 @@ import SortableImage from '~/features/authenticate/manageProduct/components/Sort
 import { closestCenter, DndContext, type DragEndEvent } from '@dnd-kit/core'
 import { arrayMove, rectSortingStrategy, SortableContext } from '@dnd-kit/sortable'
 import { Plus, TimerIcon, X } from 'lucide-react'
-import React, { Fragment, useRef, useState } from 'react'
+import React, { Fragment, useEffect, useRef, useState } from 'react'
 import { Button } from '~/components/ui/button'
 import { Input } from '~/components/ui/input'
 import { cn } from '~/utils/appUtils'
+import { Checkbox } from '~/components/ui/checkbox'
+
 type UploadProps = {
-  onChange?: (value?: string) => void
+  onChange?: (values: { url: string; checked: boolean }[]) => void
   className?: string
 }
 
@@ -19,11 +21,12 @@ type UploadType = {
   progress: number
   status: UploadStatus
   url: string
+  checked: boolean
   id: string
 }
 export default function Upload({ onChange }: UploadProps) {
   const [medias, setMedias] = useState<UploadType[]>([
-    { progress: 0, status: 'idle', url: '', id: crypto.randomUUID(), file: null }
+    { progress: 0, status: 'idle', url: '', id: crypto.randomUUID(), file: null, checked: false }
   ])
   const [isDragging, setIsDragging] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
@@ -41,7 +44,8 @@ export default function Upload({ onChange }: UploadProps) {
       progress: 0,
       id: crypto.randomUUID(),
       url: URL.createObjectURL(file),
-      status: 'idle'
+      status: 'idle',
+      checked: false
     }))
 
     // Add new files to state
@@ -71,7 +75,6 @@ export default function Upload({ onChange }: UploadProps) {
     })
 
     await Promise.all(uploadPromises)
-
     // Reset input so the same file can be selected again
     if (fileInputRef.current) {
       fileInputRef.current.value = ''
@@ -89,6 +92,11 @@ export default function Upload({ onChange }: UploadProps) {
   //     fileInputRef.current.value = ''
   //   }
   // }
+
+  const handleCheckedImage = (upload: UploadType, checked: boolean) => {
+    console.log(checked)
+    setMedias((prev) => prev.map((media) => (media.id === upload.id ? { ...media, checked } : media)))
+  }
 
   const renderUploadComponent = (uploadType: UploadType) => {
     return (
@@ -131,7 +139,11 @@ export default function Upload({ onChange }: UploadProps) {
               )}
             >
               <div className='absolute top-2 right-2 pointer-events-auto'>
-                <input type='checkbox' className='h-4 w-4 accent-white' onClick={(e) => e.stopPropagation()} />
+                <Checkbox
+                  className='h-4 w-4 accent-white'
+                  onClick={(e) => e.stopPropagation()}
+                  onCheckedChange={(value) => handleCheckedImage(uploadType, !!value)}
+                />
               </div>
             </div>
           </>
@@ -158,6 +170,13 @@ export default function Upload({ onChange }: UploadProps) {
     }
     return []
   }
+
+  useEffect(() => {
+    const filteredMedias = medias
+      .filter((media) => media.file !== null)
+      .map((media) => ({ url: media.url, checked: media.checked }))
+    onChange?.(filteredMedias)
+  }, [medias])
 
   const currentMedias = normalizeMedias(medias)
   return (
