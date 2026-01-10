@@ -3,7 +3,7 @@ export type ProductFormSchema = z.infer<typeof productFormSchema>
 export type ProductVariantFormSchema = z.infer<typeof productVariantFormSchema>
 export const productFormSchema = z.object({
   title: z.string().trim().min(1).max(255),
-  medias: z.array(z.object({ id: z.string(), url: z.string() })),
+  medias: z.array(z.object({ url: z.string(), isChecked: z.boolean() })),
   description: z.string()
 })
 
