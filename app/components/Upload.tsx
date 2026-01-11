@@ -10,6 +10,7 @@ import { cn } from '~/utils/appUtils'
 import { Checkbox } from '~/components/ui/checkbox'
 
 type UploadProps = {
+  values: { url: string; isChecked: boolean }[]
   onChange?: (values: { url: string; checked: boolean }[]) => void
   className?: string
 }
@@ -24,7 +25,7 @@ type UploadType = {
   checked: boolean
   id: string
 }
-export default function Upload({ onChange }: UploadProps) {
+export default function Upload({ onChange, values }: UploadProps) {
   const [medias, setMedias] = useState<UploadType[]>([
     { progress: 0, status: 'idle', url: '', id: crypto.randomUUID(), file: null, checked: false }
   ])
@@ -164,7 +165,7 @@ export default function Upload({ onChange }: UploadProps) {
 
   const normalizeMedias = (list: UploadType[]): UploadType[] => {
     const filtered = list.filter((m) => m.file !== null)
-    const emptyFile = list.find((m) => m.file === null)
+    const emptyFile = list.find((m) => m.file === null && m.url === '')
     if (filtered && emptyFile) {
       return [...filtered, emptyFile]
     }
@@ -173,10 +174,25 @@ export default function Upload({ onChange }: UploadProps) {
 
   useEffect(() => {
     const filteredMedias = medias
-      .filter((media) => media.file !== null)
+      .filter((media) => media.file !== null && media.url !== '')
       .map((media) => ({ url: media.url, checked: media.checked }))
     onChange?.(filteredMedias)
   }, [medias])
+
+  useEffect(() => {
+    if (values && values.length > 0 && medias.length === 0) {
+      values.map((value) => {
+        return {
+          id: crypto.randomUUID(),
+          url: value.url,
+          checked: value.isChecked,
+          progress: 0,
+          status: 'idle',
+          file: null
+        } as UploadType
+      })
+    }
+  }, [values])
 
   const currentMedias = normalizeMedias(medias)
   return (
