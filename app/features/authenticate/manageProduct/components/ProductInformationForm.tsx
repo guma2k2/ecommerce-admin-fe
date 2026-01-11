@@ -59,7 +59,7 @@ export default function ProductInformationForm() {
             </div>
           )}
           <div className='w-full min-h-20'>
-            <Upload onChange={handleChangeMedia} />
+            <Upload onChange={handleChangeMedia} values={medias} />
           </div>
         </FieldContent>
       </FieldGroup>
