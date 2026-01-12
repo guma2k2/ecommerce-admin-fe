@@ -48,19 +48,8 @@ export default function ProductInformationForm() {
           <TextEditor />
         </FieldContent>
         <FieldContent>
-          <FieldLabel>Media</FieldLabel>
-          {JSON.stringify(medias)}
-          {checkedMedias.length > 0 && (
-            <div className='flex items-center justify-between'>
-              <div>{checkedMedias.length} is selected</div>
-              <Button variant={'link'} onClick={handleRemove}>
-                Remove
-              </Button>
-            </div>
-          )}
-          <div className='w-full min-h-20'>
-            <Upload onChange={handleChangeMedia} values={medias} />
-          </div>
+          {/* {JSON.stringify(medias)} */}
+          <Upload onChange={handleChangeMedia} values={medias} />
         </FieldContent>
       </FieldGroup>
     </form>

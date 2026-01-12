@@ -8,6 +8,7 @@ import { Button } from '~/components/ui/button'
 import { Input } from '~/components/ui/input'
 import { cn } from '~/utils/appUtils'
 import { Checkbox } from '~/components/ui/checkbox'
+import { FieldLabel } from '~/components/ui/field'
 
 type UploadProps = {
   values: { url: string; isChecked: boolean }[]
@@ -83,6 +84,7 @@ export default function Upload({ onChange, values }: UploadProps) {
   }
 
   const handleClickUpload = () => {
+    console.log('upload')
     fileInputRef.current?.click()
   }
 
@@ -142,6 +144,7 @@ export default function Upload({ onChange, values }: UploadProps) {
               <div className='absolute top-2 right-2 pointer-events-auto'>
                 <Checkbox
                   className='h-4 w-4 accent-white'
+                  checked={uploadType.checked}
                   onClick={(e) => e.stopPropagation()}
                   onCheckedChange={(value) => handleCheckedImage(uploadType, !!value)}
                 />
@@ -165,11 +168,38 @@ export default function Upload({ onChange, values }: UploadProps) {
 
   const normalizeMedias = (list: UploadType[]): UploadType[] => {
     const filtered = list.filter((m) => m.file !== null)
-    const emptyFile = list.find((m) => m.file === null && m.url === '')
-    if (filtered && emptyFile) {
-      return [...filtered, emptyFile]
+    const emptyFile = list.find((m) => m.file === null && m.url === '') ?? {
+      progress: 0,
+      status: 'idle',
+      url: '',
+      id: crypto.randomUUID(),
+      file: null,
+      checked: false
     }
-    return []
+
+    return [...filtered, emptyFile]
+  }
+
+  const handleRemove = () => {
+    setMedias((prev) => {
+      const remaining = prev.filter((media) => !media.checked)
+
+      const hasEmpty = remaining.some((m) => m.file === null && m.url === '')
+
+      return hasEmpty
+        ? remaining
+        : [
+            ...remaining,
+            {
+              progress: 0,
+              status: 'idle',
+              url: '',
+              id: crypto.randomUUID(),
+              file: null,
+              checked: false
+            }
+          ]
+    })
   }
 
   useEffect(() => {
@@ -195,34 +225,51 @@ export default function Upload({ onChange, values }: UploadProps) {
   }, [values])
 
   const currentMedias = normalizeMedias(medias)
+  const checkedMedias = medias.filter((media) => media.url !== '' && media.checked)
   return (
-    <DndContext collisionDetection={closestCenter} onDragMove={() => setIsDragging(true)} onDragEnd={handleDragEnd}>
-      <SortableContext items={currentMedias.map((i) => i.id)} strategy={rectSortingStrategy}>
-        {currentMedias.length > 0 && (
-          <>
-            {currentMedias.length == 1 && <div className='w-full h-30'>{renderUploadComponent(currentMedias[0])}</div>}
-            {currentMedias.length > 1 && (
+    <>
+      <FieldLabel>Media</FieldLabel>
+      {/* {JSON.stringify(medias)} */}
+      {checkedMedias.length > 0 && (
+        <div className='flex items-center justify-between'>
+          <div>{checkedMedias.length} is selected</div>
+          <Button variant={'link'} onClick={handleRemove}>
+            Remove
+          </Button>
+        </div>
+      )}
+      <div className='w-full min-h-20'>
+        <DndContext collisionDetection={closestCenter} onDragMove={() => setIsDragging(true)} onDragEnd={handleDragEnd}>
+          <SortableContext items={currentMedias.map((i) => i.id)} strategy={rectSortingStrategy}>
+            {currentMedias.length > 0 && (
               <>
-                <div className='grid grid-cols-12 gap-2'>
-                  <div className='col-span-12 md:col-span-4 h-full'>{renderUploadComponent(currentMedias[0])}</div>
-                  <div className='col-span-12 md:col-span-8 h-full'>
-                    <div className='grid grid-cols-4 grid-rows-2 gap-2 h-full'>
-                      {currentMedias.slice(1, 9).map((img) => (
+                {currentMedias.length == 1 && (
+                  <div className='w-full h-30'>{renderUploadComponent(currentMedias[0])}</div>
+                )}
+                {currentMedias.length > 1 && (
+                  <>
+                    <div className='grid grid-cols-12 gap-2'>
+                      <div className='col-span-12 md:col-span-4 h-full'>{renderUploadComponent(currentMedias[0])}</div>
+                      <div className='col-span-12 md:col-span-8 h-full'>
+                        <div className='grid grid-cols-4 grid-rows-2 gap-2 h-full'>
+                          {currentMedias.slice(1, 9).map((img) => (
+                            <Fragment key={img.id}>{renderUploadComponent(img)}</Fragment>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                    <div className='grid grid-cols-6 gap-2 mt-2'>
+                      {currentMedias.slice(9).map((img) => (
                         <Fragment key={img.id}>{renderUploadComponent(img)}</Fragment>
                       ))}
                     </div>
-                  </div>
-                </div>
-                <div className='grid grid-cols-6 gap-2 mt-2'>
-                  {currentMedias.slice(9).map((img) => (
-                    <Fragment key={img.id}>{renderUploadComponent(img)}</Fragment>
-                  ))}
-                </div>
+                  </>
+                )}
               </>
             )}
-          </>
-        )}
-      </SortableContext>
-    </DndContext>
+          </SortableContext>
+        </DndContext>
+      </div>
+    </>
   )
 }
