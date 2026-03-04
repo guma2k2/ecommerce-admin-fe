@@ -1,22 +1,21 @@
-import { closestCenter, DndContext, DragOverlay, type DragEndEvent } from '@dnd-kit/core'
-import { rectSortingStrategy, SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { PlusCircle } from 'lucide-react'
-import { useEffect, useState } from 'react'
-import { useFieldArray, useForm, useWatch } from 'react-hook-form'
-import FormBase from '~/components/Form'
-import InputFile from '~/components/InputFile'
-import { Button } from '~/components/ui/button'
-import { Input } from '~/components/ui/input'
-import ProductOptionDragPreview from '~/features/authenticate/manageProduct/components/ProductOptionDragPreview'
-import SortableProductOption from '~/features/authenticate/manageProduct/components/SortableProductOption'
-import { ProductVariantFormProvider } from '~/features/authenticate/manageProduct/contexts/ProductVariantFormContext'
+import { closestCenter, DndContext, DragOverlay, type DragEndEvent } from "@dnd-kit/core"
+import { SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable"
+import { zodResolver } from "@hookform/resolvers/zod"
+import { PlusCircle } from "lucide-react"
+import { useEffect, useState } from "react"
+import { useFieldArray, useForm, useWatch } from "react-hook-form"
+import FormBase from "~/components/Form"
+import FileUpload from "~/components/FileUpload"
+import { Button } from "~/components/ui/button"
+import { Input } from "~/components/ui/input"
+import ProductOptionDragPreview from "~/features/authenticate/manageProduct/components/ProductOptionDragPreview"
+import SortableProductOption from "~/features/authenticate/manageProduct/components/SortableProductOption"
+import { ProductVariantFormProvider } from "~/features/authenticate/manageProduct/contexts/ProductVariantFormContext"
 import {
   productVariantFormSchema,
   type ProductVariantFormSchema
-} from '~/features/authenticate/manageProduct/validator'
-import type { ProductVariant } from '~/types/ProductVariant'
-import { cartesian } from '~/utils/appUtils'
+} from "~/features/authenticate/manageProduct/validator"
+import { cartesian } from "~/utils/appUtils"
 
 export default function ProductVariantForm() {
   const [activeId, setActiveId] = useState<string | null>(null)
@@ -37,26 +36,20 @@ export default function ProductVariantForm() {
     move
   } = useFieldArray({
     control: control,
-    name: 'options'
+    name: "options"
   })
 
-  const {
-    fields: productVariantFields,
-    append: appendVariant,
-    remove: removeVariant,
-    update: updateVariant,
-    move: moveVariant
-  } = useFieldArray({
+  const { fields: productVariantFields } = useFieldArray({
     control: control,
-    name: 'variants'
+    name: "variants"
   })
 
-  const productOptions = useWatch({ control, name: 'options' })
-  const productVariants = useWatch({ control, name: 'variants' })
+  const productOptions = useWatch({ control, name: "options" })
+  const productVariants = useWatch({ control, name: "variants" })
 
   const handleCreateOption = () => {
     const optionLength = productOptionFields.length + 1
-    appendOption({ name: '', showing: true, position: optionLength, values: [{ image: '', value: '', position: 1 }] })
+    appendOption({ name: "", showing: true, position: optionLength, values: [{ image: "", value: "", position: 1 }] })
   }
 
   const handleDragEnd = (event: DragEndEvent) => {
@@ -70,9 +63,9 @@ export default function ProductVariantForm() {
     move(oldIndex, newIndex)
 
     queueMicrotask(() => {
-      const reordered = getValues('options') ?? []
+      const reordered = getValues("options") ?? []
       setValue(
-        'options',
+        "options",
         reordered.map((item, i) => ({ ...item, position: i + 1 })),
         { shouldDirty: true }
       )
@@ -82,9 +75,9 @@ export default function ProductVariantForm() {
   const handleRemoveOption = (optionIndex: number) => {
     removeOption(optionIndex)
     queueMicrotask(() => {
-      const reordered = getValues('options') ?? []
+      const reordered = getValues("options") ?? []
       setValue(
-        'options',
+        "options",
         reordered.map((item, i) => ({ ...item, position: i + 1 })),
         { shouldDirty: true }
       )
@@ -97,8 +90,8 @@ export default function ProductVariantForm() {
     const valueMatrix = options.map((o) => o.values)
     const combinations = cartesian(valueMatrix)
     return combinations.map((values) => ({
-      image: '',
-      name: values.join(' / '),
+      image: "",
+      name: values.join(" / "),
       price: 0,
       quantity: 0
     }))
@@ -116,12 +109,13 @@ export default function ProductVariantForm() {
         values: o.values.map((v) => v.value.trim()).filter(Boolean)
       }))
     const variants = buildVariants(normalized)
-    setValue('variants', variants, { shouldDirty: true })
+    setValue("variants", variants, { shouldDirty: true })
   }, [productOptions])
+
   return (
     <div className='space-y-5'>
       <h4>Variants</h4>
-      <div>{JSON.stringify(productOptions)}</div>
+      {/* <div>{JSON.stringify(productOptions)}</div> */}
       <div className='border border-gray-200 rounded-md'>
         <ProductVariantFormProvider
           value={{
@@ -153,7 +147,7 @@ export default function ProductVariantForm() {
           </DndContext>
         </ProductVariantFormProvider>
 
-        <Button variant={'ghost'} size={'sm'} onClick={handleCreateOption}>
+        <Button variant={"ghost"} size={"sm"} onClick={handleCreateOption}>
           <PlusCircle />
           Add options like size or color
         </Button>
@@ -171,7 +165,7 @@ export default function ProductVariantForm() {
               <div className='grid grid-cols-12 gap-3 items-center' key={field.id}>
                 <div className='col-span-6 grid grid-cols-12 items-center gap-3'>
                   <div className='col-span-3'>
-                    <InputFile onChange={(url: string) => handleChangeProductImage(index, url)} />
+                    <FileUpload onChange={(url: string) => handleChangeProductImage(index, url)} />
                   </div>
                   <div className='col-span-9'>{field.name}</div>
                 </div>

@@ -1,14 +1,14 @@
-import axios from 'axios'
-import SortableImage from '~/features/authenticate/manageProduct/components/SortableImage'
-import { closestCenter, DndContext, type DragEndEvent } from '@dnd-kit/core'
-import { arrayMove, rectSortingStrategy, SortableContext } from '@dnd-kit/sortable'
-import { Plus, TimerIcon, X } from 'lucide-react'
-import React, { Fragment, useEffect, useRef, useState } from 'react'
-import { Button } from '~/components/ui/button'
-import { Input } from '~/components/ui/input'
-import { cn } from '~/utils/appUtils'
-import { Checkbox } from '~/components/ui/checkbox'
-import { FieldLabel } from '~/components/ui/field'
+import axios from "axios"
+import SortableImage from "~/features/authenticate/manageProduct/components/SortableImage"
+import { closestCenter, DndContext, type DragEndEvent } from "@dnd-kit/core"
+import { arrayMove, rectSortingStrategy, SortableContext } from "@dnd-kit/sortable"
+import { Plus } from "lucide-react"
+import React, { Fragment, useEffect, useRef, useState } from "react"
+import { Button } from "~/components/ui/button"
+import { Input } from "~/components/ui/input"
+import { cn } from "~/utils/appUtils"
+import { Checkbox } from "~/components/ui/checkbox"
+import { FieldLabel } from "~/components/ui/field"
 
 type UploadProps = {
   values: { url: string; isChecked: boolean }[]
@@ -16,7 +16,7 @@ type UploadProps = {
   className?: string
 }
 
-type UploadStatus = 'idle' | 'uploading' | 'success' | 'error'
+type UploadStatus = "idle" | "uploading" | "success" | "error"
 
 type UploadType = {
   file: File | null
@@ -28,7 +28,7 @@ type UploadType = {
 }
 export default function Upload({ onChange, values }: UploadProps) {
   const [medias, setMedias] = useState<UploadType[]>([
-    { progress: 0, status: 'idle', url: '', id: crypto.randomUUID(), file: null, checked: false }
+    { progress: 0, status: "idle", url: "", id: crypto.randomUUID(), file: null, checked: false }
   ])
   const [isDragging, setIsDragging] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
@@ -37,7 +37,7 @@ export default function Upload({ onChange, values }: UploadProps) {
     return URL.createObjectURL(file)
   }
 
-  const validFileTypes = ['image/jpeg', 'image/png', 'image/webp']
+  const validFileTypes = ["image/jpeg", "image/png", "image/webp"]
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files?.length) return
 
@@ -46,7 +46,7 @@ export default function Upload({ onChange, values }: UploadProps) {
       progress: 0,
       id: crypto.randomUUID(),
       url: URL.createObjectURL(file),
-      status: 'idle',
+      status: "idle",
       checked: false
     }))
 
@@ -56,12 +56,12 @@ export default function Upload({ onChange, values }: UploadProps) {
     // Upload ONLY newly added files
     const uploadPromises = newFiles.map(async (item) => {
       const formData = new FormData()
-      formData.append('file', item.file as File)
+      formData.append("file", item.file as File)
 
       try {
-        setMedias((prev) => prev.map((f) => (f.id === item.id ? { ...f, status: 'uploading' } : f)))
+        setMedias((prev) => prev.map((f) => (f.id === item.id ? { ...f, status: "uploading" } : f)))
 
-        await axios.post('https://httpbin.org/post', formData, {
+        await axios.post("https://httpbin.org/post", formData, {
           onUploadProgress: (progressEvent) => {
             const progress = Math.round((progressEvent.loaded * 100) / (progressEvent.total || 1))
 
@@ -69,22 +69,22 @@ export default function Upload({ onChange, values }: UploadProps) {
           }
         })
 
-        setMedias((prev) => prev.map((f) => (f.id === item.id ? { ...f, progress: 100, status: 'success' } : f)))
+        setMedias((prev) => prev.map((f) => (f.id === item.id ? { ...f, progress: 100, status: "success" } : f)))
       } catch (error) {
         console.error(error)
-        setMedias((prev) => prev.map((f) => (f.id === item.id ? { ...f, status: 'error' } : f)))
+        setMedias((prev) => prev.map((f) => (f.id === item.id ? { ...f, status: "error" } : f)))
       }
     })
 
     await Promise.all(uploadPromises)
     // Reset input so the same file can be selected again
     if (fileInputRef.current) {
-      fileInputRef.current.value = ''
+      fileInputRef.current.value = ""
     }
   }
 
   const handleClickUpload = () => {
-    console.log('upload')
+    console.log("upload")
     fileInputRef.current?.click()
   }
 
@@ -105,10 +105,10 @@ export default function Upload({ onChange, values }: UploadProps) {
     return (
       <div
         className={cn(
-          'group relative w-full h-full rounded-md border border-dashed border-gray-500 bg-gray-100',
-          ' cursor-pointer',
-          medias.length > 1 && 'aspect-square',
-          isDragging && 'hover:bg-gray-200'
+          "group relative w-full h-full rounded-md border border-dashed border-gray-500 bg-gray-100",
+          " cursor-pointer",
+          medias.length > 1 && "aspect-square",
+          isDragging && "hover:bg-gray-200"
         )}
         onClick={handleClickUpload}
       >
@@ -121,24 +121,24 @@ export default function Upload({ onChange, values }: UploadProps) {
           ref={fileInputRef}
         />
         <div className='absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2'>
-          {uploadType.status === 'idle' && (
+          {uploadType.status === "idle" && (
             <span className=''>
               <Plus />
             </span>
           )}
-          {uploadType.status === 'uploading' && <span className='text-xs text-gray-500'>Uploading...</span>}
-          {uploadType.status === 'error' && <span className='text-red-500'>Error</span>}
+          {uploadType.status === "uploading" && <span className='text-xs text-gray-500'>Uploading...</span>}
+          {uploadType.status === "error" && <span className='text-red-500'>Error</span>}
         </div>
-        {uploadType.url && uploadType.status === 'success' && (
+        {uploadType.url && uploadType.status === "success" && (
           <>
             <SortableImage image={uploadType} />
 
             <div
               className={cn(
-                'absolute inset-0 bg-black/40 transition-opacity duration-200 z-22',
-                'opacity-0 ',
-                'pointer-events-none',
-                !isDragging && 'group-hover:opacity-100'
+                "absolute inset-0 bg-black/40 transition-opacity duration-200 z-22",
+                "opacity-0 ",
+                "pointer-events-none",
+                !isDragging && "group-hover:opacity-100"
               )}
             >
               <div className='absolute top-2 right-2 pointer-events-auto'>
@@ -168,10 +168,10 @@ export default function Upload({ onChange, values }: UploadProps) {
 
   const normalizeMedias = (list: UploadType[]): UploadType[] => {
     const filtered = list.filter((m) => m.file !== null)
-    const emptyFile = list.find((m) => m.file === null && m.url === '') ?? {
+    const emptyFile = list.find((m) => m.file === null && m.url === "") ?? {
       progress: 0,
-      status: 'idle',
-      url: '',
+      status: "idle",
+      url: "",
       id: crypto.randomUUID(),
       file: null,
       checked: false
@@ -184,7 +184,7 @@ export default function Upload({ onChange, values }: UploadProps) {
     setMedias((prev) => {
       const remaining = prev.filter((media) => !media.checked)
 
-      const hasEmpty = remaining.some((m) => m.file === null && m.url === '')
+      const hasEmpty = remaining.some((m) => m.file === null && m.url === "")
 
       return hasEmpty
         ? remaining
@@ -192,8 +192,8 @@ export default function Upload({ onChange, values }: UploadProps) {
             ...remaining,
             {
               progress: 0,
-              status: 'idle',
-              url: '',
+              status: "idle",
+              url: "",
               id: crypto.randomUUID(),
               file: null,
               checked: false
@@ -204,7 +204,7 @@ export default function Upload({ onChange, values }: UploadProps) {
 
   useEffect(() => {
     const filteredMedias = medias
-      .filter((media) => media.file !== null && media.url !== '')
+      .filter((media) => media.file !== null && media.url !== "")
       .map((media) => ({ url: media.url, checked: media.checked }))
     onChange?.(filteredMedias)
   }, [medias])
@@ -217,7 +217,7 @@ export default function Upload({ onChange, values }: UploadProps) {
           url: value.url,
           checked: value.isChecked,
           progress: 0,
-          status: 'idle',
+          status: "idle",
           file: null
         } as UploadType
       })
@@ -225,7 +225,7 @@ export default function Upload({ onChange, values }: UploadProps) {
   }, [values])
 
   const currentMedias = normalizeMedias(medias)
-  const checkedMedias = medias.filter((media) => media.url !== '' && media.checked)
+  const checkedMedias = medias.filter((media) => media.url !== "" && media.checked)
   return (
     <>
       <FieldLabel>Media</FieldLabel>
@@ -233,7 +233,7 @@ export default function Upload({ onChange, values }: UploadProps) {
       {checkedMedias.length > 0 && (
         <div className='flex items-center justify-between'>
           <div>{checkedMedias.length} is selected</div>
-          <Button variant={'link'} onClick={handleRemove}>
+          <Button variant={"link"} onClick={handleRemove}>
             Remove
           </Button>
         </div>
