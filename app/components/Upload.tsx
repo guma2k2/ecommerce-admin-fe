@@ -1,43 +1,41 @@
-import axios from "axios"
-import SortableImage from "~/features/authenticate/manageProduct/components/SortableImage"
-import { closestCenter, DndContext, type DragEndEvent } from "@dnd-kit/core"
+import {
+  closestCenter,
+  DndContext,
+  DragOverlay,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  type DragEndEvent,
+  type DragStartEvent
+} from "@dnd-kit/core"
 import { arrayMove, rectSortingStrategy, SortableContext } from "@dnd-kit/sortable"
-import { Plus } from "lucide-react"
-import React, { Fragment, useEffect, useRef, useState } from "react"
+import React, { useEffect, useRef, useState } from "react"
 import { Button } from "~/components/ui/button"
-import { Input } from "~/components/ui/input"
-import { cn } from "~/utils/appUtils"
-import { Checkbox } from "~/components/ui/checkbox"
 import { FieldLabel } from "~/components/ui/field"
+import { Input } from "~/components/ui/input"
+import SortableImage, { type UploadType } from "~/features/authenticate/manageProduct/components/SortableImage"
 
 type UploadProps = {
-  values: { url: string; isChecked: boolean }[]
+  values?: { url: string; isChecked: boolean }[]
   onChange?: (values: { url: string; checked: boolean }[]) => void
   className?: string
 }
 
-type UploadStatus = "idle" | "uploading" | "success" | "error"
-
-type UploadType = {
-  file: File | null
-  progress: number
-  status: UploadStatus
-  url: string
-  checked: boolean
-  id: string
-}
 export default function Upload({ onChange, values }: UploadProps) {
   const [medias, setMedias] = useState<UploadType[]>([
     { progress: 0, status: "idle", url: "", id: crypto.randomUUID(), file: null, checked: false }
   ])
-  const [isDragging, setIsDragging] = useState(false)
+  const [activeId, setActiveId] = useState<string | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
-  const getUrl = (file: File) => {
-    return URL.createObjectURL(file)
-  }
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 5
+      }
+    })
+  )
 
-  const validFileTypes = ["image/jpeg", "image/png", "image/webp"]
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files?.length) return
 
@@ -53,121 +51,56 @@ export default function Upload({ onChange, values }: UploadProps) {
     // Add new files to state
     setMedias((prev) => [...prev, ...newFiles])
 
-    // Upload ONLY newly added files
+    // Upload ONLY newly added files using setTimeout mock
     const uploadPromises = newFiles.map(async (item) => {
-      const formData = new FormData()
-      formData.append("file", item.file as File)
+      setMedias((prev) => prev.map((f) => (f.id === item.id ? { ...f, status: "uploading" } : f)))
 
-      try {
-        setMedias((prev) => prev.map((f) => (f.id === item.id ? { ...f, status: "uploading" } : f)))
-
-        await axios.post("https://httpbin.org/post", formData, {
-          onUploadProgress: (progressEvent) => {
-            const progress = Math.round((progressEvent.loaded * 100) / (progressEvent.total || 1))
-
-            setMedias((prev) => prev.map((f) => (f.id === item.id ? { ...f, progress } : f)))
-          }
-        })
-
-        setMedias((prev) => prev.map((f) => (f.id === item.id ? { ...f, progress: 100, status: "success" } : f)))
-      } catch (error) {
-        console.error(error)
-        setMedias((prev) => prev.map((f) => (f.id === item.id ? { ...f, status: "error" } : f)))
-      }
+      await new Promise<void>((resolve) => {
+        setTimeout(() => {
+          setMedias((prev) => prev.map((f) => (f.id === item.id ? { ...f, progress: 100, status: "success" } : f)))
+          resolve()
+        }, 1000)
+      })
     })
 
     await Promise.all(uploadPromises)
-    // Reset input so the same file can be selected again
+
     if (fileInputRef.current) {
       fileInputRef.current.value = ""
     }
   }
 
   const handleClickUpload = () => {
-    console.log("upload")
     fileInputRef.current?.click()
   }
 
-  // const resetFile = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
-  //   e.stopPropagation()
-  //   setUploadState({ file: null, progress: 0, status: 'idle' })
-  //   if (fileInputRef.current) {
-  //     fileInputRef.current.value = ''
-  //   }
-  // }
-
   const handleCheckedImage = (upload: UploadType, checked: boolean) => {
-    console.log(checked)
     setMedias((prev) => prev.map((media) => (media.id === upload.id ? { ...media, checked } : media)))
   }
 
-  const renderUploadComponent = (uploadType: UploadType) => {
-    return (
-      <div
-        className={cn(
-          "group relative w-full h-full rounded-md border border-dashed border-gray-500 bg-gray-100",
-          " cursor-pointer",
-          medias.length > 1 && "aspect-square",
-          isDragging && "hover:bg-gray-200"
-        )}
-        onClick={handleClickUpload}
-      >
-        <Input
-          multiple
-          type='file'
-          className='hidden'
-          accept='.png, .jpg'
-          onChange={handleFileChange}
-          ref={fileInputRef}
-        />
-        <div className='absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2'>
-          {uploadType.status === "idle" && (
-            <span className=''>
-              <Plus />
-            </span>
-          )}
-          {uploadType.status === "uploading" && <span className='text-xs text-gray-500'>Uploading...</span>}
-          {uploadType.status === "error" && <span className='text-red-500'>Error</span>}
-        </div>
-        {uploadType.url && uploadType.status === "success" && (
-          <>
-            <SortableImage image={uploadType} />
-
-            <div
-              className={cn(
-                "absolute inset-0 bg-black/40 transition-opacity duration-200 z-22",
-                "opacity-0 ",
-                "pointer-events-none",
-                !isDragging && "group-hover:opacity-100"
-              )}
-            >
-              <div className='absolute top-2 right-2 pointer-events-auto'>
-                <Checkbox
-                  className='h-4 w-4 accent-white'
-                  checked={uploadType.checked}
-                  onClick={(e) => e.stopPropagation()}
-                  onCheckedChange={(value) => handleCheckedImage(uploadType, !!value)}
-                />
-              </div>
-            </div>
-          </>
-        )}
-      </div>
-    )
+  const handleDragStart = (event: DragStartEvent) => {
+    setActiveId(event.active.id as string)
   }
 
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event
-    setIsDragging(false)
+    setActiveId(null)
+
     if (!over || active.id === over.id) return
+
     const oldIndex = medias.findIndex((i) => i.id === active.id)
     const newIndex = medias.findIndex((i) => i.id === over.id)
-    const newMedias = arrayMove(medias, oldIndex, newIndex)
-    setMedias(newMedias)
+    if (oldIndex !== -1 && newIndex !== -1) {
+      setMedias((prev) => arrayMove(prev, oldIndex, newIndex))
+    }
+  }
+
+  const handleDragCancel = () => {
+    setActiveId(null)
   }
 
   const normalizeMedias = (list: UploadType[]): UploadType[] => {
-    const filtered = list.filter((m) => m.file !== null)
+    const filtered = list.filter((m) => m.file !== null || m.url !== "")
     const emptyFile = list.find((m) => m.file === null && m.url === "") ?? {
       progress: 0,
       status: "idle",
@@ -183,7 +116,6 @@ export default function Upload({ onChange, values }: UploadProps) {
   const handleRemove = () => {
     setMedias((prev) => {
       const remaining = prev.filter((media) => !media.checked)
-
       const hasEmpty = remaining.some((m) => m.file === null && m.url === "")
 
       return hasEmpty
@@ -204,70 +136,95 @@ export default function Upload({ onChange, values }: UploadProps) {
 
   useEffect(() => {
     const filteredMedias = medias
-      .filter((media) => media.file !== null && media.url !== "")
+      .filter((media) => media.url !== "")
       .map((media) => ({ url: media.url, checked: media.checked }))
     onChange?.(filteredMedias)
   }, [medias])
 
   useEffect(() => {
-    if (values && values.length > 0 && medias.length === 0) {
-      values.map((value) => {
-        return {
-          id: crypto.randomUUID(),
-          url: value.url,
-          checked: value.isChecked,
-          progress: 0,
-          status: "idle",
-          file: null
-        } as UploadType
+    if (values && values.length > 0) {
+      const initialMedias: UploadType[] = values.map((val) => ({
+        id: crypto.randomUUID(),
+        url: val.url,
+        checked: val.isChecked,
+        progress: 100,
+        status: "success",
+        file: null
+      }))
+
+      initialMedias.push({
+        id: crypto.randomUUID(),
+        url: "",
+        checked: false,
+        progress: 0,
+        status: "idle",
+        file: null
       })
+      setMedias(initialMedias)
     }
-  }, [values])
+  }, [])
 
   const currentMedias = normalizeMedias(medias)
   const checkedMedias = medias.filter((media) => media.url !== "" && media.checked)
+  const activeMedia = medias.find((m) => m.id === activeId)
+  const activeIndex = medias.findIndex((m) => m.id === activeId)
+
   return (
     <>
       <FieldLabel>Media</FieldLabel>
-      {/* {JSON.stringify(medias)} */}
+      <Input
+        multiple
+        type="file"
+        className="hidden"
+        accept=".png, .jpg, .jpeg, .webp"
+        onChange={handleFileChange}
+        ref={fileInputRef}
+      />
+
       {checkedMedias.length > 0 && (
-        <div className='flex items-center justify-between'>
-          <div>{checkedMedias.length} is selected</div>
-          <Button variant={"link"} onClick={handleRemove}>
-            Remove
+        <div className="flex items-center justify-between mb-3 bg-gray-50 px-3 py-2 rounded-md border">
+          <div className="text-sm font-medium text-gray-700">{checkedMedias.length} selected</div>
+          <Button variant="link" className="text-red-600 hover:text-red-700 p-0 h-auto font-medium" onClick={handleRemove}>
+            Delete selected
           </Button>
         </div>
       )}
-      <div className='w-full min-h-20'>
-        <DndContext collisionDetection={closestCenter} onDragMove={() => setIsDragging(true)} onDragEnd={handleDragEnd}>
+
+      <div className="w-full">
+        <DndContext
+          sensors={sensors}
+          collisionDetection={closestCenter}
+          onDragStart={handleDragStart}
+          onDragEnd={handleDragEnd}
+          onDragCancel={handleDragCancel}
+        >
           <SortableContext items={currentMedias.map((i) => i.id)} strategy={rectSortingStrategy}>
-            {currentMedias.length > 0 && (
-              <>
-                {currentMedias.length == 1 && (
-                  <div className='w-full h-30'>{renderUploadComponent(currentMedias[0])}</div>
-                )}
-                {currentMedias.length > 1 && (
-                  <>
-                    <div className='grid grid-cols-12 gap-2'>
-                      <div className='col-span-12 md:col-span-4 h-full'>{renderUploadComponent(currentMedias[0])}</div>
-                      <div className='col-span-12 md:col-span-8 h-full'>
-                        <div className='grid grid-cols-4 grid-rows-2 gap-2 h-full'>
-                          {currentMedias.slice(1, 9).map((img) => (
-                            <Fragment key={img.id}>{renderUploadComponent(img)}</Fragment>
-                          ))}
-                        </div>
-                      </div>
-                    </div>
-                    <div className='grid grid-cols-6 gap-2 mt-2'>
-                      {currentMedias.slice(9).map((img) => (
-                        <Fragment key={img.id}>{renderUploadComponent(img)}</Fragment>
-                      ))}
-                    </div>
-                  </>
-                )}
-              </>
-            )}
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
+              {currentMedias.map((img, idx) => (
+                <SortableImage
+                  key={img.id}
+                  image={img}
+                  isCover={idx === 0 && !!img.url}
+                  onClickUpload={handleClickUpload}
+                  onCheckedChange={(checked) => handleCheckedImage(img, checked)}
+                  isDraggingAny={activeId !== null}
+                />
+              ))}
+            </div>
           </SortableContext>
+
+          <DragOverlay adjustScale={false}>
+            {activeMedia && activeMedia.url ? (
+              <div className="aspect-square w-32 rounded-lg overflow-hidden border-2 border-blue-500 shadow-2xl bg-white cursor-grabbing relative scale-105 z-50">
+                <img src={activeMedia.url} alt="Dragging preview" className="w-full h-full object-cover rounded-lg" />
+                {activeIndex === 0 && (
+                  <span className="absolute top-2 left-2 bg-black/75 text-white text-[10px] font-semibold px-2 py-0.5 rounded-md backdrop-blur-sm z-10">
+                    Cover
+                  </span>
+                )}
+              </div>
+            ) : null}
+          </DragOverlay>
         </DndContext>
       </div>
     </>
