@@ -4,10 +4,10 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { PlusCircle } from "lucide-react"
 import { useEffect, useState } from "react"
 import { useFieldArray, useForm, useWatch } from "react-hook-form"
-import FormBase from "~/components/Form"
-import FileUpload from "~/components/FileUpload"
-import { Button } from "~/components/ui/button"
-import { Input } from "~/components/ui/input"
+import FormBase from "~/shared/components/Form"
+import FileUpload from "~/shared/components/FileUpload"
+import { Button } from "~/core/components/shadcn/button"
+import { Input } from "~/core/components/shadcn/input"
 import ProductOptionDragPreview from "~/features/authenticate/manageProduct/components/ProductOptionDragPreview"
 import SortableProductOption from "~/features/authenticate/manageProduct/components/SortableProductOption"
 import { ProductVariantFormProvider } from "~/features/authenticate/manageProduct/contexts/ProductVariantFormContext"
@@ -15,7 +15,7 @@ import {
   productVariantFormSchema,
   type ProductVariantFormSchema
 } from "~/features/authenticate/manageProduct/validator"
-import { cartesian } from "~/utils/appUtils"
+import { cartesian } from "~/shared/utils/appUtils"
 
 export default function ProductVariantForm() {
   const [activeId, setActiveId] = useState<string | null>(null)

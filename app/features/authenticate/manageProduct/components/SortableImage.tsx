@@ -1,8 +1,8 @@
 import { useSortable } from "@dnd-kit/sortable"
 import { CSS } from "@dnd-kit/utilities"
-import { Checkbox } from "~/components/ui/checkbox"
+import { Checkbox } from "~/core/components/shadcn/checkbox"
 import { Plus } from "lucide-react"
-import { cn } from "~/utils/appUtils"
+import { cn } from "~/shared/utils/appUtils"
 
 type UploadStatus = "idle" | "uploading" | "success" | "error"
 

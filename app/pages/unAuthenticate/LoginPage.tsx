@@ -1,10 +1,10 @@
-import { Button } from '~/components/ui/button'
+import { Button } from '~/core/components/shadcn/button'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Controller, useForm } from 'react-hook-form'
 import { loginFormSchema, type LoginFormSchema } from '~/features/unAuthenticate/validator'
-import { FormInput } from '~/components/Form'
-import { FieldGroup, FieldSet } from '~/components/ui/field'
+import { FormInput } from '~/shared/components/Form'
+import { FieldGroup, FieldSet } from '~/core/components/shadcn/field'
 export default function LoginPage() {
   const form = useForm<LoginFormSchema>({
     resolver: zodResolver(loginFormSchema),
