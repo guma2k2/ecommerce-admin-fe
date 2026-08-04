@@ -1,0 +1,41 @@
+{
+  "label": {
+    "dashboard": "Dashboard",
+    "product": "Product",
+    "calendar": "Calendar",
+    "search": "Search",
+    "settings": "Settings",
+    "application": "Application",
+    "language": "Language"
+  },
+  "languages": {
+    "en": "English",
+    "vi": "Tiếng Việt"
+  },
+  "toasts": {
+    "success": "Operation successful",
+    "error": "An error occurred",
+    "info": "Information",
+    "warning": "Warning"
+  },
+  "button": {
+    "submit": "Submit",
+    "cancel": "Cancel",
+    "save": "Save",
+    "delete": "Delete",
+    "edit": "Edit",
+    "confirm": "Confirm",
+    "back": "Back"
+  },
+  "form": {
+    "required": "This field is required",
+    "emailInvalid": "Invalid email address",
+    "passwordMinLength": "Password must be at least 6 characters"
+  },
+  "errors": {
+    "unauthorized": "Unauthorized access. Please log in again.",
+    "notFound": "The requested resource was not found.",
+    "serverError": "Internal server error. Please try again later.",
+    "networkError": "Network error. Please check your connection."
+  }
+}

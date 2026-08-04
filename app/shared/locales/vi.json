@@ -1,0 +1,41 @@
+{
+  "label": {
+    "dashboard": "Bảng điều khiển",
+    "product": "Sản phẩm",
+    "calendar": "Lịch",
+    "search": "Tìm kiếm",
+    "settings": "Cài đặt",
+    "application": "Ứng dụng",
+    "language": "Ngôn ngữ"
+  },
+  "languages": {
+    "en": "English",
+    "vi": "Tiếng Việt"
+  },
+  "toasts": {
+    "success": "Thao tác thành công",
+    "error": "Đã xảy ra lỗi",
+    "info": "Thông tin",
+    "warning": "Cảnh báo"
+  },
+  "button": {
+    "submit": "Gửi",
+    "cancel": "Hủy",
+    "save": "Lưu",
+    "delete": "Xóa",
+    "edit": "Chỉnh sửa",
+    "confirm": "Xác nhận",
+    "back": "Quay lại"
+  },
+  "form": {
+    "required": "Trường này là bắt buộc",
+    "emailInvalid": "Email không hợp lệ",
+    "passwordMinLength": "Mật khẩu phải có ít nhất 6 ký tự"
+  },
+  "errors": {
+    "unauthorized": "Truy cập không hợp lệ. Vui lòng đăng nhập lại.",
+    "notFound": "Không tìm thấy tài nguyên yêu cầu.",
+    "serverError": "Lỗi máy chủ nội bộ. Vui lòng thử lại sau.",
+    "networkError": "Lỗi kết nối mạng. Vui lòng kiểm tra lại đường truyền."
+  }
+}

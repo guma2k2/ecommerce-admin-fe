@@ -1,8 +1,8 @@
 import { GripVertical } from 'lucide-react'
 import { useWatch } from 'react-hook-form'
-import { Badge } from '~/components/ui/badge'
+import { Badge } from '~/core/components/shadcn/badge'
 import { useProductVariantForm } from '~/features/authenticate/manageProduct/contexts/ProductVariantFormContext'
-import { cn } from '~/lib/utils'
+import { cn } from '~/shared/lib/utils'
 
 type ProductOptionDragPreviewProps = {
   optionId: string

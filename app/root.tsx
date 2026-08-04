@@ -2,8 +2,9 @@ import { isRouteErrorResponse, Links, Meta, Outlet, Scripts, ScrollRestoration }
 
 import type { Route } from './+types/root'
 import './app.css'
-import MainLayout from '~/layouts/MainLayout'
+import MainLayout from '~/core/layouts/MainLayout'
 
+import I18nProvider from '~/providers/I18nProvider'
 import QueryProvider from '~/providers/QueryProvider'
 
 export const links: Route.LinksFunction = () => [
@@ -29,7 +30,9 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <Links />
       </head>
       <body>
-        <QueryProvider>{children}</QueryProvider>
+        <QueryProvider>
+          <I18nProvider>{children}</I18nProvider>
+        </QueryProvider>
         <ScrollRestoration />
         <Scripts />
       </body>

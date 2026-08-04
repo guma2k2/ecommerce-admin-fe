@@ -5,20 +5,21 @@
   "tsx": true,
   "tailwind": {
     "config": "",
-    "css": "app/app.css",
+    "css": "app/core/assets/css/app.css",
     "baseColor": "neutral",
     "cssVariables": true,
     "prefix": ""
   },
   "iconLibrary": "lucide",
   "aliases": {
-    "components": "~/components",
-    "utils": "~/lib/utils",
-    "ui": "~/components/ui",
-    "lib": "~/lib",
-    "hooks": "~/hooks"
+    "components": "~/core/components",
+    "utils": "~/shared/utils/appUtils",
+    "ui": "~/core/components/shadcn",
+    "lib": "~/shared/utils",
+    "hooks": "~/shared/hooks"
   },
   "registries": {
     "@shadcn-editor": "https://shadcn-editor.vercel.app/r/{name}.json"
   }
 }
+
