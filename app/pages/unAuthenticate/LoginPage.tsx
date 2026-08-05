@@ -1,11 +1,23 @@
-import { Button } from '~/core/components/shadcn/button'
-import { z } from 'zod'
+import { useState } from 'react'
+import { useNavigate } from 'react-router'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Controller, useForm } from 'react-hook-form'
+import { useForm } from 'react-hook-form'
+import { Loader2 } from 'lucide-react'
+import { toast } from 'sonner'
+import type { z } from 'zod'
+
+import { Button } from '~/core/components/shadcn/button'
+import { FieldGroup, FieldSet } from '~/core/components/shadcn/field'
+import { fakeLoginApi } from '~/features/unAuthenticate/api/authApi'
 import { loginFormSchema, type LoginFormSchema } from '~/features/unAuthenticate/validator'
 import { FormInput } from '~/shared/components/Form'
-import { FieldGroup, FieldSet } from '~/core/components/shadcn/field'
+import { useAuthStore } from '~/stores'
+
 export default function LoginPage() {
+  const navigate = useNavigate()
+  const login = useAuthStore((state) => state.login)
+  const [isLoading, setIsLoading] = useState(false)
+
   const form = useForm<LoginFormSchema>({
     resolver: zodResolver(loginFormSchema),
     defaultValues: {
@@ -16,25 +28,38 @@ export default function LoginPage() {
 
   const { control } = form
 
-  function onSubmit(values: z.infer<typeof loginFormSchema>) {
-    console.log(values)
+  async function onSubmit(values: z.infer<typeof loginFormSchema>) {
+    try {
+      setIsLoading(true)
+      const res = await fakeLoginApi(values)
+      login(res.user, res.token)
+      toast.success(`Welcome back, ${res.user.name}!`)
+      navigate('/admin', { replace: true })
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : 'Login failed. Please try again.')
+    } finally {
+      setIsLoading(false)
+    }
   }
+
   return (
     <div className='flex items-center justify-center w-full h-screen bg-gray-300'>
       <div className='w-md'>
-        <FieldSet className=' bg-white px-5 py-10 rounded-lg'>
-          <div className='text-center text-2xl font-medium'>Login</div>
+        <FieldSet className='bg-white px-5 py-10 rounded-lg shadow-md'>
+          <div className='text-center text-2xl font-medium mb-4'>Login</div>
           <form id='form-rhf-demo' onSubmit={form.handleSubmit(onSubmit)}>
             <FieldGroup>
-              <FormInput control={control} name='email' label='Email' />
+              <FormInput control={control} name='email' label='Email' placeholder='admin@example.com' />
               <FormInput
                 control={control}
                 name='password'
                 label='Password'
+                type='password'
                 description='Must be at least 8 characters long.'
               />
-              <Button type='submit' form='form-rhf-demo' className='w-full'>
-                Login
+              <Button type='submit' form='form-rhf-demo' className='w-full cursor-pointer' disabled={isLoading}>
+                {isLoading && <Loader2 className='mr-2 h-4 w-4 animate-spin' />}
+                {isLoading ? 'Logging in...' : 'Login'}
               </Button>
             </FieldGroup>
           </form>

@@ -1,9 +1,10 @@
 import { isRouteErrorResponse, Links, Meta, Outlet, Scripts, ScrollRestoration } from 'react-router'
 
 import type { Route } from './+types/root'
-import './app.css'
+import '~/core/assets/css/app.css'
 import MainLayout from '~/core/layouts/MainLayout'
 
+import { Toaster } from '~/core/components/shadcn/sonner'
 import I18nProvider from '~/providers/I18nProvider'
 import QueryProvider from '~/providers/QueryProvider'
 
@@ -33,6 +34,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <QueryProvider>
           <I18nProvider>{children}</I18nProvider>
         </QueryProvider>
+        <Toaster />
         <ScrollRestoration />
         <Scripts />
       </body>

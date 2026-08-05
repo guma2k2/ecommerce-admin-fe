@@ -92,15 +92,18 @@ export default function FormBase<
   )
 }
 
-export const FormInput: FormControlFunc<{ onChangeCustom?: (e: React.ChangeEvent<HTMLInputElement>) => void }> = ({
-  onChangeCustom,
-  ...props
-}) => {
+export const FormInput: FormControlFunc<
+  Omit<React.ComponentProps<typeof Input>, 'name' | 'value' | 'defaultValue'> & {
+    onChangeCustom?: (e: React.ChangeEvent<HTMLInputElement>) => void
+  }
+> = ({ onChangeCustom, type, placeholder, ...props }) => {
   return (
     <FormBase {...props}>
       {(field) => (
         <Input
           {...field}
+          type={type}
+          placeholder={placeholder}
           onChange={(e) => {
             onChangeCustom?.(e)
             field.onChange(e)
