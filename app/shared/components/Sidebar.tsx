@@ -1,9 +1,21 @@
-import { Calendar, Home, LogOut, Search, Settings, Tag, User } from 'lucide-react'
+import {
+  Award,
+  ChevronRight,
+  File,
+  FileText,
+  FolderKanban,
+  FolderTree,
+  LayoutDashboard,
+  LogOut,
+  Package,
+  User
+} from 'lucide-react'
 import { useTranslation } from 'react-i18next'
-import { useNavigate } from 'react-router'
+import { Link, useLocation, useNavigate } from 'react-router'
 import { toast } from 'sonner'
 
 import LanguageSwitcher from '~/shared/components/LanguageSwitcher'
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '~/core/components/shadcn/collapsible'
 import {
   Sidebar,
   SidebarContent,
@@ -13,13 +25,30 @@ import {
   SidebarGroupLabel,
   SidebarMenu,
   SidebarMenuButton,
-  SidebarMenuItem
+  SidebarMenuItem,
+  SidebarMenuSub,
+  SidebarMenuSubButton,
+  SidebarMenuSubItem
 } from '~/core/components/shadcn/sidebar'
 import { useAuthStore } from '~/stores'
+
+interface NavSubItem {
+  title: string
+  url: string
+  icon?: React.ComponentType<{ className?: string }>
+}
+
+interface NavItem {
+  title: string
+  url?: string
+  icon?: React.ComponentType<{ className?: string }>
+  items?: NavSubItem[]
+}
 
 export function AppSidebar() {
   const { t } = useTranslation()
   const navigate = useNavigate()
+  const location = useLocation()
   const user = useAuthStore((state) => state.user)
   const logout = useAuthStore((state) => state.logout)
 
@@ -29,31 +58,43 @@ export function AppSidebar() {
     navigate('/login', { replace: true })
   }
 
-  const items = [
+  const navItems: NavItem[] = [
     {
       title: t('label.dashboard'),
       url: '/admin',
-      icon: Home
+      icon: LayoutDashboard
     },
     {
-      title: t('label.product'),
-      url: '/admin/manage-product',
-      icon: Tag
+      title: t('label.catalog'),
+      icon: FolderKanban,
+      items: [
+        {
+          title: t('label.manageCategory'),
+          url: '/admin/manage-category',
+          icon: FolderTree
+        },
+        {
+          title: t('label.manageBrand'),
+          url: '/admin/manage-brand',
+          icon: Award
+        },
+        {
+          title: t('label.manageProduct'),
+          url: '/admin/manage-product',
+          icon: Package
+        }
+      ]
     },
     {
-      title: t('label.calendar'),
-      url: '#',
-      icon: Calendar
-    },
-    {
-      title: t('label.search'),
-      url: '#',
-      icon: Search
-    },
-    {
-      title: t('label.settings'),
-      url: '#',
-      icon: Settings
+      title: t('label.content'),
+      icon: FileText,
+      items: [
+        {
+          title: t('label.manageFile'),
+          url: '/admin/manage-file',
+          icon: File
+        }
+      ]
     }
   ]
 
@@ -64,16 +105,57 @@ export function AppSidebar() {
           <SidebarGroupLabel>{t('label.application')}</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {items.map((item) => (
-                <SidebarMenuItem key={item.url + item.title}>
-                  <SidebarMenuButton asChild>
-                    <a href={item.url}>
-                      <item.icon />
-                      <span>{item.title}</span>
-                    </a>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
+              {navItems.map((item) => {
+                if (!item.items || item.items.length === 0) {
+                  const isActive = location.pathname === item.url
+                  return (
+                    <SidebarMenuItem key={item.title}>
+                      <SidebarMenuButton asChild isActive={isActive} tooltip={item.title}>
+                        <Link to={item.url || '#'}>
+                          {item.icon && <item.icon />}
+                          <span>{item.title}</span>
+                        </Link>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  )
+                }
+
+                const isGroupActive = item.items.some(
+                  (sub) => location.pathname === sub.url || location.pathname.startsWith(sub.url + '/')
+                )
+
+                return (
+                  <Collapsible key={item.title} asChild defaultOpen={isGroupActive} className='group/collapsible'>
+                    <SidebarMenuItem>
+                      <CollapsibleTrigger asChild>
+                        <SidebarMenuButton tooltip={item.title}>
+                          {item.icon && <item.icon />}
+                          <span>{item.title}</span>
+                          <ChevronRight className='ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90' />
+                        </SidebarMenuButton>
+                      </CollapsibleTrigger>
+                      <CollapsibleContent>
+                        <SidebarMenuSub>
+                          {item.items.map((subItem) => {
+                            const isSubActive =
+                              location.pathname === subItem.url || location.pathname.startsWith(subItem.url + '/')
+                            return (
+                              <SidebarMenuSubItem key={subItem.title}>
+                                <SidebarMenuSubButton asChild isActive={isSubActive}>
+                                  <Link to={subItem.url}>
+                                    {subItem.icon && <subItem.icon />}
+                                    <span>{subItem.title}</span>
+                                  </Link>
+                                </SidebarMenuSubButton>
+                              </SidebarMenuSubItem>
+                            )
+                          })}
+                        </SidebarMenuSub>
+                      </CollapsibleContent>
+                    </SidebarMenuItem>
+                  </Collapsible>
+                )
+              })}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
