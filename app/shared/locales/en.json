@@ -1,7 +1,12 @@
 {
   "label": {
     "dashboard": "Dashboard",
-    "product": "Product",
+    "catalog": "Catalog",
+    "manageCategory": "Manage Category",
+    "manageBrand": "Manage Brand",
+    "manageProduct": "Manage Product",
+    "content": "Content",
+    "manageFile": "Manage File",
     "calendar": "Calendar",
     "search": "Search",
     "settings": "Settings",
