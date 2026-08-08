@@ -1,7 +1,7 @@
 import {
   Award,
   ChevronRight,
-  File,
+  Image,
   FileText,
   FolderKanban,
   FolderTree,
@@ -90,9 +90,9 @@ export function AppSidebar() {
       icon: FileText,
       items: [
         {
-          title: t('label.manageFile'),
-          url: '/admin/manage-file',
-          icon: File
+          title: t('label.manageMedia'),
+          url: '/admin/manage-media',
+          icon: Image
         }
       ]
     }
