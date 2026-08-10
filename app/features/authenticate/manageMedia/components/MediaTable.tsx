@@ -66,7 +66,6 @@ export default function MediaTable({ mediaList, isLoading, onPreview, onEdit, on
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className='w-[140px]'>ID</TableHead>
               <TableHead>Name</TableHead>
               <TableHead>Preview & URL</TableHead>
               <TableHead>Size</TableHead>
@@ -79,7 +78,6 @@ export default function MediaTable({ mediaList, isLoading, onPreview, onEdit, on
           <TableBody>
             {Array.from({ length: 5 }).map((_, i) => (
               <TableRow key={i}>
-                <TableCell><Skeleton className='h-5 w-24' /></TableCell>
                 <TableCell><Skeleton className='h-5 w-40' /></TableCell>
                 <TableCell><Skeleton className='h-10 w-28' /></TableCell>
                 <TableCell><Skeleton className='h-5 w-16' /></TableCell>
@@ -114,7 +112,6 @@ export default function MediaTable({ mediaList, isLoading, onPreview, onEdit, on
       <Table>
         <TableHeader className='bg-gray-50/80 dark:bg-zinc-800/50'>
           <TableRow>
-            <TableHead className='font-semibold text-gray-700 dark:text-gray-200 w-[140px]'>ID</TableHead>
             <TableHead className='font-semibold text-gray-700 dark:text-gray-200 min-w-[200px]'>Name</TableHead>
             <TableHead className='font-semibold text-gray-700 dark:text-gray-200 min-w-[220px]'>URL</TableHead>
             <TableHead className='font-semibold text-gray-700 dark:text-gray-200'>Size</TableHead>
@@ -127,14 +124,7 @@ export default function MediaTable({ mediaList, isLoading, onPreview, onEdit, on
         <TableBody>
           {mediaList.map((item) => (
             <TableRow key={item.id} className='hover:bg-gray-50/60 dark:hover:bg-zinc-800/40 transition-colors'>
-              {/* Field 1: ID */}
-              <TableCell className='font-mono text-xs font-medium text-gray-600 dark:text-zinc-400'>
-                <span className='px-2 py-1 bg-gray-100 dark:bg-zinc-800 rounded border border-gray-200 dark:border-zinc-700 select-all'>
-                  {item.id}
-                </span>
-              </TableCell>
-
-              {/* Field 2: Name */}
+              {/* Field 1: Name (ID hidden) */}
               <TableCell className='font-medium text-gray-900 dark:text-gray-100 max-w-[240px] truncate'>
                 <div className='flex items-center gap-2 truncate' title={item.name}>
                   {renderMediaTypeIcon(item.type)}

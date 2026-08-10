@@ -9,7 +9,6 @@ import {
   TableHeader,
   TableRow,
 } from "~/core/components/shadcn/table"
-import { Badge } from "~/core/components/shadcn/badge"
 import { Button } from "~/core/components/shadcn/button"
 import { Skeleton } from "~/core/components/shadcn/skeleton"
 import {
@@ -56,7 +55,6 @@ export default function ProductTable({
           <TableHeader className="bg-gray-50/80 dark:bg-zinc-800/50">
             <TableRow>
               <TableHead className="w-[80px]">Image</TableHead>
-              <TableHead className="w-[120px]">ID</TableHead>
               <TableHead>Product Name</TableHead>
               <TableHead className="w-[180px]">Created At</TableHead>
               <TableHead className="w-[180px]">Updated At</TableHead>
@@ -68,9 +66,6 @@ export default function ProductTable({
               <TableRow key={index}>
                 <TableCell>
                   <Skeleton className="h-12 w-12 rounded-md" />
-                </TableCell>
-                <TableCell>
-                  <Skeleton className="h-5 w-20 rounded-full" />
                 </TableCell>
                 <TableCell>
                   <Skeleton className="h-5 w-48 rounded-md" />
@@ -114,7 +109,6 @@ export default function ProductTable({
         <TableHeader className="bg-gray-50/80 dark:bg-zinc-800/50">
           <TableRow>
             <TableHead className="w-[80px]">Image</TableHead>
-            <TableHead className="w-[120px]">ID</TableHead>
             <TableHead>Product Name</TableHead>
             <TableHead className="w-[180px]">Created At</TableHead>
             <TableHead className="w-[180px]">Updated At</TableHead>
@@ -147,11 +141,6 @@ export default function ProductTable({
                     <ImageIcon className="size-5 text-gray-400" />
                   )}
                 </div>
-              </TableCell>
-              <TableCell>
-                <Badge variant="outline" className="font-mono text-xs text-muted-foreground">
-                  {product.id}
-                </Badge>
               </TableCell>
               <TableCell className="font-medium text-gray-900 dark:text-gray-100 max-w-[250px] truncate">
                 {product.name}
