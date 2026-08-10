@@ -1,5 +1,5 @@
 import * as React from "react"
-import { Folder, Pencil, Trash2, Calendar, ArrowUpDown, ArrowUp, ArrowDown, Tag } from "lucide-react"
+import { Folder, Pencil, Trash2, Calendar, ArrowUpDown, ArrowUp, ArrowDown } from "lucide-react"
 import type { CategoryItem } from "../services/categoryService"
 import {
   Table,
@@ -71,18 +71,7 @@ export default function CategoryTable({
       <Table>
         <TableHeader className="bg-gray-50/80 dark:bg-zinc-800/50">
           <TableRow className="hover:bg-transparent">
-            <TableHead className="w-[120px]">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => onSort("id")}
-                className="-ml-2 h-8 font-semibold text-gray-700 dark:text-gray-200 hover:text-gray-900 dark:hover:text-white"
-              >
-                Category ID
-                {renderSortIcon("id")}
-              </Button>
-            </TableHead>
-
+            {/* Note: ID is hidden as requested */}
             <TableHead>
               <Button
                 variant="ghost"
@@ -130,9 +119,6 @@ export default function CategoryTable({
             Array.from({ length: 5 }).map((_, idx) => (
               <TableRow key={`skeleton-${idx}`}>
                 <TableCell className="py-4">
-                  <Skeleton className="h-6 w-20 rounded-md" />
-                </TableCell>
-                <TableCell className="py-4">
                   <div className="flex items-center gap-2">
                     <Skeleton className="size-8 rounded-lg" />
                     <Skeleton className="h-5 w-40" />
@@ -154,7 +140,7 @@ export default function CategoryTable({
             ))
           ) : categories.length === 0 ? (
             <TableRow>
-              <TableCell colSpan={5} className="h-48 text-center">
+              <TableCell colSpan={4} className="h-48 text-center">
                 <div className="flex flex-col items-center justify-center gap-2 text-muted-foreground">
                   <div className="w-12 h-12 rounded-full bg-gray-100 dark:bg-zinc-800 flex items-center justify-center">
                     <Folder className="size-6 text-gray-400" />
@@ -176,18 +162,7 @@ export default function CategoryTable({
                   key={category.id}
                   className="group transition-colors hover:bg-gray-50/60 dark:hover:bg-zinc-800/40"
                 >
-                  {/* ID */}
-                  <TableCell className="font-mono text-xs font-semibold py-3.5">
-                    <Badge
-                      variant="outline"
-                      className="bg-gray-50 dark:bg-zinc-800 border-gray-200 dark:border-zinc-700 text-gray-700 dark:text-gray-300 font-mono tracking-tight px-2 py-0.5"
-                    >
-                      <Tag className="size-3 mr-1 text-primary/70" />
-                      {category.id}
-                    </Badge>
-                  </TableCell>
-
-                  {/* Name */}
+                  {/* Category Name (ID hidden) */}
                   <TableCell className="py-3.5">
                     <div className="flex items-center gap-3">
                       <div className="w-8 h-8 rounded-lg bg-primary/10 text-primary flex items-center justify-center shrink-0">

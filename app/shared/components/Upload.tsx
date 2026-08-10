@@ -14,6 +14,7 @@ import { Button } from "~/core/components/shadcn/button"
 import { FieldLabel } from "~/core/components/shadcn/field"
 import { Input } from "~/core/components/shadcn/input"
 import SortableImage, { type UploadType } from "~/features/authenticate/manageProduct/components/SortableImage"
+import MediaSelectModal from "~/features/authenticate/manageProduct/components/MediaSelectModal"
 
 type UploadProps = {
   values?: { url: string; isChecked: boolean }[]
@@ -26,6 +27,7 @@ export default function Upload({ onChange, values }: UploadProps) {
     { progress: 0, status: "idle", url: "", id: crypto.randomUUID(), file: null, checked: false }
   ])
   const [activeId, setActiveId] = useState<string | null>(null)
+  const [isMediaModalOpen, setIsMediaModalOpen] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   const sensors = useSensors(
@@ -71,7 +73,36 @@ export default function Upload({ onChange, values }: UploadProps) {
   }
 
   const handleClickUpload = () => {
-    fileInputRef.current?.click()
+    setIsMediaModalOpen(true)
+  }
+
+  const handleModalSelectMedia = (selectedItems: { url: string; name: string }[]) => {
+    const newMediaItems: UploadType[] = selectedItems.map((item) => ({
+      id: crypto.randomUUID(),
+      url: item.url,
+      checked: false,
+      progress: 100,
+      status: "success",
+      file: null
+    }))
+
+    setMedias((prev) => {
+      const existingUrls = new Set(prev.filter((m) => m.url !== "").map((m) => m.url))
+      const uniqueNew = newMediaItems.filter((item) => !existingUrls.has(item.url))
+      const validPrevious = prev.filter((m) => m.url !== "")
+      return [
+        ...validPrevious,
+        ...uniqueNew,
+        {
+          id: crypto.randomUUID(),
+          url: "",
+          checked: false,
+          progress: 0,
+          status: "idle",
+          file: null
+        }
+      ]
+    })
   }
 
   const handleCheckedImage = (upload: UploadType, checked: boolean) => {
@@ -227,6 +258,14 @@ export default function Upload({ onChange, values }: UploadProps) {
           </DragOverlay>
         </DndContext>
       </div>
+
+      {/* Shopify style Select file Modal */}
+      <MediaSelectModal
+        open={isMediaModalOpen}
+        onOpenChange={setIsMediaModalOpen}
+        onSelectMedia={handleModalSelectMedia}
+        initialSelectedUrls={medias.filter((m) => m.url !== "").map((m) => m.url)}
+      />
     </>
   )
 }
