@@ -179,7 +179,7 @@ export default function MediaSelectModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-4xl w-[92vw] max-h-[90vh] flex flex-col p-0 overflow-hidden bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-800 rounded-xl shadow-2xl">
+      <DialogContent className="sm:max-w-4xl max-w-4xl w-[92vw] max-h-[85vh] flex flex-col p-0 overflow-hidden bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-800 rounded-xl shadow-2xl">
         {/* Hidden file input */}
         <input
           ref={fileInputRef}
@@ -191,14 +191,14 @@ export default function MediaSelectModal({
         />
 
         {/* 1. Modal Header */}
-        <DialogHeader className="p-4 border-b border-gray-100 dark:border-zinc-800 flex flex-row items-center justify-between">
+        <DialogHeader className="p-4 border-b border-gray-100 dark:border-zinc-800 flex flex-row items-center justify-between shrink-0">
           <DialogTitle className="text-lg font-semibold text-gray-900 dark:text-gray-100">
             Select file
           </DialogTitle>
         </DialogHeader>
 
         {/* 2. Top Filter Controls Bar */}
-        <div className="p-4 space-y-3 bg-gray-50/50 dark:bg-zinc-800/30 border-b border-gray-100 dark:border-zinc-800">
+        <div className="p-4 space-y-3 bg-gray-50/50 dark:bg-zinc-800/30 border-b border-gray-100 dark:border-zinc-800 shrink-0">
           <div className="flex flex-wrap items-center justify-between gap-3">
             {/* Search Input */}
             <div className="relative flex-1 min-w-[240px]">
@@ -301,7 +301,7 @@ export default function MediaSelectModal({
         </div>
 
         {/* 3. Modal Main Scrollable Content */}
-        <div className="flex-1 overflow-y-auto p-4 space-y-4 min-h-[380px] max-h-[500px]">
+        <div className="flex-1 min-h-0 overflow-y-auto p-4 space-y-4">
           {/* Drag & Drop Upload Zone */}
           <div
             onDragOver={(e) => {
@@ -462,7 +462,7 @@ export default function MediaSelectModal({
         </div>
 
         {/* 4. Modal Footer */}
-        <DialogFooter className="p-4 border-t border-gray-100 dark:border-zinc-800 bg-white dark:bg-zinc-900 flex flex-row items-center justify-between sm:justify-between">
+        <DialogFooter className="p-4 border-t border-gray-100 dark:border-zinc-800 bg-white dark:bg-zinc-900 flex flex-row items-center justify-between sm:justify-between shrink-0">
           <div className="text-xs text-gray-500 font-medium">
             {selectedIds.size > 0 ? (
               <span className="text-primary font-semibold">{selectedIds.size} file(s) selected</span>
