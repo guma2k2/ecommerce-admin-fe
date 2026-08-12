@@ -1,6 +1,6 @@
 import * as React from "react"
 import { AlertTriangle, Loader2 } from "lucide-react"
-import type { BrandItem } from "../services/brandService"
+import type { BrandItem } from "~/shared/services/api/brandService"
 import {
   Dialog,
   DialogContent,

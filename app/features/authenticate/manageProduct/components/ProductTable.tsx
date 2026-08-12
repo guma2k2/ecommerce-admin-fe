@@ -1,6 +1,6 @@
 import * as React from "react"
 import { MoreHorizontal, Edit, Trash2, Eye, PackageX, Image as ImageIcon } from "lucide-react"
-import type { ProductItem } from "../services/productService"
+import type { ProductItem } from "~/shared/services/api/productService"
 import {
   Table,
   TableBody,

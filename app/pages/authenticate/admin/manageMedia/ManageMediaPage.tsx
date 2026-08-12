@@ -8,7 +8,7 @@ import {
   getMediaList,
   updateMediaItemName,
   deleteMediaItem
-} from '~/features/authenticate/manageMedia/services/mediaService'
+} from '~/shared/services/api/mediaService'
 import type { MediaItem } from '~/features/authenticate/manageMedia/types'
 import MediaFilter from '~/features/authenticate/manageMedia/components/MediaFilter'
 import MediaTable from '~/features/authenticate/manageMedia/components/MediaTable'

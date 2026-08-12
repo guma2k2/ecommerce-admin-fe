@@ -10,7 +10,7 @@ import {
   updateCategory,
   deleteCategory,
   type CategoryItem,
-} from "~/features/authenticate/manageCategory/services/categoryService"
+} from "~/shared/services/api/categoryService"
 import CategorySearch from "~/features/authenticate/manageCategory/components/CategorySearch"
 import CategoryTable, {
   type SortField,

@@ -1,6 +1,6 @@
 import * as React from "react"
 import { Award, Pencil, Loader2, Image as ImageIcon } from "lucide-react"
-import type { BrandItem } from "../services/brandService"
+import type { BrandItem } from "~/shared/services/api/brandService"
 import {
   Dialog,
   DialogContent,

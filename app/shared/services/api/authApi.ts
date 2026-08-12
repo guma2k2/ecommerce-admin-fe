@@ -1,4 +1,4 @@
-import type { LoginFormSchema } from '../validator'
+import type { LoginFormSchema } from '~/features/unAuthenticate/validator'
 import type { User } from '~/stores/useAuthStore'
 
 export interface LoginResponse {

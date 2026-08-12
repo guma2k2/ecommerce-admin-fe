@@ -3,7 +3,7 @@ import { Copy, Eye, MoreHorizontal, Pencil, Trash2, FileText, Video, FileImage, 
 import { toast } from 'sonner'
 
 import type { MediaItem } from '../types'
-import { formatFileSize, formatDateTime } from '../services/mediaService'
+import { formatFileSize, formatDateTime } from '~/shared/services/api/mediaService'
 import { Badge } from '~/core/components/shadcn/badge'
 import { Button } from '~/core/components/shadcn/button'
 import {

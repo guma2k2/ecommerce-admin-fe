@@ -1,4 +1,4 @@
-import type { GetMediaParams, GetMediaResponse, MediaItem } from '../types'
+import type { GetMediaParams, GetMediaResponse, MediaItem } from '~/features/authenticate/manageMedia/types'
 
 // Initial mock data with realistic items
 let mockMediaDatabase: MediaItem[] = [

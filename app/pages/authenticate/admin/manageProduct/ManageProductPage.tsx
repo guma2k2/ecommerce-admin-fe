@@ -3,7 +3,7 @@ import { useLoaderData, useSearchParams, useNavigation, Link, useNavigate } from
 import type { ClientLoaderFunctionArgs } from "react-router"
 import { Plus, Package } from "lucide-react"
 
-import { getProducts } from "~/features/authenticate/manageProduct/services/productService"
+import { getProducts } from "~/shared/services/api/productService"
 import ProductSearch from "~/features/authenticate/manageProduct/components/ProductSearch"
 import ProductTable from "~/features/authenticate/manageProduct/components/ProductTable"
 import ProductPagination from "~/features/authenticate/manageProduct/components/ProductPagination"

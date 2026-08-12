@@ -8,7 +8,7 @@ import type { z } from 'zod'
 
 import { Button } from '~/core/components/shadcn/button'
 import { FieldGroup, FieldSet } from '~/core/components/shadcn/field'
-import { fakeLoginApi } from '~/features/unAuthenticate/api/authApi'
+import { fakeLoginApi } from '~/shared/services/api/authApi'
 import { loginFormSchema, type LoginFormSchema } from '~/features/unAuthenticate/validator'
 import { FormInput } from '~/shared/components/Form'
 import { useAuthStore } from '~/stores'

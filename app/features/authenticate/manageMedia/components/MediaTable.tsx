@@ -16,7 +16,7 @@ import {
 import { toast } from 'sonner'
 
 import type { MediaItem } from '../types'
-import { formatFileSize, formatDateTime } from '../services/mediaService'
+import { formatFileSize, formatDateTime } from '~/shared/services/api/mediaService'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '~/core/components/shadcn/table'
 import { Button } from '~/core/components/shadcn/button'
 import { Badge } from '~/core/components/shadcn/badge'

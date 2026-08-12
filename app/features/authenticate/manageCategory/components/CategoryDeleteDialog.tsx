@@ -1,6 +1,6 @@
 import * as React from "react"
 import { AlertTriangle, Loader2 } from "lucide-react"
-import type { CategoryItem } from "../services/categoryService"
+import type { CategoryItem } from "~/shared/services/api/categoryService"
 import {
   Dialog,
   DialogContent,

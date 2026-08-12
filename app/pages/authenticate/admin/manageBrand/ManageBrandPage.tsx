@@ -10,7 +10,7 @@ import {
   updateBrand,
   deleteBrand,
   type BrandItem,
-} from "~/features/authenticate/manageBrand/services/brandService"
+} from "~/shared/services/api/brandService"
 import BrandSearch from "~/features/authenticate/manageBrand/components/BrandSearch"
 import BrandTable, {
   type BrandSortField,

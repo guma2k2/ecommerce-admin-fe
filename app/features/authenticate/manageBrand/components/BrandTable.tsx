@@ -1,6 +1,6 @@
 import * as React from "react"
 import { Award, Pencil, Trash2, Calendar, ArrowUpDown, ArrowUp, ArrowDown, Image as ImageIcon } from "lucide-react"
-import type { BrandItem } from "../services/brandService"
+import type { BrandItem } from "~/shared/services/api/brandService"
 import {
   Table,
   TableBody,

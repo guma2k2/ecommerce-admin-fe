@@ -1,6 +1,6 @@
 import * as React from "react"
 import { Folder, Pencil, Trash2, Calendar, ArrowUpDown, ArrowUp, ArrowDown } from "lucide-react"
-import type { CategoryItem } from "../services/categoryService"
+import type { CategoryItem } from "~/shared/services/api/categoryService"
 import {
   Table,
   TableBody,
@@ -10,7 +10,6 @@ import {
   TableRow,
 } from "~/core/components/shadcn/table"
 import { Button } from "~/core/components/shadcn/button"
-import { Badge } from "~/core/components/shadcn/badge"
 import { Skeleton } from "~/core/components/shadcn/skeleton"
 
 export type SortField = "id" | "name" | "created_at" | "updated_at"

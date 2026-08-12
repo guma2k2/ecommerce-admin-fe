@@ -3,7 +3,7 @@ import { Eye, Copy, ExternalLink, Download, FileText, Video, FileImage, Calendar
 import { toast } from 'sonner'
 
 import type { MediaItem } from '../types'
-import { formatFileSize, formatDateTime } from '../services/mediaService'
+import { formatFileSize, formatDateTime } from '~/shared/services/api/mediaService'
 import {
   Dialog,
   DialogContent,

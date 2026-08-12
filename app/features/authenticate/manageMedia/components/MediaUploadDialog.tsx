@@ -2,7 +2,7 @@ import * as React from 'react'
 import { Upload, X, File, Image as ImageIcon, Loader2 } from 'lucide-react'
 import { toast } from 'sonner'
 
-import { createMediaItem, formatFileSize } from '../services/mediaService'
+import { createMediaItem, formatFileSize } from '~/shared/services/api/mediaService'
 import type { MediaItem } from '../types'
 import {
   Dialog,

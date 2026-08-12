@@ -30,7 +30,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger
 } from "~/core/components/shadcn/dropdown-menu"
-import { getMediaList, createMediaItem } from "~/features/authenticate/manageMedia/services/mediaService"
+import { getMediaList, createMediaItem } from "~/shared/services/api/mediaService"
 import type { MediaItem } from "~/features/authenticate/manageMedia/types"
 import { cn } from "~/shared/utils/appUtils"
 
