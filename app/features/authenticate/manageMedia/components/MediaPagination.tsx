@@ -11,24 +11,24 @@ import {
 } from '~/core/components/shadcn/select'
 
 interface MediaPaginationProps {
-  page: number
-  limit: number
-  totalItems: number
+  pageNumber: number
+  pageSize: number
+  totalElements: number
   totalPages: number
-  onPageChange: (page: number) => void
-  onLimitChange: (limit: number) => void
+  onPageChange: (pageNumber: number) => void
+  onPageSizeChange: (pageSize: number) => void
 }
 
 export default function MediaPagination({
-  page,
-  limit,
-  totalItems,
+  pageNumber,
+  pageSize,
+  totalElements,
   totalPages,
   onPageChange,
-  onLimitChange
+  onPageSizeChange
 }: MediaPaginationProps) {
-  const startItem = totalItems === 0 ? 0 : (page - 1) * limit + 1
-  const endItem = Math.min(page * limit, totalItems)
+  const startItem = totalElements === 0 ? 0 : (pageNumber - 1) * pageSize + 1
+  const endItem = Math.min(pageNumber * pageSize, totalElements)
 
   return (
     <div className='flex flex-col sm:flex-row items-center justify-between gap-4 px-3 py-2 bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 rounded-lg shadow-2xs text-xs'>
@@ -36,7 +36,7 @@ export default function MediaPagination({
       <div className='text-muted-foreground font-mono'>
         Showing <span className='font-semibold text-gray-900 dark:text-gray-100'>{startItem}</span> to{' '}
         <span className='font-semibold text-gray-900 dark:text-gray-100'>{endItem}</span> of{' '}
-        <span className='font-semibold text-gray-900 dark:text-gray-100'>{totalItems}</span> items
+        <span className='font-semibold text-gray-900 dark:text-gray-100'>{totalElements}</span> items
       </div>
 
       {/* Right side controls */}
@@ -44,7 +44,7 @@ export default function MediaPagination({
         {/* Limit selector */}
         <div className='flex items-center gap-2'>
           <span className='text-muted-foreground whitespace-nowrap'>Rows per page:</span>
-          <Select value={String(limit)} onValueChange={(val) => onLimitChange(Number(val))}>
+          <Select value={String(pageSize)} onValueChange={(val) => onPageSizeChange(Number(val))}>
             <SelectTrigger className='h-8 w-[70px] text-xs bg-gray-50/50 dark:bg-zinc-800/50 border-gray-200 dark:border-zinc-700'>
               <SelectValue />
             </SelectTrigger>
@@ -60,14 +60,14 @@ export default function MediaPagination({
         {/* Page controls */}
         <div className='flex items-center gap-1'>
           <span className='mr-2 text-muted-foreground font-mono'>
-            Page {page} of {totalPages}
+            Page {pageNumber} of {totalPages}
           </span>
           <Button
             variant='outline'
             size='icon'
             className='size-7'
             onClick={() => onPageChange(1)}
-            disabled={page <= 1}
+            disabled={pageNumber <= 1}
           >
             <ChevronsLeft className='size-3.5' />
           </Button>
@@ -75,8 +75,8 @@ export default function MediaPagination({
             variant='outline'
             size='icon'
             className='size-7'
-            onClick={() => onPageChange(page - 1)}
-            disabled={page <= 1}
+            onClick={() => onPageChange(pageNumber - 1)}
+            disabled={pageNumber <= 1}
           >
             <ChevronLeft className='size-3.5' />
           </Button>
@@ -84,8 +84,8 @@ export default function MediaPagination({
             variant='outline'
             size='icon'
             className='size-7'
-            onClick={() => onPageChange(page + 1)}
-            disabled={page >= totalPages}
+            onClick={() => onPageChange(pageNumber + 1)}
+            disabled={pageNumber >= totalPages}
           >
             <ChevronRight className='size-3.5' />
           </Button>
@@ -94,7 +94,7 @@ export default function MediaPagination({
             size='icon'
             className='size-7'
             onClick={() => onPageChange(totalPages)}
-            disabled={page >= totalPages}
+            disabled={pageNumber >= totalPages}
           >
             <ChevronsRight className='size-3.5' />
           </Button>

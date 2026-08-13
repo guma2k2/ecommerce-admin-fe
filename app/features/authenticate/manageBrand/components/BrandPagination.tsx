@@ -1,4 +1,5 @@
-import * as React from "react"
+import * as React from 'react'
+import { useTranslation } from 'react-i18next'
 import {
   Pagination,
   PaginationContent,
@@ -6,59 +7,60 @@ import {
   PaginationItem,
   PaginationLink,
   PaginationNext,
-  PaginationPrevious,
-} from "~/core/components/shadcn/pagination"
+  PaginationPrevious
+} from '~/core/components/shadcn/pagination'
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
-  SelectValue,
-} from "~/core/components/shadcn/select"
+  SelectValue
+} from '~/core/components/shadcn/select'
 
 interface BrandPaginationProps {
-  page: number
-  limit: number
-  totalItems: number
+  pageNumber: number
+  pageSize: number
+  totalElements: number
   totalPages: number
-  onPageChange: (page: number) => void
-  onLimitChange: (limit: number) => void
-  limitOptions?: number[]
+  onPageChange: (pageNumber: number) => void
+  onPageSizeChange: (pageSize: number) => void
+  pageSizeOptions?: number[]
 }
 
 export default function BrandPagination({
-  page,
-  limit,
-  totalItems,
+  pageNumber,
+  pageSize,
+  totalElements,
   totalPages,
   onPageChange,
-  onLimitChange,
-  limitOptions = [5, 10, 20, 50],
+  onPageSizeChange,
+  pageSizeOptions = [5, 10, 20, 50]
 }: BrandPaginationProps) {
-  const startItem = totalItems === 0 ? 0 : (page - 1) * limit + 1
-  const endItem = Math.min(page * limit, totalItems)
+  const { t } = useTranslation()
+  const startItem = totalElements === 0 ? 0 : (pageNumber - 1) * pageSize + 1
+  const endItem = Math.min(pageNumber * pageSize, totalElements)
 
   const getPageNumbers = () => {
-    const pages: (number | "ellipsis")[] = []
+    const pages: (number | 'ellipsis')[] = []
     if (totalPages <= 7) {
       for (let i = 1; i <= totalPages; i++) {
         pages.push(i)
       }
     } else {
       pages.push(1)
-      if (page > 3) {
-        pages.push("ellipsis")
+      if (pageNumber > 3) {
+        pages.push('ellipsis')
       }
 
-      const start = Math.max(2, page - 1)
-      const end = Math.min(totalPages - 1, page + 1)
+      const start = Math.max(2, pageNumber - 1)
+      const end = Math.min(totalPages - 1, pageNumber + 1)
 
       for (let i = start; i <= end; i++) {
         pages.push(i)
       }
 
-      if (page < totalPages - 2) {
-        pages.push("ellipsis")
+      if (pageNumber < totalPages - 2) {
+        pages.push('ellipsis')
       }
       pages.push(totalPages)
     }
@@ -66,26 +68,24 @@ export default function BrandPagination({
   }
 
   return (
-    <div className="flex flex-col sm:flex-row items-center justify-between gap-4 py-3 px-2">
+    <div className='flex flex-col sm:flex-row items-center justify-between gap-4 py-3 px-2'>
       {/* Left side: Results summary & limit selector */}
-      <div className="flex flex-wrap items-center gap-3 text-xs sm:text-sm text-gray-500 dark:text-gray-400">
+      <div className='flex flex-wrap items-center gap-3 text-xs sm:text-sm text-gray-500 dark:text-gray-400'>
         <span>
-          Showing <span className="font-medium text-gray-900 dark:text-gray-100">{startItem}</span> to{" "}
-          <span className="font-medium text-gray-900 dark:text-gray-100">{endItem}</span> of{" "}
-          <span className="font-medium text-gray-900 dark:text-gray-100">{totalItems}</span> brands
+          {t('pagination.showing', { start: startItem, end: endItem, total: totalElements })}
         </span>
 
-        <div className="flex items-center gap-2 border-l border-gray-200 dark:border-zinc-800 pl-3">
-          <span className="whitespace-nowrap">Per page:</span>
+        <div className='flex items-center gap-2 border-l border-gray-200 dark:border-zinc-800 pl-3'>
+          <span className='whitespace-nowrap'>{t('pagination.perPage')}</span>
           <Select
-            value={String(limit)}
-            onValueChange={(val) => onLimitChange(Number(val))}
+            value={String(pageSize)}
+            onValueChange={(val) => onPageSizeChange(Number(val))}
           >
-            <SelectTrigger size="sm" className="h-8 w-[70px] bg-white dark:bg-zinc-900">
-              <SelectValue placeholder={String(limit)} />
+            <SelectTrigger size='sm' className='h-8 w-[70px] bg-white dark:bg-zinc-900'>
+              <SelectValue placeholder={String(pageSize)} />
             </SelectTrigger>
             <SelectContent>
-              {limitOptions.map((opt) => (
+              {pageSizeOptions.map((opt) => (
                 <SelectItem key={opt} value={String(opt)}>
                   {opt}
                 </SelectItem>
@@ -97,20 +97,20 @@ export default function BrandPagination({
 
       {/* Right side: Page navigation buttons */}
       {totalPages > 1 && (
-        <Pagination className="mx-0 w-auto">
+        <Pagination className='mx-0 w-auto'>
           <PaginationContent>
             <PaginationItem>
               <PaginationPrevious
                 onClick={(e) => {
                   e.preventDefault()
-                  if (page > 1) onPageChange(page - 1)
+                  if (pageNumber > 1) onPageChange(pageNumber - 1)
                 }}
-                className={page <= 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                className={pageNumber <= 1 ? 'pointer-events-none opacity-50' : 'cursor-pointer'}
               />
             </PaginationItem>
 
             {getPageNumbers().map((p, idx) => {
-              if (p === "ellipsis") {
+              if (p === 'ellipsis') {
                 return (
                   <PaginationItem key={`ellipsis-${idx}`}>
                     <PaginationEllipsis />
@@ -121,7 +121,7 @@ export default function BrandPagination({
               return (
                 <PaginationItem key={p}>
                   <PaginationLink
-                    isActive={page === p}
+                    isActive={pageNumber === p}
                     onClick={(e) => {
                       e.preventDefault()
                       onPageChange(p)
@@ -137,9 +137,9 @@ export default function BrandPagination({
               <PaginationNext
                 onClick={(e) => {
                   e.preventDefault()
-                  if (page < totalPages) onPageChange(page + 1)
+                  if (pageNumber < totalPages) onPageChange(pageNumber + 1)
                 }}
-                className={page >= totalPages ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                className={pageNumber >= totalPages ? 'pointer-events-none opacity-50' : 'cursor-pointer'}
               />
             </PaginationItem>
           </PaginationContent>

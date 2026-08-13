@@ -1,73 +1,62 @@
-import * as React from "react"
-import { useLoaderData, useSearchParams, useNavigation } from "react-router"
-import type { ClientLoaderFunctionArgs } from "react-router"
-import { Plus, Award, RefreshCw } from "lucide-react"
-import { toast } from "sonner"
+import { useState } from 'react'
+import { useLoaderData, useSearchParams, useNavigation, useNavigate, Link } from 'react-router'
+import type { ClientLoaderFunctionArgs } from 'react-router'
+import { Plus, Award, RefreshCw } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 
 import {
   getBrands,
-  createBrand,
-  updateBrand,
   deleteBrand,
-  type BrandItem,
-} from "~/shared/services/api/brandService"
-import BrandSearch from "~/features/authenticate/manageBrand/components/BrandSearch"
+  type BrandItem
+} from '~/shared/services/api/brandService'
+import type { SortDirection } from '~/shared/types/pagination'
+import { showToast } from '~/shared/utils/toast'
+import BrandSearch from '~/features/authenticate/manageBrand/components/BrandSearch'
 import BrandTable, {
-  type BrandSortField,
-  type SortOrder,
-} from "~/features/authenticate/manageBrand/components/BrandTable"
-import BrandPagination from "~/features/authenticate/manageBrand/components/BrandPagination"
-import BrandFormDialog from "~/features/authenticate/manageBrand/components/BrandFormDialog"
-import BrandDeleteDialog from "~/features/authenticate/manageBrand/components/BrandDeleteDialog"
-import { Button } from "~/core/components/shadcn/button"
-import { Badge } from "~/core/components/shadcn/badge"
+  type BrandSortField
+} from '~/features/authenticate/manageBrand/components/BrandTable'
+import BrandPagination from '~/features/authenticate/manageBrand/components/BrandPagination'
+import BrandDeleteDialog from '~/features/authenticate/manageBrand/components/BrandDeleteDialog'
+import { Button } from '~/core/components/shadcn/button'
+import { Badge } from '~/core/components/shadcn/badge'
 
 export async function clientLoader({ request }: ClientLoaderFunctionArgs) {
   const url = new URL(request.url)
-  const page = Number(url.searchParams.get("page") || "1")
-  const limit = Number(url.searchParams.get("limit") || "10")
-  const search = url.searchParams.get("search") || ""
-  const sort = (url.searchParams.get("sort") as BrandSortField) || "name"
-  const order = (url.searchParams.get("order") as SortOrder) || "asc"
+  const pageNumber = Number(url.searchParams.get('pageNumber') || url.searchParams.get('page') || '1')
+  const pageSize = Number(url.searchParams.get('pageSize') || url.searchParams.get('limit') || '10')
+  const search = url.searchParams.get('search') || ''
+  const sortField = (url.searchParams.get('sortField') || url.searchParams.get('sort') || 'name') as BrandSortField
+  const sortDir = (url.searchParams.get('sortDir') || url.searchParams.get('order') || 'asc') as SortDirection
 
-  const response = await getBrands({ page, limit, search })
-
-  // Sort brands in memory
-  const sortedData = [...response.data].sort((a, b) => {
-    const valA = a[sort] || ""
-    const valB = b[sort] || ""
-    const comparison = valA.localeCompare(valB)
-    return order === "asc" ? comparison : -comparison
-  })
+  const response = await getBrands({ pageNumber, pageSize, search, sortField, sortDir })
 
   return {
     ...response,
-    data: sortedData,
-    searchParams: { page, limit, search, sort, order },
+    searchParams: { pageNumber, pageSize, search, sortField, sortDir }
   }
 }
 
 clientLoader.hydrate = true as const
 
 export default function ManageBrandPage() {
-  const { data, pagination, searchParams: currentParams } = useLoaderData<typeof clientLoader>()
+  const { t } = useTranslation()
+  const pageData = useLoaderData<typeof clientLoader>()
+  const { content, pageNumber, pageSize, totalElements, totalPages, searchParams: currentParams } = pageData
   const [, setSearchParams] = useSearchParams()
   const navigation = useNavigation()
+  const navigate = useNavigate()
 
   // Modal Dialog States
-  const [formDialogOpen, setFormDialogOpen] = React.useState(false)
-  const [brandToEdit, setBrandToEdit] = React.useState<BrandItem | null>(null)
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
+  const [brandToDelete, setBrandToDelete] = useState<BrandItem | null>(null)
 
-  const [deleteDialogOpen, setDeleteDialogOpen] = React.useState(false)
-  const [brandToDelete, setBrandToDelete] = React.useState<BrandItem | null>(null)
-
-  const isLoading = navigation.state === "loading" || navigation.state === "submitting"
+  const isLoading = navigation.state === 'loading' || navigation.state === 'submitting'
 
   const updateQueryParams = (updates: Record<string, string | null>) => {
     setSearchParams((prev) => {
       const next = new URLSearchParams(prev)
       Object.entries(updates).forEach(([key, value]) => {
-        if (value === null || value === "") {
+        if (value === null || value === '') {
           next.delete(key)
         } else {
           next.set(key, value)
@@ -78,31 +67,25 @@ export default function ManageBrandPage() {
   }
 
   const handleSearchChange = (newSearch: string) => {
-    updateQueryParams({ search: newSearch, page: "1" })
+    updateQueryParams({ search: newSearch, pageNumber: '1' })
   }
 
-  const handlePageChange = (newPage: number) => {
-    updateQueryParams({ page: String(newPage) })
+  const handlePageChange = (newPageNumber: number) => {
+    updateQueryParams({ pageNumber: String(newPageNumber) })
   }
 
-  const handleLimitChange = (newLimit: number) => {
-    updateQueryParams({ limit: String(newLimit), page: "1" })
+  const handlePageSizeChange = (newPageSize: number) => {
+    updateQueryParams({ pageSize: String(newPageSize), pageNumber: '1' })
   }
 
   const handleSort = (field: BrandSortField) => {
-    const isCurrentField = currentParams.sort === field
-    const newOrder: SortOrder = isCurrentField && currentParams.order === "asc" ? "desc" : "asc"
-    updateQueryParams({ sort: field, order: newOrder })
+    const isCurrentField = currentParams.sortField === field
+    const newDir: SortDirection = isCurrentField && currentParams.sortDir === 'asc' ? 'desc' : 'asc'
+    updateQueryParams({ sortField: field, sortDir: newDir })
   }
 
-  const handleOpenCreateModal = () => {
-    setBrandToEdit(null)
-    setFormDialogOpen(true)
-  }
-
-  const handleOpenEditModal = (brand: BrandItem) => {
-    setBrandToEdit(brand)
-    setFormDialogOpen(true)
+  const handleEditClick = (brand: BrandItem) => {
+    navigate(`/admin/manage-brand/edit/${brand.id}`)
   }
 
   const handleOpenDeleteModal = (brand: BrandItem) => {
@@ -110,75 +93,65 @@ export default function ManageBrandPage() {
     setDeleteDialogOpen(true)
   }
 
-  const handleFormSubmit = async (formData: { name: string; image: string }) => {
-    if (brandToEdit) {
-      await updateBrand(brandToEdit.id, formData)
-      toast.success(`Brand "${formData.name}" updated successfully`)
-    } else {
-      const newBrand = await createBrand(formData)
-      toast.success(`Brand "${newBrand.name}" created successfully`)
-    }
-    // Trigger loader re-fetch
-    updateQueryParams({ _t: String(Date.now()) })
-  }
-
   const handleDeleteConfirm = async () => {
     if (!brandToDelete) return
     await deleteBrand(brandToDelete.id)
-    toast.success(`Brand "${brandToDelete.name}" deleted successfully`)
+    showToast('success', 'toasts.brandDeleted')
     updateQueryParams({ _t: String(Date.now()) })
   }
 
   const handleRefresh = () => {
     updateQueryParams({ _t: String(Date.now()) })
-    toast.info("Refreshed brand list")
+    showToast('info', 'toasts.brandRefreshed')
   }
 
   return (
-    <div className="w-full min-h-screen bg-gray-50/50 dark:bg-zinc-950 p-6 space-y-6">
+    <div className='w-full min-h-screen bg-gray-50/50 dark:bg-zinc-950 p-6 space-y-6'>
       {/* Header section */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div className="space-y-1">
-          <div className="flex items-center gap-2">
-            <div className="w-9 h-9 rounded-lg bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center">
-              <Award className="size-5" />
+      <div className='flex flex-col sm:flex-row sm:items-center justify-between gap-4'>
+        <div className='space-y-1'>
+          <div className='flex items-center gap-2'>
+            <div className='w-9 h-9 rounded-lg bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center'>
+              <Award className='size-5' />
             </div>
-            <h1 className="text-2xl font-bold tracking-tight text-gray-900 dark:text-gray-50">
-              Brand Management
+            <h1 className='text-2xl font-bold tracking-tight text-gray-900 dark:text-gray-50'>
+              {t('brand.title')}
             </h1>
-            <Badge variant="secondary" className="ml-1 font-semibold">
-              {pagination.totalItems} Brands
+            <Badge variant='secondary' className='ml-1 font-semibold'>
+              {t('brand.totalCount', { count: totalElements })}
             </Badge>
           </div>
-          <p className="text-sm text-muted-foreground">
-            Manage your store's manufacturer and product brands (Logo, Name, Created At, Updated At).
+          <p className='text-sm text-muted-foreground'>
+            {t('brand.subtitle')}
           </p>
         </div>
 
-        <div className="flex items-center gap-2 self-start sm:self-auto">
+        <div className='flex items-center gap-2 self-start sm:self-auto'>
           <Button
-            variant="outline"
-            size="icon"
+            variant='outline'
+            size='icon'
             onClick={handleRefresh}
-            title="Refresh"
+            title={t('brand.refresh')}
             disabled={isLoading}
-            className="bg-white dark:bg-zinc-900 shadow-xs"
+            className='bg-white dark:bg-zinc-900 shadow-xs'
           >
-            <RefreshCw className={`size-4 ${isLoading ? "animate-spin" : ""}`} />
-            <span className="sr-only">Refresh brands</span>
+            <RefreshCw className={`size-4 ${isLoading ? 'animate-spin' : ''}`} />
+            <span className='sr-only'>{t('brand.refresh')}</span>
           </Button>
 
-          <Button onClick={handleOpenCreateModal} className="shadow-xs gap-1.5">
-            <Plus className="size-4" />
-            Add Brand
+          <Button asChild className='shadow-xs gap-1.5'>
+            <Link to='/admin/manage-brand/create'>
+              <Plus className='size-4' />
+              {t('brand.addNew')}
+            </Link>
           </Button>
         </div>
       </div>
 
       {/* Main Content Area */}
-      <div className="space-y-4">
+      <div className='space-y-4'>
         {/* Search & Action Bar */}
-        <div className="flex items-center justify-between gap-4 bg-white dark:bg-zinc-900 p-4 rounded-lg border border-gray-200 dark:border-zinc-800 shadow-2xs">
+        <div className='flex items-center justify-between gap-4 bg-white dark:bg-zinc-900 p-4 rounded-lg border border-gray-200 dark:border-zinc-800 shadow-2xs'>
           <BrandSearch
             value={currentParams.search}
             onChange={handleSearchChange}
@@ -186,39 +159,31 @@ export default function ManageBrandPage() {
           />
         </div>
 
-        {/* Brand Table (ID hidden) */}
+        {/* Brand Table */}
         <BrandTable
-          brands={data}
+          brands={content}
           isLoading={isLoading}
-          sortField={currentParams.sort}
-          sortOrder={currentParams.order}
+          sortField={currentParams.sortField}
+          sortOrder={currentParams.sortDir}
           onSort={handleSort}
-          onEdit={handleOpenEditModal}
+          onEdit={handleEditClick}
           onDelete={handleOpenDeleteModal}
         />
 
         {/* Pagination */}
-        <div className="bg-white dark:bg-zinc-900 rounded-lg border border-gray-200 dark:border-zinc-800 shadow-2xs p-2">
+        <div className='bg-white dark:bg-zinc-900 rounded-lg border border-gray-200 dark:border-zinc-800 shadow-2xs p-2'>
           <BrandPagination
-            page={pagination.page}
-            limit={pagination.limit}
-            totalItems={pagination.totalItems}
-            totalPages={pagination.totalPages}
+            pageNumber={pageNumber}
+            pageSize={pageSize}
+            totalElements={totalElements}
+            totalPages={totalPages}
             onPageChange={handlePageChange}
-            onLimitChange={handleLimitChange}
+            onPageSizeChange={handlePageSizeChange}
           />
         </div>
       </div>
 
-      {/* Create / Edit Form Dialog (ID hidden) */}
-      <BrandFormDialog
-        open={formDialogOpen}
-        onOpenChange={setFormDialogOpen}
-        brandToEdit={brandToEdit}
-        onSubmit={handleFormSubmit}
-      />
-
-      {/* Delete Confirmation Dialog (ID hidden) */}
+      {/* Delete Confirmation Dialog */}
       <BrandDeleteDialog
         open={deleteDialogOpen}
         onOpenChange={setDeleteDialogOpen}

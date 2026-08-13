@@ -1,7 +1,6 @@
 import type { AxiosRequestConfig, AxiosResponse } from 'axios'
-// import i18next from 'i18next';
-// import { showToast } from '~/hooks/useShowToast';
 import axiosClient from '~/shared/services/axiosClient'
+import { showToast } from '~/shared/utils/toast'
 
 // Define a generic ApiResponse interface for consistent API responses
 interface ApiResponse<T = any> {
@@ -10,16 +9,16 @@ interface ApiResponse<T = any> {
   message?: string
   errors?: Record<string, string[]>
   meta?: {
-    total?: number
-    page?: number
-    limit?: number
+    totalElements?: number
+    pageNumber?: number
+    pageSize?: number
     totalPages?: number
   }
 }
 
 class HttpRequest {
   // GET method
-  // config: params, headers,responseType etc.
+  // config: params, headers, responseType etc.
   async get<T = any>(url: string, config?: AxiosRequestConfig): Promise<AxiosResponse<T>> {
     return await axiosClient.get<T>(url, config)
   }
@@ -33,7 +32,7 @@ class HttpRequest {
   ): Promise<AxiosResponse<T>> {
     const response = await axiosClient.post<T>(url, data, config)
     if (successMessage) {
-      // showToast('success', `${i18next.t(`toasts.${successMessage}`)}`);
+      showToast('success', successMessage)
     }
     return response
   }
@@ -47,7 +46,7 @@ class HttpRequest {
   ): Promise<AxiosResponse<T>> {
     const response = await axiosClient.put<T>(url, data, config)
     if (successMessage) {
-      // showToast('success', `${i18next.t(`toasts.${successMessage}`)}`);
+      showToast('success', successMessage)
     }
     return response
   }
@@ -70,7 +69,7 @@ class HttpRequest {
     }
     const response = await axiosClient.delete<T>(url, mergedConfig)
     if (successMessage) {
-      // showToast('success', `${i18next.t(`toasts.${successMessage}`)}`);
+      showToast('success', successMessage)
     }
     return response
   }
@@ -91,7 +90,7 @@ class HttpRequest {
     })
 
     if (successMessage) {
-      // showToast('success', `${i18next.t(`toasts.${successMessage}`)}`);
+      showToast('success', successMessage)
     }
 
     return response

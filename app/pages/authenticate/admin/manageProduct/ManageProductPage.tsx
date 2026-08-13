@@ -12,21 +12,24 @@ import { Badge } from "~/core/components/shadcn/badge"
 
 export async function clientLoader({ request }: ClientLoaderFunctionArgs) {
   const url = new URL(request.url)
-  const page = Number(url.searchParams.get("page") || "1")
-  const limit = Number(url.searchParams.get("limit") || "10")
+  const pageNumber = Number(url.searchParams.get("pageNumber") || url.searchParams.get("page") || "1")
+  const pageSize = Number(url.searchParams.get("pageSize") || url.searchParams.get("limit") || "10")
   const search = url.searchParams.get("search") || ""
+  const sortField = url.searchParams.get("sortField") || undefined
+  const sortDir = (url.searchParams.get("sortDir") || undefined) as any
 
-  const response = await getProducts({ page, limit, search })
+  const response = await getProducts({ pageNumber, pageSize, search, sortField, sortDir })
   return {
     ...response,
-    searchParams: { page, limit, search }
+    searchParams: { pageNumber, pageSize, search, sortField, sortDir }
   }
 }
 
 clientLoader.hydrate = true as const
 
 export default function ManageProductPage() {
-  const { data, pagination, searchParams: currentParams } = useLoaderData<typeof clientLoader>()
+  const pageData = useLoaderData<typeof clientLoader>()
+  const { content, pageNumber, pageSize, totalElements, totalPages, searchParams: currentParams } = pageData
   const [, setSearchParams] = useSearchParams()
   const navigation = useNavigation()
   const navigate = useNavigate()
@@ -41,24 +44,24 @@ export default function ManageProductPage() {
       } else {
         next.delete("search")
       }
-      next.set("page", "1") // Reset to first page on search
+      next.set("pageNumber", "1") // Reset to first page on search
       return next
     })
   }
 
-  const handlePageChange = (newPage: number) => {
+  const handlePageChange = (newPageNumber: number) => {
     setSearchParams((prev) => {
       const next = new URLSearchParams(prev)
-      next.set("page", String(newPage))
+      next.set("pageNumber", String(newPageNumber))
       return next
     })
   }
 
-  const handleLimitChange = (newLimit: number) => {
+  const handlePageSizeChange = (newPageSize: number) => {
     setSearchParams((prev) => {
       const next = new URLSearchParams(prev)
-      next.set("limit", String(newLimit))
-      next.set("page", "1") // Reset to first page on limit change
+      next.set("pageSize", String(newPageSize))
+      next.set("pageNumber", "1") // Reset to first page on limit change
       return next
     })
   }
@@ -74,7 +77,7 @@ export default function ManageProductPage() {
               Product Management
             </h1>
             <Badge variant="secondary" className="ml-1 font-semibold">
-              {pagination.totalItems} Products
+              {totalElements} Products
             </Badge>
           </div>
           <p className="text-sm text-muted-foreground">
@@ -103,7 +106,7 @@ export default function ManageProductPage() {
 
         {/* Product Table Component */}
         <ProductTable
-          products={data}
+          products={content}
           isLoading={isLoading}
           onEdit={(product) => {
             console.log("Edit product:", product)
@@ -116,12 +119,12 @@ export default function ManageProductPage() {
         {/* Pagination Component */}
         <div className="bg-white dark:bg-zinc-900 rounded-lg border border-gray-200 shadow-2xs p-2">
           <ProductPagination
-            page={pagination.page}
-            limit={pagination.limit}
-            totalItems={pagination.totalItems}
-            totalPages={pagination.totalPages}
+            pageNumber={pageNumber}
+            pageSize={pageSize}
+            totalElements={totalElements}
+            totalPages={totalPages}
             onPageChange={handlePageChange}
-            onLimitChange={handleLimitChange}
+            onPageSizeChange={handlePageSizeChange}
           />
         </div>
       </div>

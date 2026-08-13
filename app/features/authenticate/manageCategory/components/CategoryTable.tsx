@@ -1,6 +1,7 @@
 import * as React from "react"
 import { Folder, Pencil, Trash2, Calendar, ArrowUpDown, ArrowUp, ArrowDown } from "lucide-react"
 import type { CategoryItem } from "~/shared/services/api/categoryService"
+import type { SortDirection } from "~/shared/types/pagination"
 import {
   Table,
   TableBody,
@@ -13,13 +14,12 @@ import { Button } from "~/core/components/shadcn/button"
 import { Skeleton } from "~/core/components/shadcn/skeleton"
 
 export type SortField = "id" | "name" | "created_at" | "updated_at"
-export type SortOrder = "asc" | "desc"
 
 interface CategoryTableProps {
   categories: CategoryItem[]
   isLoading?: boolean
   sortField: SortField
-  sortOrder: SortOrder
+  sortOrder: SortDirection
   onSort: (field: SortField) => void
   onEdit: (category: CategoryItem) => void
   onDelete: (category: CategoryItem) => void

@@ -67,13 +67,13 @@ export default function MediaSelectModal({
   const fetchMedia = async () => {
     setIsLoading(true)
     try {
-      const res = await getMediaList({ limit: 100 })
-      setMediaList(res.data)
+      const res = await getMediaList({ pageSize: 100 })
+      setMediaList(res.content)
 
       // Pre-select items if matching initialSelectedUrls
       if (initialSelectedUrls.length > 0) {
         const matchingIds = new Set<string>()
-        res.data.forEach((item) => {
+        res.content.forEach((item: MediaItem) => {
           if (initialSelectedUrls.includes(item.url)) {
             matchingIds.add(item.id)
           }

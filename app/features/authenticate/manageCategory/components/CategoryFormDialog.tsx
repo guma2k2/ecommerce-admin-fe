@@ -1,4 +1,4 @@
-import * as React from "react"
+import { useState, useEffect } from "react"
 import { FolderPlus, Pencil, Loader2 } from "lucide-react"
 import type { CategoryItem } from "~/shared/services/api/categoryService"
 import {
@@ -26,13 +26,13 @@ export default function CategoryFormDialog({
   categoryToEdit,
   onSubmit,
 }: CategoryFormDialogProps) {
-  const [name, setName] = React.useState("")
-  const [error, setError] = React.useState("")
-  const [isSubmitting, setIsSubmitting] = React.useState(false)
+  const [name, setName] = useState("")
+  const [error, setError] = useState("")
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
   const isEditing = Boolean(categoryToEdit)
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (open) {
       if (categoryToEdit) {
         setName(categoryToEdit.name)

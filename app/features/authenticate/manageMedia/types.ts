@@ -1,3 +1,5 @@
+import type { PageResponse, SortDirection } from '~/shared/types/pagination'
+
 export interface MediaItem {
   id: string
   name: string
@@ -9,18 +11,12 @@ export interface MediaItem {
 }
 
 export interface GetMediaParams {
-  page?: number
-  limit?: number
+  pageNumber?: number
+  pageSize?: number
+  sortField?: string
+  sortDir?: SortDirection
   search?: string
   type?: string
 }
 
-export interface GetMediaResponse {
-  data: MediaItem[]
-  pagination: {
-    page: number
-    limit: number
-    totalItems: number
-    totalPages: number
-  }
-}
+export type GetMediaResponse = PageResponse<MediaItem>

@@ -1,6 +1,6 @@
-import * as React from 'react'
+import { useState, useRef, type DragEvent } from 'react'
 import { Upload, X, File, Image as ImageIcon, Loader2 } from 'lucide-react'
-import { toast } from 'sonner'
+import { showToast } from '~/shared/utils/toast'
 
 import { createMediaItem, formatFileSize } from '~/shared/services/api/mediaService'
 import type { MediaItem } from '../types'
@@ -23,12 +23,12 @@ interface MediaUploadDialogProps {
 }
 
 export default function MediaUploadDialog({ open, onOpenChange, onSuccess }: MediaUploadDialogProps) {
-  const [selectedFile, setSelectedFile] = React.useState<File | null>(null)
-  const [customName, setCustomName] = React.useState<string>('')
-  const [previewUrl, setPreviewUrl] = React.useState<string | null>(null)
-  const [isUploading, setIsUploading] = React.useState<boolean>(false)
-  const [isDragging, setIsDragging] = React.useState<boolean>(false)
-  const fileInputRef = React.useRef<HTMLInputElement>(null)
+  const [selectedFile, setSelectedFile] = useState<File | null>(null)
+  const [customName, setCustomName] = useState<string>('')
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null)
+  const [isUploading, setIsUploading] = useState<boolean>(false)
+  const [isDragging, setIsDragging] = useState<boolean>(false)
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
   const resetForm = () => {
     setSelectedFile(null)
@@ -51,17 +51,17 @@ export default function MediaUploadDialog({ open, onOpenChange, onSuccess }: Med
     }
   }
 
-  const handleDragOver = (e: React.DragEvent) => {
+  const handleDragOver = (e: DragEvent) => {
     e.preventDefault()
     setIsDragging(true)
   }
 
-  const handleDragLeave = (e: React.DragEvent) => {
+  const handleDragLeave = (e: DragEvent) => {
     e.preventDefault()
     setIsDragging(false)
   }
 
-  const handleDrop = (e: React.DragEvent) => {
+  const handleDrop = (e: DragEvent) => {
     e.preventDefault()
     setIsDragging(false)
     if (e.dataTransfer.files && e.dataTransfer.files[0]) {
@@ -71,20 +71,20 @@ export default function MediaUploadDialog({ open, onOpenChange, onSuccess }: Med
 
   const handleUpload = async () => {
     if (!selectedFile) {
-      toast.error('Please select a file to upload')
+      showToast('error', 'toasts.selectFileToUpload')
       return
     }
 
     try {
       setIsUploading(true)
       const newItem = await createMediaItem(selectedFile, customName.trim() || selectedFile.name)
-      toast.success(`Successfully uploaded ${newItem.name}`)
+      showToast('success', 'toasts.uploadSuccess')
       onSuccess(newItem)
       onOpenChange(false)
       resetForm()
     } catch (err) {
       console.error('Upload error:', err)
-      toast.error('Failed to upload file. Please try again.')
+      showToast('error', 'toasts.uploadFailed')
     } finally {
       setIsUploading(false)
     }

@@ -3,11 +3,11 @@ import { useNavigate } from 'react-router'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
 import { Loader2 } from 'lucide-react'
-import { toast } from 'sonner'
 import type { z } from 'zod'
 
 import { Button } from '~/core/components/shadcn/button'
 import { FieldGroup, FieldSet } from '~/core/components/shadcn/field'
+import { showToast } from '~/shared/utils/toast'
 import { fakeLoginApi } from '~/shared/services/api/authApi'
 import { loginFormSchema, type LoginFormSchema } from '~/features/unAuthenticate/validator'
 import { FormInput } from '~/shared/components/Form'
@@ -33,10 +33,10 @@ export default function LoginPage() {
       setIsLoading(true)
       const res = await fakeLoginApi(values)
       login(res.user, res.token)
-      toast.success(`Welcome back, ${res.user.name}!`)
+      showToast('success', 'toasts.loginSuccess')
       navigate('/admin', { replace: true })
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : 'Login failed. Please try again.')
+      showToast('error', 'toasts.loginError')
     } finally {
       setIsLoading(false)
     }

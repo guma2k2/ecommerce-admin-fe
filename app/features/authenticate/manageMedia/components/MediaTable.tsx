@@ -1,4 +1,4 @@
-import * as React from 'react'
+import { useState } from 'react'
 import {
   Copy,
   Check,
@@ -13,7 +13,7 @@ import {
   FileCode,
   File
 } from 'lucide-react'
-import { toast } from 'sonner'
+import { showToast } from '~/shared/utils/toast'
 
 import type { MediaItem } from '../types'
 import { formatFileSize, formatDateTime } from '~/shared/services/api/mediaService'
@@ -39,12 +39,12 @@ interface MediaTableProps {
 }
 
 export default function MediaTable({ mediaList, isLoading, onPreview, onEdit, onDelete }: MediaTableProps) {
-  const [copiedId, setCopiedId] = React.useState<string | null>(null)
+  const [copiedId, setCopiedId] = useState<string | null>(null)
 
   const handleCopyUrl = (url: string, id: string) => {
     navigator.clipboard.writeText(url)
     setCopiedId(id)
-    toast.success('Media URL copied to clipboard!')
+    showToast('success', 'toasts.urlCopied')
     setTimeout(() => setCopiedId(null), 2000)
   }
 

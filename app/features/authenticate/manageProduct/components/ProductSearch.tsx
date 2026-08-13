@@ -1,4 +1,4 @@
-import * as React from "react"
+import { useState, useEffect } from "react"
 import { Search, X, Loader2 } from "lucide-react"
 import { Input } from "~/core/components/shadcn/input"
 import { Button } from "~/core/components/shadcn/button"
@@ -16,15 +16,15 @@ export default function ProductSearch({
   isLoading = false,
   placeholder = "Search products by name or ID..."
 }: ProductSearchProps) {
-  const [internalValue, setInternalValue] = React.useState(value)
+  const [internalValue, setInternalValue] = useState(value)
 
   // Sync internal state when parent prop changes
-  React.useEffect(() => {
+  useEffect(() => {
     setInternalValue(value)
   }, [value])
 
   // Debounced search trigger
-  React.useEffect(() => {
+  useEffect(() => {
     const timer = setTimeout(() => {
       if (internalValue !== value) {
         onChange(internalValue)

@@ -2,7 +2,7 @@ import type { AxiosError, AxiosInstance, AxiosResponse } from 'axios'
 import axios from 'axios'
 import i18n from '~/shared/i18n'
 import { redirect } from 'react-router'
-// import { showToast } from "~/hooks/useShowToast";
+import { showToast } from '~/shared/utils/toast'
 // import { clearAuthInfo } from "~/redux/auth/authSlice";
 // import { store } from "~/redux/store";
 import { toCamelCase, toSnakeCase } from '~/shared/utils/appUtils'
@@ -105,7 +105,7 @@ class AxiosClient {
     if (currentPath.startsWith('/diving')) {
       consolePath = 'diving'
     }
-    // showToast("error", i18next.t("errors.unauthorized"));
+    showToast('error', 'errors.unauthorized')
 
     // store.dispatch(clearAuthInfo());
 

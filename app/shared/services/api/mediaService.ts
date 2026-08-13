@@ -77,10 +77,9 @@ let mockMediaDatabase: MediaItem[] = [
 ]
 
 export const getMediaList = async (params: GetMediaParams): Promise<GetMediaResponse> => {
-  // Simulate minor network delay for realistic loader feel
   await new Promise((resolve) => setTimeout(resolve, 100))
 
-  const { page = 1, limit = 10, search = '', type = 'all' } = params
+  const { pageNumber = 1, pageSize = 10, search = '', type = 'all', sortField, sortDir = 'asc' } = params
 
   let filtered = [...mockMediaDatabase]
 
@@ -106,19 +105,27 @@ export const getMediaList = async (params: GetMediaParams): Promise<GetMediaResp
     }
   }
 
-  const totalItems = filtered.length
-  const totalPages = Math.ceil(totalItems / limit) || 1
-  const startIndex = (page - 1) * limit
-  const paginatedData = filtered.slice(startIndex, startIndex + limit)
+  if (sortField) {
+    filtered.sort((a, b) => {
+      const valA = (a as any)[sortField] || ''
+      const valB = (b as any)[sortField] || ''
+      const comp = String(valA).localeCompare(String(valB))
+      return sortDir === 'asc' ? comp : -comp
+    })
+  }
+
+  const totalElements = filtered.length
+  const totalPages = Math.ceil(totalElements / pageSize) || 1
+  const currentPage = Math.max(1, Math.min(pageNumber, totalPages))
+  const startIndex = (currentPage - 1) * pageSize
+  const content = filtered.slice(startIndex, startIndex + pageSize)
 
   return {
-    data: paginatedData,
-    pagination: {
-      page,
-      limit,
-      totalItems,
-      totalPages
-    }
+    content,
+    pageNumber: currentPage,
+    pageSize,
+    totalElements,
+    totalPages
   }
 }
 
@@ -127,7 +134,6 @@ export const createMediaItem = async (file: File, customName?: string): Promise<
   const randomSuffix = Math.random().toString(36).substring(2, 7).toUpperCase()
   const id = `med_${Date.now().toString(36).toUpperCase()}${randomSuffix}`
 
-  // Create preview URL for uploaded file
   const url = URL.createObjectURL(file)
 
   const newItem: MediaItem = {
@@ -166,7 +172,6 @@ export const deleteMediaItem = async (id: string): Promise<boolean> => {
   return mockMediaDatabase.length < initialLength
 }
 
-// Utility formatters
 export const formatFileSize = (bytes: number): string => {
   if (bytes === 0) return '0 Bytes'
   const k = 1024

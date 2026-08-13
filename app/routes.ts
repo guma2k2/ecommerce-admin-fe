@@ -12,6 +12,8 @@ export default [
       route('manage-product/create', 'pages/authenticate/admin/manageProduct/CreateProductPage.tsx'),
       route('manage-category', 'pages/authenticate/admin/manageCategory/ManageCategoryPage.tsx'),
       route('manage-brand', 'pages/authenticate/admin/manageBrand/ManageBrandPage.tsx'),
+      route('manage-brand/create', 'pages/authenticate/admin/manageBrand/CreateBrandPage.tsx'),
+      route('manage-brand/edit/:id', 'pages/authenticate/admin/manageBrand/UpdateBrandPage.tsx'),
       route('manage-media', 'pages/authenticate/admin/manageMedia/ManageMediaPage.tsx')
     ])
   ])
