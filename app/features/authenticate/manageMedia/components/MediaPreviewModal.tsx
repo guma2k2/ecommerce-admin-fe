@@ -1,9 +1,9 @@
-import * as React from 'react'
+import { useState } from 'react'
 import { Eye, Copy, ExternalLink, Download, FileText, Video, FileImage, Calendar, HardDrive, Hash, Check } from 'lucide-react'
-import { toast } from 'sonner'
+import { showToast } from '~/shared/utils/toast'
 
 import type { MediaItem } from '../types'
-import { formatFileSize, formatDateTime } from '../services/mediaService'
+import { formatFileSize, formatDateTime } from '~/shared/services/api/mediaService'
 import {
   Dialog,
   DialogContent,
@@ -22,14 +22,14 @@ interface MediaPreviewModalProps {
 }
 
 export default function MediaPreviewModal({ media, open, onOpenChange }: MediaPreviewModalProps) {
-  const [copied, setCopied] = React.useState<boolean>(false)
+  const [copied, setCopied] = useState<boolean>(false)
 
   if (!media) return null
 
   const handleCopyUrl = () => {
     navigator.clipboard.writeText(media.url)
     setCopied(true)
-    toast.success('URL copied to clipboard!')
+    showToast('success', 'toasts.urlCopied')
     setTimeout(() => setCopied(false), 2000)
   }
 

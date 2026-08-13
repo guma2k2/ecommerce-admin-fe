@@ -1,3 +1,5 @@
+import type { PageResponse, SortDirection } from '~/shared/types/pagination'
+
 export interface ProductItem {
   id: string
   name: string
@@ -7,20 +9,14 @@ export interface ProductItem {
 }
 
 export interface GetProductsParams {
-  page?: number
-  limit?: number
+  pageNumber?: number
+  pageSize?: number
+  sortField?: string
+  sortDir?: SortDirection
   search?: string
 }
 
-export interface PaginatedProductsResponse {
-  data: ProductItem[]
-  pagination: {
-    page: number
-    limit: number
-    totalItems: number
-    totalPages: number
-  }
-}
+export type PaginatedProductsResponse = PageResponse<ProductItem>
 
 const MOCK_PRODUCTS: ProductItem[] = [
   {
@@ -167,37 +163,43 @@ const MOCK_PRODUCTS: ProductItem[] = [
 
 export async function getProducts(
   params: GetProductsParams = {}
-): Promise<PaginatedProductsResponse> {
-  const { page = 1, limit = 10, search = "" } = params
+): Promise<PageResponse<ProductItem>> {
+  const { pageNumber = 1, pageSize = 10, search = "", sortField, sortDir = "asc" } = params
 
-  // Simulate network latency
   await new Promise((resolve) => setTimeout(resolve, 300))
 
   const cleanSearch = search.trim().toLowerCase()
   
-  const filteredProducts = cleanSearch
+  let filteredProducts = cleanSearch
     ? MOCK_PRODUCTS.filter(
         (p) =>
           p.name.toLowerCase().includes(cleanSearch) ||
           p.id.toLowerCase().includes(cleanSearch)
       )
-    : MOCK_PRODUCTS
+    : [...MOCK_PRODUCTS]
 
-  const totalItems = filteredProducts.length
-  const totalPages = Math.ceil(totalItems / limit) || 1
-  const currentPage = Math.max(1, Math.min(page, totalPages))
+  if (sortField) {
+    filteredProducts.sort((a, b) => {
+      const valA = (a as any)[sortField] || ""
+      const valB = (b as any)[sortField] || ""
+      const comp = String(valA).localeCompare(String(valB))
+      return sortDir === "asc" ? comp : -comp
+    })
+  }
 
-  const startIndex = (currentPage - 1) * limit
-  const endIndex = startIndex + limit
-  const data = filteredProducts.slice(startIndex, endIndex)
+  const totalElements = filteredProducts.length
+  const totalPages = Math.ceil(totalElements / pageSize) || 1
+  const currentPage = Math.max(1, Math.min(pageNumber, totalPages))
+
+  const startIndex = (currentPage - 1) * pageSize
+  const endIndex = startIndex + pageSize
+  const content = filteredProducts.slice(startIndex, endIndex)
 
   return {
-    data,
-    pagination: {
-      page: currentPage,
-      limit,
-      totalItems,
-      totalPages
-    }
+    content,
+    pageNumber: currentPage,
+    pageSize,
+    totalElements,
+    totalPages
   }
 }

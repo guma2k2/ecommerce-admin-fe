@@ -1,3 +1,5 @@
+import type { PageResponse, SortDirection } from '~/shared/types/pagination'
+
 export interface CategoryItem {
   id: string
   name: string
@@ -6,20 +8,14 @@ export interface CategoryItem {
 }
 
 export interface GetCategoriesParams {
-  page?: number
-  limit?: number
+  pageNumber?: number
+  pageSize?: number
+  sortField?: string
+  sortDir?: SortDirection
   search?: string
 }
 
-export interface PaginatedCategoriesResponse {
-  data: CategoryItem[]
-  pagination: {
-    page: number
-    limit: number
-    totalItems: number
-    totalPages: number
-  }
-}
+export type PaginatedCategoriesResponse = PageResponse<CategoryItem>
 
 let MOCK_CATEGORIES: CategoryItem[] = [
   {
@@ -98,37 +94,53 @@ let MOCK_CATEGORIES: CategoryItem[] = [
 
 export async function getCategories(
   params: GetCategoriesParams = {}
-): Promise<PaginatedCategoriesResponse> {
-  const { page = 1, limit = 10, search = "" } = params
+): Promise<PageResponse<CategoryItem>> {
+  const { pageNumber = 1, pageSize = 10, search = "", sortField, sortDir = "asc" } = params
 
   await new Promise((resolve) => setTimeout(resolve, 200))
 
   const cleanSearch = search.trim().toLowerCase()
 
-  const filtered = cleanSearch
+  let filtered = cleanSearch
     ? MOCK_CATEGORIES.filter(
         (cat) =>
           cat.name.toLowerCase().includes(cleanSearch) ||
           cat.id.toLowerCase().includes(cleanSearch)
       )
-    : MOCK_CATEGORIES
+    : [...MOCK_CATEGORIES]
 
-  const totalItems = filtered.length
-  const totalPages = Math.ceil(totalItems / limit) || 1
-  const currentPage = Math.max(1, Math.min(page, totalPages))
+  if (sortField) {
+    filtered.sort((a, b) => {
+      let valA = (a as any)[sortField] || ""
+      let valB = (b as any)[sortField] || ""
 
-  const startIndex = (currentPage - 1) * limit
-  const endIndex = startIndex + limit
-  const data = filtered.slice(startIndex, endIndex)
+      if (sortField === "id") {
+        const numA = parseInt(String(valA).replace("CAT-", ""), 10)
+        const numB = parseInt(String(valB).replace("CAT-", ""), 10)
+        if (!isNaN(numA) && !isNaN(numB)) {
+          return sortDir === "asc" ? numA - numB : numB - numA
+        }
+      }
+
+      const comparison = String(valA).localeCompare(String(valB))
+      return sortDir === "asc" ? comparison : -comparison
+    })
+  }
+
+  const totalElements = filtered.length
+  const totalPages = Math.ceil(totalElements / pageSize) || 1
+  const currentPage = Math.max(1, Math.min(pageNumber, totalPages))
+
+  const startIndex = (currentPage - 1) * pageSize
+  const endIndex = startIndex + pageSize
+  const content = filtered.slice(startIndex, endIndex)
 
   return {
-    data,
-    pagination: {
-      page: currentPage,
-      limit,
-      totalItems,
-      totalPages
-    }
+    content,
+    pageNumber: currentPage,
+    pageSize,
+    totalElements,
+    totalPages
   }
 }
 

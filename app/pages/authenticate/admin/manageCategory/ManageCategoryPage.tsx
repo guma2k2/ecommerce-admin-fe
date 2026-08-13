@@ -1,8 +1,7 @@
-import * as React from "react"
+import { useState } from "react"
 import { useLoaderData, useSearchParams, useNavigation } from "react-router"
 import type { ClientLoaderFunctionArgs } from "react-router"
 import { Plus, FolderTree, RefreshCw } from "lucide-react"
-import { toast } from "sonner"
 
 import {
   getCategories,
@@ -10,11 +9,12 @@ import {
   updateCategory,
   deleteCategory,
   type CategoryItem,
-} from "~/features/authenticate/manageCategory/services/categoryService"
+} from "~/shared/services/api/categoryService"
+import type { SortDirection } from "~/shared/types/pagination"
+import { showToast } from "~/shared/utils/toast"
 import CategorySearch from "~/features/authenticate/manageCategory/components/CategorySearch"
 import CategoryTable, {
   type SortField,
-  type SortOrder,
 } from "~/features/authenticate/manageCategory/components/CategoryTable"
 import CategoryPagination from "~/features/authenticate/manageCategory/components/CategoryPagination"
 import CategoryFormDialog from "~/features/authenticate/manageCategory/components/CategoryFormDialog"
@@ -24,51 +24,34 @@ import { Badge } from "~/core/components/shadcn/badge"
 
 export async function clientLoader({ request }: ClientLoaderFunctionArgs) {
   const url = new URL(request.url)
-  const page = Number(url.searchParams.get("page") || "1")
-  const limit = Number(url.searchParams.get("limit") || "10")
+  const pageNumber = Number(url.searchParams.get("pageNumber") || url.searchParams.get("page") || "1")
+  const pageSize = Number(url.searchParams.get("pageSize") || url.searchParams.get("limit") || "10")
   const search = url.searchParams.get("search") || ""
-  const sort = (url.searchParams.get("sort") as SortField) || "id"
-  const order = (url.searchParams.get("order") as SortOrder) || "asc"
+  const sortField = (url.searchParams.get("sortField") || url.searchParams.get("sort") || "id") as SortField
+  const sortDir = (url.searchParams.get("sortDir") || url.searchParams.get("order") || "asc") as SortDirection
 
-  const response = await getCategories({ page, limit, search })
-
-  // Sort categories according to sort field and order
-  const sortedData = [...response.data].sort((a, b) => {
-    let valA = a[sort] || ""
-    let valB = b[sort] || ""
-
-    if (sort === "id") {
-      const numA = parseInt(valA.replace("CAT-", ""), 10)
-      const numB = parseInt(valB.replace("CAT-", ""), 10)
-      if (!isNaN(numA) && !isNaN(numB)) {
-        return order === "asc" ? numA - numB : numB - numA
-      }
-    }
-
-    const comparison = valA.localeCompare(valB)
-    return order === "asc" ? comparison : -comparison
-  })
+  const response = await getCategories({ pageNumber, pageSize, search, sortField, sortDir })
 
   return {
     ...response,
-    data: sortedData,
-    searchParams: { page, limit, search, sort, order },
+    searchParams: { pageNumber, pageSize, search, sortField, sortDir },
   }
 }
 
 clientLoader.hydrate = true as const
 
 export default function ManageCategoryPage() {
-  const { data, pagination, searchParams: currentParams } = useLoaderData<typeof clientLoader>()
+  const pageData = useLoaderData<typeof clientLoader>()
+  const { content, pageNumber, pageSize, totalElements, totalPages, searchParams: currentParams } = pageData
   const [, setSearchParams] = useSearchParams()
   const navigation = useNavigation()
 
   // Modal Dialog States
-  const [formDialogOpen, setFormDialogOpen] = React.useState(false)
-  const [categoryToEdit, setCategoryToEdit] = React.useState<CategoryItem | null>(null)
+  const [formDialogOpen, setFormDialogOpen] = useState(false)
+  const [categoryToEdit, setCategoryToEdit] = useState<CategoryItem | null>(null)
 
-  const [deleteDialogOpen, setDeleteDialogOpen] = React.useState(false)
-  const [categoryToDelete, setCategoryToDelete] = React.useState<CategoryItem | null>(null)
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
+  const [categoryToDelete, setCategoryToDelete] = useState<CategoryItem | null>(null)
 
   const isLoading = navigation.state === "loading" || navigation.state === "submitting"
 
@@ -87,21 +70,21 @@ export default function ManageCategoryPage() {
   }
 
   const handleSearchChange = (newSearch: string) => {
-    updateQueryParams({ search: newSearch, page: "1" })
+    updateQueryParams({ search: newSearch, pageNumber: "1" })
   }
 
-  const handlePageChange = (newPage: number) => {
-    updateQueryParams({ page: String(newPage) })
+  const handlePageChange = (newPageNumber: number) => {
+    updateQueryParams({ pageNumber: String(newPageNumber) })
   }
 
-  const handleLimitChange = (newLimit: number) => {
-    updateQueryParams({ limit: String(newLimit), page: "1" })
+  const handlePageSizeChange = (newPageSize: number) => {
+    updateQueryParams({ pageSize: String(newPageSize), pageNumber: "1" })
   }
 
   const handleSort = (field: SortField) => {
-    const isCurrentField = currentParams.sort === field
-    const newOrder: SortOrder = isCurrentField && currentParams.order === "asc" ? "desc" : "asc"
-    updateQueryParams({ sort: field, order: newOrder })
+    const isCurrentField = currentParams.sortField === field
+    const newDir: SortDirection = isCurrentField && currentParams.sortDir === "asc" ? "desc" : "asc"
+    updateQueryParams({ sortField: field, sortDir: newDir })
   }
 
   const handleOpenCreateModal = () => {
@@ -122,10 +105,10 @@ export default function ManageCategoryPage() {
   const handleFormSubmit = async (name: string) => {
     if (categoryToEdit) {
       await updateCategory(categoryToEdit.id, name)
-      toast.success(`Category "${name}" updated successfully`)
+      showToast("success", "toasts.categoryUpdated")
     } else {
-      const newCat = await createCategory(name)
-      toast.success(`Category "${newCat.name}" (${newCat.id}) created successfully`)
+      await createCategory(name)
+      showToast("success", "toasts.categoryCreated")
     }
     // Refresh page data
     updateQueryParams({ _t: String(Date.now()) })
@@ -134,13 +117,13 @@ export default function ManageCategoryPage() {
   const handleDeleteConfirm = async () => {
     if (!categoryToDelete) return
     await deleteCategory(categoryToDelete.id)
-    toast.success(`Category "${categoryToDelete.name}" deleted successfully`)
+    showToast("success", "toasts.categoryDeleted")
     updateQueryParams({ _t: String(Date.now()) })
   }
 
   const handleRefresh = () => {
     updateQueryParams({ _t: String(Date.now()) })
-    toast.info("Refreshed category list")
+    showToast("info", "toasts.categoryRefreshed")
   }
 
   return (
@@ -156,7 +139,7 @@ export default function ManageCategoryPage() {
               Category Management
             </h1>
             <Badge variant="secondary" className="ml-1 font-semibold">
-              {pagination.totalItems} Categories
+              {totalElements} Categories
             </Badge>
           </div>
           <p className="text-sm text-muted-foreground">
@@ -197,10 +180,10 @@ export default function ManageCategoryPage() {
 
         {/* Category Table */}
         <CategoryTable
-          categories={data}
+          categories={content}
           isLoading={isLoading}
-          sortField={currentParams.sort}
-          sortOrder={currentParams.order}
+          sortField={currentParams.sortField}
+          sortOrder={currentParams.sortDir}
           onSort={handleSort}
           onEdit={handleOpenEditModal}
           onDelete={handleOpenDeleteModal}
@@ -209,12 +192,12 @@ export default function ManageCategoryPage() {
         {/* Pagination */}
         <div className="bg-white dark:bg-zinc-900 rounded-lg border border-gray-200 dark:border-zinc-800 shadow-2xs p-2">
           <CategoryPagination
-            page={pagination.page}
-            limit={pagination.limit}
-            totalItems={pagination.totalItems}
-            totalPages={pagination.totalPages}
+            pageNumber={pageNumber}
+            pageSize={pageSize}
+            totalElements={totalElements}
+            totalPages={totalPages}
             onPageChange={handlePageChange}
-            onLimitChange={handleLimitChange}
+            onPageSizeChange={handlePageSizeChange}
           />
         </div>
       </div>

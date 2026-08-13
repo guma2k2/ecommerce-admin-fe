@@ -1,3 +1,5 @@
+import type { PageResponse, SortDirection } from '~/shared/types/pagination'
+
 export interface BrandItem {
   id: string
   name: string
@@ -7,20 +9,14 @@ export interface BrandItem {
 }
 
 export interface GetBrandsParams {
-  page?: number
-  limit?: number
+  pageNumber?: number
+  pageSize?: number
+  sortField?: string
+  sortDir?: SortDirection
   search?: string
 }
 
-export interface PaginatedBrandsResponse {
-  data: BrandItem[]
-  pagination: {
-    page: number
-    limit: number
-    totalItems: number
-    totalPages: number
-  }
-}
+export type PaginatedBrandsResponse = PageResponse<BrandItem>
 
 let MOCK_BRANDS: BrandItem[] = [
   {
@@ -97,35 +93,42 @@ let MOCK_BRANDS: BrandItem[] = [
 
 export async function getBrands(
   params: GetBrandsParams = {}
-): Promise<PaginatedBrandsResponse> {
-  const { page = 1, limit = 10, search = "" } = params
+): Promise<PageResponse<BrandItem>> {
+  const { pageNumber = 1, pageSize = 10, search = "", sortField, sortDir = "asc" } = params
 
   await new Promise((resolve) => setTimeout(resolve, 200))
 
   const cleanSearch = search.trim().toLowerCase()
 
-  const filtered = cleanSearch
+  let filtered = cleanSearch
     ? MOCK_BRANDS.filter((brand) =>
         brand.name.toLowerCase().includes(cleanSearch)
       )
-    : MOCK_BRANDS
+    : [...MOCK_BRANDS]
 
-  const totalItems = filtered.length
-  const totalPages = Math.ceil(totalItems / limit) || 1
-  const currentPage = Math.max(1, Math.min(page, totalPages))
+  if (sortField) {
+    filtered.sort((a, b) => {
+      const valA = (a as any)[sortField] || ""
+      const valB = (b as any)[sortField] || ""
+      const comp = String(valA).localeCompare(String(valB))
+      return sortDir === "asc" ? comp : -comp
+    })
+  }
 
-  const startIndex = (currentPage - 1) * limit
-  const endIndex = startIndex + limit
-  const data = filtered.slice(startIndex, endIndex)
+  const totalElements = filtered.length
+  const totalPages = Math.ceil(totalElements / pageSize) || 1
+  const currentPage = Math.max(1, Math.min(pageNumber, totalPages))
+
+  const startIndex = (currentPage - 1) * pageSize
+  const endIndex = startIndex + pageSize
+  const content = filtered.slice(startIndex, endIndex)
 
   return {
-    data,
-    pagination: {
-      page: currentPage,
-      limit,
-      totalItems,
-      totalPages
-    }
+    content,
+    pageNumber: currentPage,
+    pageSize,
+    totalElements,
+    totalPages
   }
 }
 
@@ -178,4 +181,13 @@ export async function deleteBrand(id: string): Promise<boolean> {
   }
   MOCK_BRANDS = MOCK_BRANDS.filter((b) => b.id !== id)
   return true
+}
+
+export async function getBrandById(id: string): Promise<BrandItem> {
+  await new Promise((resolve) => setTimeout(resolve, 150))
+  const brand = MOCK_BRANDS.find((b) => b.id === id)
+  if (!brand) {
+    throw new Error(`Brand with ID ${id} not found`)
+  }
+  return brand
 }

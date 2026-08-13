@@ -1,4 +1,4 @@
-import * as React from "react"
+import { useState, useEffect } from "react"
 import { Search, X, Loader2 } from "lucide-react"
 import { Input } from "~/core/components/shadcn/input"
 import { Button } from "~/core/components/shadcn/button"
@@ -16,13 +16,13 @@ export default function CategorySearch({
   isLoading = false,
   placeholder = "Search categories by name or ID..."
 }: CategorySearchProps) {
-  const [internalValue, setInternalValue] = React.useState(value)
+  const [internalValue, setInternalValue] = useState(value)
 
-  React.useEffect(() => {
+  useEffect(() => {
     setInternalValue(value)
   }, [value])
 
-  React.useEffect(() => {
+  useEffect(() => {
     const timer = setTimeout(() => {
       if (internalValue !== value) {
         onChange(internalValue)

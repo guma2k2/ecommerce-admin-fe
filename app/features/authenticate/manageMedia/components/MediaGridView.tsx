@@ -1,9 +1,9 @@
 import * as React from 'react'
 import { Copy, Eye, MoreHorizontal, Pencil, Trash2, FileText, Video, FileImage, File } from 'lucide-react'
-import { toast } from 'sonner'
+import { showToast } from '~/shared/utils/toast'
 
 import type { MediaItem } from '../types'
-import { formatFileSize, formatDateTime } from '../services/mediaService'
+import { formatFileSize, formatDateTime } from '~/shared/services/api/mediaService'
 import { Badge } from '~/core/components/shadcn/badge'
 import { Button } from '~/core/components/shadcn/button'
 import {
@@ -26,7 +26,7 @@ interface MediaGridViewProps {
 export default function MediaGridView({ mediaList, isLoading, onPreview, onEdit, onDelete }: MediaGridViewProps) {
   const handleCopyUrl = (url: string) => {
     navigator.clipboard.writeText(url)
-    toast.success('Media URL copied to clipboard!')
+    showToast('success', 'toasts.urlCopied')
   }
 
   if (isLoading) {

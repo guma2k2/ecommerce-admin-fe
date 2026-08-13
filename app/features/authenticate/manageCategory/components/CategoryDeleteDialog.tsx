@@ -1,6 +1,6 @@
-import * as React from "react"
+import { useState } from "react"
 import { AlertTriangle, Loader2 } from "lucide-react"
-import type { CategoryItem } from "../services/categoryService"
+import type { CategoryItem } from "~/shared/services/api/categoryService"
 import {
   Dialog,
   DialogContent,
@@ -24,7 +24,7 @@ export default function CategoryDeleteDialog({
   categoryToDelete,
   onConfirm,
 }: CategoryDeleteDialogProps) {
-  const [isDeleting, setIsDeleting] = React.useState(false)
+  const [isDeleting, setIsDeleting] = useState(false)
 
   const handleConfirm = async () => {
     try {

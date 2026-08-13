@@ -12,7 +12,7 @@ import {
 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { Link, useLocation, useNavigate } from 'react-router'
-import { toast } from 'sonner'
+import { showToast } from '~/shared/utils/toast'
 
 import LanguageSwitcher from '~/shared/components/LanguageSwitcher'
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '~/core/components/shadcn/collapsible'
@@ -54,7 +54,7 @@ export function AppSidebar() {
 
   const handleLogout = () => {
     logout()
-    toast.info('Logged out successfully')
+    showToast('info', 'toasts.loggedOut')
     navigate('/login', { replace: true })
   }
 

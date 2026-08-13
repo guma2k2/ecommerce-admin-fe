@@ -1,15 +1,15 @@
-import * as React from 'react'
+import { useState } from 'react'
 import { useLoaderData, useSearchParams, useNavigation, useNavigate } from 'react-router'
 import type { ClientLoaderFunctionArgs } from 'react-router'
 import { Image, Plus, Loader2, Trash2, Pencil } from 'lucide-react'
-import { toast } from 'sonner'
 
 import {
   getMediaList,
   updateMediaItemName,
   deleteMediaItem
-} from '~/features/authenticate/manageMedia/services/mediaService'
+} from '~/shared/services/api/mediaService'
 import type { MediaItem } from '~/features/authenticate/manageMedia/types'
+import { showToast } from '~/shared/utils/toast'
 import MediaFilter from '~/features/authenticate/manageMedia/components/MediaFilter'
 import MediaTable from '~/features/authenticate/manageMedia/components/MediaTable'
 import MediaGridView from '~/features/authenticate/manageMedia/components/MediaGridView'
@@ -31,39 +31,42 @@ import {
 
 export async function clientLoader({ request }: ClientLoaderFunctionArgs) {
   const url = new URL(request.url)
-  const page = Number(url.searchParams.get('page') || '1')
-  const limit = Number(url.searchParams.get('limit') || '10')
+  const pageNumber = Number(url.searchParams.get('pageNumber') || url.searchParams.get('page') || '1')
+  const pageSize = Number(url.searchParams.get('pageSize') || url.searchParams.get('limit') || '10')
   const search = url.searchParams.get('search') || ''
   const type = url.searchParams.get('type') || 'all'
+  const sortField = url.searchParams.get('sortField') || undefined
+  const sortDir = (url.searchParams.get('sortDir') || undefined) as any
 
-  const response = await getMediaList({ page, limit, search, type })
+  const response = await getMediaList({ pageNumber, pageSize, search, type, sortField, sortDir })
   return {
     ...response,
-    searchParams: { page, limit, search, type }
+    searchParams: { pageNumber, pageSize, search, type, sortField, sortDir }
   }
 }
 
 clientLoader.hydrate = true as const
 
 export default function ManageMediaPage() {
-  const { data, pagination, searchParams: currentParams } = useLoaderData<typeof clientLoader>()
+  const pageData = useLoaderData<typeof clientLoader>()
+  const { content, pageNumber, pageSize, totalElements, totalPages, searchParams: currentParams } = pageData
   const [, setSearchParams] = useSearchParams()
   const navigation = useNavigation()
   const navigate = useNavigate()
 
   // Local state for UI controls
-  const [viewMode, setViewMode] = React.useState<'table' | 'grid'>('table')
-  const [uploadDialogOpen, setUploadDialogOpen] = React.useState<boolean>(false)
-  const [previewMedia, setPreviewMedia] = React.useState<MediaItem | null>(null)
+  const [viewMode, setViewMode] = useState<'table' | 'grid'>('table')
+  const [uploadDialogOpen, setUploadDialogOpen] = useState<boolean>(false)
+  const [previewMedia, setPreviewMedia] = useState<MediaItem | null>(null)
   
   // State for Edit Name dialog
-  const [editingMedia, setEditingMedia] = React.useState<MediaItem | null>(null)
-  const [editNameValue, setEditNameValue] = React.useState<string>('')
-  const [isUpdating, setIsUpdating] = React.useState<boolean>(false)
+  const [editingMedia, setEditingMedia] = useState<MediaItem | null>(null)
+  const [editNameValue, setEditNameValue] = useState<string>('')
+  const [isUpdating, setIsUpdating] = useState<boolean>(false)
 
   // State for Delete confirmation dialog
-  const [deletingMedia, setDeletingMedia] = React.useState<MediaItem | null>(null)
-  const [isDeleting, setIsDeleting] = React.useState<boolean>(false)
+  const [deletingMedia, setDeletingMedia] = useState<MediaItem | null>(null)
+  const [isDeleting, setIsDeleting] = useState<boolean>(false)
 
   const isLoading = navigation.state === 'loading' || navigation.state === 'submitting'
 
@@ -76,7 +79,7 @@ export default function ManageMediaPage() {
       } else {
         next.delete('search')
       }
-      next.set('page', '1')
+      next.set('pageNumber', '1')
       return next
     })
   }
@@ -89,7 +92,7 @@ export default function ManageMediaPage() {
       } else {
         next.delete('type')
       }
-      next.set('page', '1')
+      next.set('pageNumber', '1')
       return next
     })
   }
@@ -99,24 +102,24 @@ export default function ManageMediaPage() {
       const next = new URLSearchParams(prev)
       next.delete('search')
       next.delete('type')
-      next.set('page', '1')
+      next.set('pageNumber', '1')
       return next
     })
   }
 
-  const handlePageChange = (newPage: number) => {
+  const handlePageChange = (newPageNumber: number) => {
     setSearchParams((prev) => {
       const next = new URLSearchParams(prev)
-      next.set('page', String(newPage))
+      next.set('pageNumber', String(newPageNumber))
       return next
     })
   }
 
-  const handleLimitChange = (newLimit: number) => {
+  const handlePageSizeChange = (newPageSize: number) => {
     setSearchParams((prev) => {
       const next = new URLSearchParams(prev)
-      next.set('limit', String(newLimit))
-      next.set('page', '1')
+      next.set('pageSize', String(newPageSize))
+      next.set('pageNumber', '1')
       return next
     })
   }
@@ -128,13 +131,13 @@ export default function ManageMediaPage() {
     try {
       setIsUpdating(true)
       await updateMediaItemName(editingMedia.id, editNameValue.trim())
-      toast.success(`Updated file name to "${editNameValue.trim()}"`)
+      showToast('success', 'toasts.mediaUpdated')
       setEditingMedia(null)
       // Refresh current route data
       navigate('.', { replace: true })
     } catch (err) {
       console.error('Update name error:', err)
-      toast.error('Failed to update file name.')
+      showToast('error', 'toasts.mediaUpdateFailed')
     } finally {
       setIsUpdating(false)
     }
@@ -147,13 +150,13 @@ export default function ManageMediaPage() {
     try {
       setIsDeleting(true)
       await deleteMediaItem(deletingMedia.id)
-      toast.success(`Deleted media file ${deletingMedia.name}`)
+      showToast('success', 'toasts.mediaDeleted')
       setDeletingMedia(null)
       // Refresh current route data
       navigate('.', { replace: true })
     } catch (err) {
       console.error('Delete error:', err)
-      toast.error('Failed to delete media file.')
+      showToast('error', 'toasts.mediaDeleteFailed')
     } finally {
       setIsDeleting(false)
     }
@@ -170,7 +173,7 @@ export default function ManageMediaPage() {
               Media Management
             </h1>
             <Badge variant='secondary' className='ml-1 font-semibold text-xs'>
-              {pagination.totalItems} Items
+              {totalElements} Items
             </Badge>
           </div>
           <p className='text-sm text-muted-foreground'>
@@ -201,7 +204,7 @@ export default function ManageMediaPage() {
         {/* Media Data Render (Table View vs Grid View) */}
         {viewMode === 'table' ? (
           <MediaTable
-            mediaList={data}
+            mediaList={content}
             isLoading={isLoading}
             onPreview={(item) => setPreviewMedia(item)}
             onEdit={(item) => {
@@ -212,7 +215,7 @@ export default function ManageMediaPage() {
           />
         ) : (
           <MediaGridView
-            mediaList={data}
+            mediaList={content}
             isLoading={isLoading}
             onPreview={(item) => setPreviewMedia(item)}
             onEdit={(item) => {
@@ -225,12 +228,12 @@ export default function ManageMediaPage() {
 
         {/* Pagination Controls */}
         <MediaPagination
-          page={pagination.page}
-          limit={pagination.limit}
-          totalItems={pagination.totalItems}
-          totalPages={pagination.totalPages}
+          pageNumber={pageNumber}
+          pageSize={pageSize}
+          totalElements={totalElements}
+          totalPages={totalPages}
           onPageChange={handlePageChange}
-          onLimitChange={handleLimitChange}
+          onPageSizeChange={handlePageSizeChange}
         />
       </div>
 
