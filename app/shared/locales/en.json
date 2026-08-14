@@ -11,7 +11,17 @@
     "search": "Search",
     "settings": "Settings",
     "application": "Application",
-    "language": "Language"
+    "language": "Language",
+    "account": "Account",
+    "logout": "Logout",
+    "hello": "Hello, {{name}}",
+    "accountTitle": "Account Details",
+    "accountSubtitle": "Manage your admin profile and account settings",
+    "role": "Role",
+    "email": "Email",
+    "name": "Full Name",
+    "userId": "User ID",
+    "close": "Close"
   },
   "languages": {
     "en": "English",

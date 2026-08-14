@@ -11,7 +11,17 @@
     "search": "Tìm kiếm",
     "settings": "Cài đặt",
     "application": "Ứng dụng",
-    "language": "Ngôn ngữ"
+    "language": "Ngôn ngữ",
+    "account": "Tài khoản",
+    "logout": "Đăng xuất",
+    "hello": "Xin chào, {{name}}",
+    "accountTitle": "Chi tiết tài khoản",
+    "accountSubtitle": "Quản lý hồ sơ quản trị viên và cài đặt tài khoản",
+    "role": "Vai trò",
+    "email": "Email",
+    "name": "Họ và tên",
+    "userId": "Mã người dùng",
+    "close": "Đóng"
   },
   "languages": {
     "en": "English",
