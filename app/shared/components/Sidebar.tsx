@@ -6,20 +6,17 @@ import {
   FolderKanban,
   FolderTree,
   LayoutDashboard,
-  LogOut,
   Package,
-  User
+  Store
 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
-import { Link, useLocation, useNavigate } from 'react-router'
-import { showToast } from '~/shared/utils/toast'
+import { Link, useLocation } from 'react-router'
 
-import LanguageSwitcher from '~/shared/components/LanguageSwitcher'
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '~/core/components/shadcn/collapsible'
 import {
   Sidebar,
   SidebarContent,
-  SidebarFooter,
+  SidebarHeader,
   SidebarGroup,
   SidebarGroupContent,
   SidebarGroupLabel,
@@ -30,7 +27,6 @@ import {
   SidebarMenuSubButton,
   SidebarMenuSubItem
 } from '~/core/components/shadcn/sidebar'
-import { useAuthStore } from '~/stores'
 
 interface NavSubItem {
   title: string
@@ -47,16 +43,7 @@ interface NavItem {
 
 export function AppSidebar() {
   const { t } = useTranslation()
-  const navigate = useNavigate()
   const location = useLocation()
-  const user = useAuthStore((state) => state.user)
-  const logout = useAuthStore((state) => state.logout)
-
-  const handleLogout = () => {
-    logout()
-    showToast('info', 'toasts.loggedOut')
-    navigate('/login', { replace: true })
-  }
 
   const navItems: NavItem[] = [
     {
@@ -100,6 +87,18 @@ export function AppSidebar() {
 
   return (
     <Sidebar collapsible='icon'>
+      <SidebarHeader className='p-3.5 border-b border-sidebar-border'>
+        <div className='flex items-center gap-3'>
+          <div className='flex h-9 w-9 items-center justify-center rounded-lg bg-primary text-primary-foreground font-bold shadow-xs shrink-0'>
+            <Store className='size-5' />
+          </div>
+          <div className='flex flex-col overflow-hidden group-data-[collapsible=icon]:hidden'>
+            <span className='font-bold text-sm text-sidebar-foreground truncate'>E-Commerce</span>
+            <span className='text-[11px] text-muted-foreground truncate'>Admin Dashboard</span>
+          </div>
+        </div>
+      </SidebarHeader>
+
       <SidebarContent>
         <SidebarGroup>
           <SidebarGroupLabel>{t('label.application')}</SidebarGroupLabel>
@@ -160,35 +159,8 @@ export function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
-
-      <SidebarFooter className='p-3 flex flex-col gap-2'>
-        {user && (
-          <div className='flex items-center gap-2 px-2 py-1.5 text-xs text-sidebar-foreground border-b pb-2 mb-1'>
-            <div className='w-7 h-7 rounded-full bg-slate-200 flex items-center justify-center overflow-hidden shrink-0'>
-              {user.avatar ? (
-                <img src={user.avatar} alt={user.name} className='w-full h-full object-cover' />
-              ) : (
-                <User className='w-4 h-4' />
-              )}
-            </div>
-            <div className='flex flex-col overflow-hidden text-left'>
-              <span className='font-medium truncate'>{user.name}</span>
-              <span className='text-[10px] text-muted-foreground truncate'>{user.email}</span>
-            </div>
-          </div>
-        )}
-
-        <SidebarMenu>
-          <SidebarMenuItem>
-            <SidebarMenuButton onClick={handleLogout} className='cursor-pointer text-red-600 hover:text-red-700 hover:bg-red-50'>
-              <LogOut className='w-4 h-4' />
-              <span>Logout</span>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-        </SidebarMenu>
-
-        <LanguageSwitcher />
-      </SidebarFooter>
     </Sidebar>
   )
 }
+
+export default AppSidebar
