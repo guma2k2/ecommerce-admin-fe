@@ -6,6 +6,7 @@ import { Field, FieldContent, FieldDescription, FieldError, FieldLabel } from '~
 import { Input } from '~/core/components/shadcn/input'
 import { Select, SelectTrigger, SelectValue } from '~/core/components/shadcn/select'
 import { Textarea } from '~/core/components/shadcn/textarea'
+import FileUpload, { type FileUploadProps } from '~/shared/components/FileUpload'
 
 type FormControlProps<
   TFieldValues extends FieldValues = FieldValues,
@@ -140,3 +141,20 @@ export const FormCheckbox: FormControlFunc = (props) => {
 export const FormTextarea: FormControlFunc = (props) => {
   return <FormBase {...props}>{(field) => <Textarea {...field} />}</FormBase>
 }
+
+export const FormUpload: FormControlFunc<
+  Omit<FileUploadProps, 'value' | 'onChange'>
+> = (props) => {
+  return (
+    <FormBase {...props}>
+      {({ onChange, value }) => (
+        <FileUpload
+          {...props}
+          value={value}
+          onChange={onChange}
+        />
+      )}
+    </FormBase>
+  )
+}
+

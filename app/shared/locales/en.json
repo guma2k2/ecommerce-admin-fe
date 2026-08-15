@@ -61,6 +61,17 @@
     "confirm": "Confirm",
     "back": "Back"
   },
+  "upload": {
+    "uploadPrompt": "Click to upload or drag and drop",
+    "uploadHint": "SVG, PNG, JPG, or WEBP (Max 5MB)",
+    "selectFromMedia": "Select from Media Library",
+    "changeImage": "Change Image",
+    "removeImage": "Remove Image",
+    "uploadingImage": "Uploading image...",
+    "invalidFileType": "Please select a valid image file (PNG, JPG, WEBP, SVG, GIF)",
+    "fileTooLarge": "File size exceeds 5MB limit",
+    "failedToLoadPreview": "Failed to load image preview"
+  },
   "brand": {
     "title": "Brand Management",
     "subtitle": "Manage your store's manufacturer and product brands (Logo, Name, Created At, Updated At).",
@@ -77,6 +88,15 @@
     "imageUrl": "Image URL",
     "imagePlaceholder": "https://example.com/logo.png",
     "logoPreview": "Logo Preview",
+    "uploadLogo": "Brand Logo",
+    "uploadPrompt": "Click to upload brand logo or drag and drop",
+    "uploadHint": "SVG, PNG, JPG, or WEBP (Max 5MB)",
+    "selectFromMedia": "Select from Media Library",
+    "changeImage": "Change Logo",
+    "removeImage": "Remove Logo",
+    "uploadingImage": "Uploading image...",
+    "invalidFileType": "Please select a valid image file (PNG, JPG, WEBP, SVG, GIF)",
+    "fileTooLarge": "File size exceeds 5MB limit",
     "enterUrlToPreview": "Enter image URL to view preview",
     "failedToLoadPreview": "Failed to load image preview",
     "saveBrand": "Save Brand",
