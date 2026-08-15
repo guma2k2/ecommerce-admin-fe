@@ -61,6 +61,17 @@
     "confirm": "Xác nhận",
     "back": "Quay lại"
   },
+  "upload": {
+    "uploadPrompt": "Nhấn để tải lên hoặc kéo thả vào đây",
+    "uploadHint": "SVG, PNG, JPG hoặc WEBP (Tối đa 5MB)",
+    "selectFromMedia": "Chọn từ thư viện Media",
+    "changeImage": "Thay đổi ảnh",
+    "removeImage": "Xóa ảnh",
+    "uploadingImage": "Đang tải ảnh lên...",
+    "invalidFileType": "Vui lòng chọn định dạng ảnh hợp lệ (PNG, JPG, WEBP, SVG, GIF)",
+    "fileTooLarge": "Kích thước tệp vượt quá giới hạn 5MB",
+    "failedToLoadPreview": "Không thể tải xem trước hình ảnh"
+  },
   "brand": {
     "title": "Quản lý thương hiệu",
     "subtitle": "Quản lý thương hiệu nhà sản xuất và sản phẩm của cửa hàng (Logo, Tên, Ngày tạo, Ngày cập nhật).",
@@ -77,6 +88,15 @@
     "imageUrl": "URL hình ảnh",
     "imagePlaceholder": "https://example.com/logo.png",
     "logoPreview": "Xem trước logo",
+    "uploadLogo": "Logo thương hiệu",
+    "uploadPrompt": "Nhấn để tải lên logo hoặc kéo thả vào đây",
+    "uploadHint": "SVG, PNG, JPG hoặc WEBP (Tối đa 5MB)",
+    "selectFromMedia": "Chọn từ thư viện Media",
+    "changeImage": "Thay đổi logo",
+    "removeImage": "Xóa logo",
+    "uploadingImage": "Đang tải ảnh lên...",
+    "invalidFileType": "Vui lòng chọn định dạng ảnh hợp lệ (PNG, JPG, WEBP, SVG, GIF)",
+    "fileTooLarge": "Kích thước tệp vượt quá giới hạn 5MB",
     "enterUrlToPreview": "Nhập URL hình ảnh để xem trước",
     "failedToLoadPreview": "Không thể tải xem trước hình ảnh",
     "saveBrand": "Lưu thương hiệu",

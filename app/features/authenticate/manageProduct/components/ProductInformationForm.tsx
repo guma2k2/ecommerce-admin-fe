@@ -3,7 +3,7 @@ import { useFieldArray, useForm } from "react-hook-form"
 import { FormInput } from "~/shared/components/Form"
 import { FieldContent, FieldGroup, FieldLabel } from "~/core/components/shadcn/field"
 import { productFormSchema, type ProductFormSchema } from "~/features/authenticate/manageProduct/validator"
-import Upload from "~/shared/components/Upload"
+import Upload from "~/shared/components/MultipleUpload"
 import { TextEditor } from "~/shared/components/TextEditor"
 
 export default function ProductInformationForm() {

@@ -165,7 +165,11 @@ export default function ProductVariantForm() {
               <div className='grid grid-cols-12 gap-3 items-center' key={field.id}>
                 <div className='col-span-6 grid grid-cols-12 items-center gap-3'>
                   <div className='col-span-3'>
-                    <FileUpload onChange={(url: string) => handleChangeProductImage(index, url)} />
+                    <FileUpload
+                      variant='compact'
+                      value={productVariants[index]?.image}
+                      onChange={(url: string) => handleChangeProductImage(index, url)}
+                    />
                   </div>
                   <div className='col-span-9'>{field.name}</div>
                 </div>
