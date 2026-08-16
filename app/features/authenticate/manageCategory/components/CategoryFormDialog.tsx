@@ -7,7 +7,7 @@ import {
   DialogDescription,
   DialogFooter,
   DialogHeader,
-  DialogTitle,
+  DialogTitle
 } from "~/core/components/shadcn/dialog"
 import { Button } from "~/core/components/shadcn/button"
 import { Input } from "~/core/components/shadcn/input"
@@ -20,12 +20,7 @@ interface CategoryFormDialogProps {
   onSubmit: (name: string) => Promise<void>
 }
 
-export default function CategoryFormDialog({
-  open,
-  onOpenChange,
-  categoryToEdit,
-  onSubmit,
-}: CategoryFormDialogProps) {
+export default function CategoryFormDialog({ open, onOpenChange, categoryToEdit, onSubmit }: CategoryFormDialogProps) {
   const [name, setName] = useState("")
   const [error, setError] = useState("")
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -75,17 +70,15 @@ export default function CategoryFormDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className='sm:max-w-[425px]'>
         <DialogHeader>
-          <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-lg bg-primary/10 text-primary flex items-center justify-center">
-              {isEditing ? <Pencil className="size-5" /> : <FolderPlus className="size-5" />}
+          <div className='flex items-center gap-2.5'>
+            <div className='w-9 h-9 rounded-lg bg-primary/10 text-primary flex items-center justify-center'>
+              {isEditing ? <Pencil className='size-5' /> : <FolderPlus className='size-5' />}
             </div>
             <div>
-              <DialogTitle className="text-xl">
-                {isEditing ? "Edit Category" : "Add New Category"}
-              </DialogTitle>
-              <DialogDescription className="text-xs text-muted-foreground mt-0.5">
+              <DialogTitle className='text-xl'>{isEditing ? "Edit Category" : "Add New Category"}</DialogTitle>
+              <DialogDescription className='text-xs text-muted-foreground mt-0.5'>
                 {isEditing
                   ? `Update category details for ${categoryToEdit?.id}`
                   : "Fill in the category name below to create a new category."}
@@ -94,48 +87,43 @@ export default function CategoryFormDialog({
           </div>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-4 py-2">
+        <form onSubmit={handleSubmit} className='space-y-4 py-2'>
           {isEditing && categoryToEdit && (
-            <div className="space-y-1.5">
-              <Label className="text-xs text-muted-foreground font-medium">Category ID</Label>
+            <div className='space-y-1.5'>
+              <Label className='text-xs text-muted-foreground font-medium'>Category ID</Label>
               <Input
                 value={categoryToEdit.id}
                 disabled
-                className="bg-gray-100 dark:bg-zinc-800 font-mono text-sm cursor-not-allowed opacity-80"
+                className='bg-gray-100 dark:bg-zinc-800 font-mono text-sm cursor-not-allowed opacity-80'
               />
             </div>
           )}
 
-          <div className="space-y-1.5">
-            <Label htmlFor="category-name" className="text-sm font-medium">
-              Category Name <span className="text-red-500">*</span>
+          <div className='space-y-1.5'>
+            <Label htmlFor='category-name' className='text-sm font-medium'>
+              Category Name <span className='text-red-500'>*</span>
             </Label>
             <Input
-              id="category-name"
-              type="text"
+              id='category-name'
+              type='text'
               value={name}
               onChange={(e) => {
                 setName(e.target.value)
                 if (error) setError("")
               }}
-              placeholder="e.g. Smart Home Electronics"
+              placeholder='e.g. Smart Home Electronics'
               autoFocus
               className={error ? "border-red-500 focus-visible:ring-red-500" : ""}
             />
-            {error && <p className="text-xs text-red-500 font-medium">{error}</p>}
+            {error && <p className='text-xs text-red-500 font-medium'>{error}</p>}
           </div>
 
-          <DialogFooter className="pt-2 gap-2 sm:gap-0">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => onOpenChange(false)}
-              disabled={isSubmitting}
-            >
+          <DialogFooter className='pt-2 gap-2 sm:gap-0'>
+            <Button type='button' variant='outline' onClick={() => onOpenChange(false)} disabled={isSubmitting}>
               Cancel
             </Button>
-            <Button type="submit" disabled={isSubmitting} className="gap-2">
-              {isSubmitting && <Loader2 className="size-4 animate-spin" />}
+            <Button type='submit' disabled={isSubmitting} className='gap-2'>
+              {isSubmitting && <Loader2 className='size-4 animate-spin' />}
               {isEditing ? "Save Changes" : "Create Category"}
             </Button>
           </DialogFooter>

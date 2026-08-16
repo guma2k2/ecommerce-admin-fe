@@ -1,12 +1,11 @@
-import { SelectContent } from '@radix-ui/react-select'
-import type { ReactNode } from 'react'
-import { Controller, type ControllerProps, type FieldPath, type FieldValues } from 'react-hook-form'
-import { Checkbox } from '~/core/components/shadcn/checkbox'
-import { Field, FieldContent, FieldDescription, FieldError, FieldLabel } from '~/core/components/shadcn/field'
-import { Input } from '~/core/components/shadcn/input'
-import { Select, SelectTrigger, SelectValue } from '~/core/components/shadcn/select'
-import { Textarea } from '~/core/components/shadcn/textarea'
-import FileUpload, { type FileUploadProps } from '~/shared/components/FileUpload'
+import type { ReactNode } from "react"
+import { Controller, type ControllerProps, type FieldPath, type FieldValues } from "react-hook-form"
+import { Checkbox } from "~/core/components/shadcn/checkbox"
+import { Field, FieldContent, FieldDescription, FieldError, FieldLabel } from "~/core/components/shadcn/field"
+import { Input } from "~/core/components/shadcn/input"
+import { Select, SelectContent, SelectTrigger, SelectValue } from "~/core/components/shadcn/select"
+import { Textarea } from "~/core/components/shadcn/textarea"
+import FileUpload, { type FileUploadProps } from "~/shared/components/FileUpload"
 
 type FormControlProps<
   TFieldValues extends FieldValues = FieldValues,
@@ -16,7 +15,7 @@ type FormControlProps<
   name: TName
   label?: ReactNode
   description?: ReactNode
-  control: ControllerProps<TFieldValues, TName, TTransformedValues>['control']
+  control: ControllerProps<TFieldValues, TName, TTransformedValues>["control"]
 }
 
 type FormBaseProps<
@@ -27,8 +26,8 @@ type FormBaseProps<
   horizontal?: boolean
   controlFirst?: boolean
   children: (
-    field: Parameters<ControllerProps<TFieldValues, TName, TTransformedValues>['render']>[0]['field'] & {
-      'aria-invalid': boolean
+    field: Parameters<ControllerProps<TFieldValues, TName, TTransformedValues>["render"]>[0]["field"] & {
+      "aria-invalid": boolean
       id: string
     }
   ) => ReactNode
@@ -66,11 +65,11 @@ export default function FormBase<
             {description && <FieldDescription>{description}</FieldDescription>}
           </>
         )
-        const control = children({ ...field, id: field.name, 'aria-invalid': fieldState.invalid })
+        const control = children({ ...field, id: field.name, "aria-invalid": fieldState.invalid })
         const errorElement = fieldState.invalid && <FieldError errors={[fieldState.error]} />
 
         return (
-          <Field data-invalid={fieldState.invalid} orientation={horizontal ? 'horizontal' : undefined}>
+          <Field data-invalid={fieldState.invalid} orientation={horizontal ? "horizontal" : undefined}>
             {controlFirst ? (
               <>
                 {control}
@@ -94,7 +93,7 @@ export default function FormBase<
 }
 
 export const FormInput: FormControlFunc<
-  Omit<React.ComponentProps<typeof Input>, 'name' | 'value' | 'defaultValue'> & {
+  Omit<React.ComponentProps<typeof Input>, "name" | "value" | "defaultValue"> & {
     onChangeCustom?: (e: React.ChangeEvent<HTMLInputElement>) => void
   }
 > = ({ onChangeCustom, type, placeholder, ...props }) => {
@@ -115,13 +114,23 @@ export const FormInput: FormControlFunc<
   )
 }
 
-export const FormSelect: FormControlFunc<{ children: ReactNode }> = ({ children, ...props }) => {
+export const FormSelect: FormControlFunc<{
+  children: ReactNode
+  placeholder?: string
+  disabled?: boolean
+  className?: string
+}> = ({ children, placeholder, disabled, className, ...props }) => {
   return (
     <FormBase {...props}>
-      {({ onChange, onBlur, ...field }) => (
-        <Select {...field} onValueChange={onChange}>
-          <SelectTrigger aria-invalid={field['aria-invalid']} id={field.id} onBlur={onBlur}>
-            <SelectValue />
+      {({ onChange, onBlur, value, ...field }) => (
+        <Select {...field} value={value ?? ""} onValueChange={onChange} disabled={disabled}>
+          <SelectTrigger
+            aria-invalid={field["aria-invalid"]}
+            id={field.id}
+            onBlur={onBlur}
+            className={`w-full ${className || ""}`}
+          >
+            <SelectValue placeholder={placeholder} />
           </SelectTrigger>
           <SelectContent>{children}</SelectContent>
         </Select>
@@ -142,19 +151,10 @@ export const FormTextarea: FormControlFunc = (props) => {
   return <FormBase {...props}>{(field) => <Textarea {...field} />}</FormBase>
 }
 
-export const FormUpload: FormControlFunc<
-  Omit<FileUploadProps, 'value' | 'onChange'>
-> = (props) => {
+export const FormUpload: FormControlFunc<Omit<FileUploadProps, "value" | "onChange">> = (props) => {
   return (
     <FormBase {...props}>
-      {({ onChange, value }) => (
-        <FileUpload
-          {...props}
-          value={value}
-          onChange={onChange}
-        />
-      )}
+      {({ onChange, value }) => <FileUpload {...props} value={value} onChange={onChange} />}
     </FormBase>
   )
 }
-

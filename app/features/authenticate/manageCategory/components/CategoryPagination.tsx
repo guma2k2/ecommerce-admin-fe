@@ -6,15 +6,9 @@ import {
   PaginationItem,
   PaginationLink,
   PaginationNext,
-  PaginationPrevious,
+  PaginationPrevious
 } from "~/core/components/shadcn/pagination"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "~/core/components/shadcn/select"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "~/core/components/shadcn/select"
 
 interface CategoryPaginationProps {
   pageNumber: number
@@ -33,7 +27,7 @@ export default function CategoryPagination({
   totalPages,
   onPageChange,
   onPageSizeChange,
-  pageSizeOptions = [5, 10, 20, 50],
+  pageSizeOptions = [5, 10, 20, 50]
 }: CategoryPaginationProps) {
   const startItem = totalElements === 0 ? 0 : (pageNumber - 1) * pageSize + 1
   const endItem = Math.min(pageNumber * pageSize, totalElements)
@@ -66,22 +60,19 @@ export default function CategoryPagination({
   }
 
   return (
-    <div className="flex flex-col sm:flex-row items-center justify-between gap-4 py-3 px-2">
+    <div className='flex flex-col sm:flex-row items-center justify-between gap-4 py-3 px-2'>
       {/* Left side: Results summary & limit selector */}
-      <div className="flex flex-wrap items-center gap-3 text-xs sm:text-sm text-gray-500 dark:text-gray-400">
+      <div className='flex flex-wrap items-center gap-3 text-xs sm:text-sm text-gray-500 dark:text-gray-400'>
         <span>
-          Showing <span className="font-medium text-gray-900 dark:text-gray-100">{startItem}</span> to{" "}
-          <span className="font-medium text-gray-900 dark:text-gray-100">{endItem}</span> of{" "}
-          <span className="font-medium text-gray-900 dark:text-gray-100">{totalElements}</span> categories
+          Showing <span className='font-medium text-gray-900 dark:text-gray-100'>{startItem}</span> to{" "}
+          <span className='font-medium text-gray-900 dark:text-gray-100'>{endItem}</span> of{" "}
+          <span className='font-medium text-gray-900 dark:text-gray-100'>{totalElements}</span> categories
         </span>
 
-        <div className="flex items-center gap-2 border-l border-gray-200 dark:border-zinc-800 pl-3">
-          <span className="whitespace-nowrap">Per page:</span>
-          <Select
-            value={String(pageSize)}
-            onValueChange={(val) => onPageSizeChange(Number(val))}
-          >
-            <SelectTrigger size="sm" className="h-8 w-[70px] bg-white dark:bg-zinc-900">
+        <div className='flex items-center gap-2 border-l border-gray-200 dark:border-zinc-800 pl-3'>
+          <span className='whitespace-nowrap'>Per page:</span>
+          <Select value={String(pageSize)} onValueChange={(val) => onPageSizeChange(Number(val))}>
+            <SelectTrigger size='sm' className='h-8 w-[70px] bg-white dark:bg-zinc-900'>
               <SelectValue placeholder={String(pageSize)} />
             </SelectTrigger>
             <SelectContent>
@@ -97,7 +88,7 @@ export default function CategoryPagination({
 
       {/* Right side: Page navigation buttons */}
       {totalPages > 1 && (
-        <Pagination className="mx-0 w-auto">
+        <Pagination className='mx-0 w-auto'>
           <PaginationContent>
             <PaginationItem>
               <PaginationPrevious

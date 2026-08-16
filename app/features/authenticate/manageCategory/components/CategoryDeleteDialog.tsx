@@ -7,7 +7,7 @@ import {
   DialogDescription,
   DialogFooter,
   DialogHeader,
-  DialogTitle,
+  DialogTitle
 } from "~/core/components/shadcn/dialog"
 import { Button } from "~/core/components/shadcn/button"
 
@@ -22,7 +22,7 @@ export default function CategoryDeleteDialog({
   open,
   onOpenChange,
   categoryToDelete,
-  onConfirm,
+  onConfirm
 }: CategoryDeleteDialogProps) {
   const [isDeleting, setIsDeleting] = useState(false)
 
@@ -40,15 +40,15 @@ export default function CategoryDeleteDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[400px]">
+      <DialogContent className='sm:max-w-[400px]'>
         <DialogHeader>
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-red-100 dark:bg-red-950/40 text-red-600 dark:text-red-400 flex items-center justify-center shrink-0">
-              <AlertTriangle className="size-5" />
+          <div className='flex items-center gap-3'>
+            <div className='w-10 h-10 rounded-full bg-red-100 dark:bg-red-950/40 text-red-600 dark:text-red-400 flex items-center justify-center shrink-0'>
+              <AlertTriangle className='size-5' />
             </div>
             <div>
-              <DialogTitle className="text-lg">Delete Category</DialogTitle>
-              <DialogDescription className="text-xs text-muted-foreground mt-0.5">
+              <DialogTitle className='text-lg'>Delete Category</DialogTitle>
+              <DialogDescription className='text-xs text-muted-foreground mt-0.5'>
                 This action cannot be undone.
               </DialogDescription>
             </div>
@@ -56,34 +56,27 @@ export default function CategoryDeleteDialog({
         </DialogHeader>
 
         {categoryToDelete && (
-          <div className="py-2">
-            <p className="text-sm text-gray-700 dark:text-gray-300">
+          <div className='py-2'>
+            <p className='text-sm text-gray-700 dark:text-gray-300'>
               Are you sure you want to delete category{" "}
-              <span className="font-semibold text-gray-900 dark:text-white">
-                "{categoryToDelete.name}"
-              </span>{" "}
-              <span className="font-mono text-xs text-gray-500">({categoryToDelete.id})</span>?
+              <span className='font-semibold text-gray-900 dark:text-white'>"{categoryToDelete.name}"</span>{" "}
+              <span className='font-mono text-xs text-gray-500'>({categoryToDelete.id})</span>?
             </p>
           </div>
         )}
 
-        <DialogFooter className="gap-2 sm:gap-0">
-          <Button
-            type="button"
-            variant="outline"
-            onClick={() => onOpenChange(false)}
-            disabled={isDeleting}
-          >
+        <DialogFooter className='gap-2 sm:gap-0'>
+          <Button type='button' variant='outline' onClick={() => onOpenChange(false)} disabled={isDeleting}>
             Cancel
           </Button>
           <Button
-            type="button"
-            variant="destructive"
+            type='button'
+            variant='destructive'
             onClick={handleConfirm}
             disabled={isDeleting}
-            className="gap-2 bg-red-600 hover:bg-red-700 text-white"
+            className='gap-2 bg-red-600 hover:bg-red-700 text-white'
           >
-            {isDeleting && <Loader2 className="size-4 animate-spin" />}
+            {isDeleting && <Loader2 className='size-4 animate-spin' />}
             Delete Category
           </Button>
         </DialogFooter>
