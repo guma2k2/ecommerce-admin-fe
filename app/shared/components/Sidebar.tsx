@@ -27,6 +27,7 @@ import {
   SidebarMenuSubButton,
   SidebarMenuSubItem
 } from '~/core/components/shadcn/sidebar'
+import { cn } from '~/shared/utils/appUtils'
 
 interface NavSubItem {
   title: string
@@ -87,16 +88,19 @@ export function AppSidebar() {
 
   return (
     <Sidebar collapsible='icon'>
-      <SidebarHeader className='p-3.5 border-b border-sidebar-border'>
-        <div className='flex items-center gap-3'>
-          <div className='flex h-9 w-9 items-center justify-center rounded-lg bg-primary text-primary-foreground font-bold shadow-xs shrink-0'>
-            <Store className='size-5' />
+      <SidebarHeader className='h-16 justify-center border-b border-sidebar-border px-3.5 group-data-[collapsible=icon]:px-0'>
+        <Link
+          to='/admin'
+          className='flex items-center gap-3 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:gap-0 outline-hidden focus-visible:ring-2 focus-visible:ring-sidebar-ring rounded-md'
+        >
+          <div className='flex size-8 items-center justify-center rounded-lg bg-primary text-primary-foreground font-bold shadow-xs shrink-0'>
+            <Store className='size-4.5' />
           </div>
           <div className='flex flex-col overflow-hidden group-data-[collapsible=icon]:hidden'>
             <span className='font-bold text-sm text-sidebar-foreground truncate'>E-Commerce</span>
             <span className='text-[11px] text-muted-foreground truncate'>Admin Dashboard</span>
           </div>
-        </div>
+        </Link>
       </SidebarHeader>
 
       <SidebarContent>
@@ -127,7 +131,15 @@ export function AppSidebar() {
                   <Collapsible key={item.title} asChild defaultOpen={isGroupActive} className='group/collapsible'>
                     <SidebarMenuItem>
                       <CollapsibleTrigger asChild>
-                        <SidebarMenuButton tooltip={item.title}>
+                        <SidebarMenuButton
+                          tooltip={item.title}
+                          isActive={isGroupActive}
+                          className={cn(
+                            'transition-colors',
+                            isGroupActive &&
+                              'font-medium text-sidebar-foreground data-[active=true]:bg-transparent data-[active=true]:text-sidebar-foreground data-[active=true]:shadow-none data-[active=true]:[&>svg]:text-sidebar-foreground group-data-[collapsible=icon]:data-[active=true]:bg-primary group-data-[collapsible=icon]:data-[active=true]:text-primary-foreground group-data-[collapsible=icon]:data-[active=true]:[&>svg]:text-primary-foreground'
+                          )}
+                        >
                           {item.icon && <item.icon />}
                           <span>{item.title}</span>
                           <ChevronRight className='ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90' />
