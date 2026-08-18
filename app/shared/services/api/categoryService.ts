@@ -1,31 +1,6 @@
-import type { PageResponse, SortDirection } from "~/shared/types/pagination"
+import type { CategoryItem, CategoryInput, GetCategoriesParams, PaginatedCategoriesResponse, PageResponse } from '~/shared/types'
 
-export interface CategoryItem {
-  id: string
-  name: string
-  parentId?: string | null
-  parent?: {
-    id: string
-    name: string
-  } | null
-  created_at: string
-  updated_at: string
-}
-
-export interface CategoryInput {
-  name: string
-  parentId?: string | null
-}
-
-export interface GetCategoriesParams {
-  pageNumber?: number
-  pageSize?: number
-  sortField?: string
-  sortDir?: SortDirection
-  search?: string
-}
-
-export type PaginatedCategoriesResponse = PageResponse<CategoryItem>
+export type { CategoryItem, CategoryInput, GetCategoriesParams, PaginatedCategoriesResponse }
 
 let MOCK_CATEGORIES: CategoryItem[] = [
   {

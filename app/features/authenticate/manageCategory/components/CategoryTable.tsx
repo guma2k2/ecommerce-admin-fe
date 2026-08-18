@@ -1,14 +1,13 @@
 import * as React from "react"
 import { Folder, FolderTree, Pencil, Trash2, Calendar, ArrowUpDown, ArrowUp, ArrowDown } from "lucide-react"
 import { useTranslation } from "react-i18next"
-import type { CategoryItem } from "~/shared/services/api/categoryService"
-import type { SortDirection } from "~/shared/types/pagination"
+import type { CategoryItem, SortDirection, SortField, CategorySortField } from "~/shared/types"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "~/core/components/shadcn/table"
 import { Button } from "~/core/components/shadcn/button"
 import { Badge } from "~/core/components/shadcn/badge"
 import { Skeleton } from "~/core/components/shadcn/skeleton"
 
-export type SortField = "id" | "name" | "parent" | "created_at" | "updated_at"
+export type { SortField, CategorySortField }
 
 interface CategoryTableProps {
   categories: CategoryItem[]

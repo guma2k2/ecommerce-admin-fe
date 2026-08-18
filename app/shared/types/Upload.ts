@@ -6,4 +6,5 @@ export type UploadType = {
   status: UploadStatus
   url: string
   id: string
+  checked?: boolean
 }

@@ -1,7 +1,8 @@
 import { toast } from 'sonner'
 import i18n from '~/shared/i18n'
+import type { ToastType } from '~/shared/types'
 
-export type ToastType = 'success' | 'error' | 'info'
+export type { ToastType }
 
 export function showToast(type: ToastType, message: string): void {
   const translatedMessage = i18n.t(message, { defaultValue: message })

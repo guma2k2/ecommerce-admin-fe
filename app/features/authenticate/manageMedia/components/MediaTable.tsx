@@ -15,7 +15,7 @@ import {
 } from 'lucide-react'
 import { showToast } from '~/shared/utils/toast'
 
-import type { MediaItem } from '../types'
+import type { MediaItem } from '~/shared/types'
 import { formatFileSize, formatDateTime } from '~/shared/services/api/mediaService'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '~/core/components/shadcn/table'
 import { Button } from '~/core/components/shadcn/button'

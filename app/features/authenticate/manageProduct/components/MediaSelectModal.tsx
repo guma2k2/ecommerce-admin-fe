@@ -31,7 +31,7 @@ import {
   DropdownMenuTrigger
 } from "~/core/components/shadcn/dropdown-menu"
 import { getMediaList, createMediaItem } from "~/shared/services/api/mediaService"
-import type { MediaItem } from "~/features/authenticate/manageMedia/types"
+import type { MediaItem } from "~/shared/types"
 import { cn } from "~/shared/utils/appUtils"
 
 interface MediaSelectModalProps {

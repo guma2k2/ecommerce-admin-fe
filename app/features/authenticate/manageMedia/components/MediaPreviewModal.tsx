@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Eye, Copy, ExternalLink, Download, FileText, Video, FileImage, Calendar, HardDrive, Hash, Check } from 'lucide-react'
 import { showToast } from '~/shared/utils/toast'
 
-import type { MediaItem } from '../types'
+import type { MediaItem } from '~/shared/types'
 import { formatFileSize, formatDateTime } from '~/shared/services/api/mediaService'
 import {
   Dialog,

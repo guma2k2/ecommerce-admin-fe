@@ -1,22 +1,6 @@
-import type { PageResponse, SortDirection } from '~/shared/types/pagination'
+import type { ProductItem, GetProductsParams, PaginatedProductsResponse, PageResponse } from '~/shared/types'
 
-export interface ProductItem {
-  id: string
-  name: string
-  image: string
-  created_at: string
-  updated_at: string
-}
-
-export interface GetProductsParams {
-  pageNumber?: number
-  pageSize?: number
-  sortField?: string
-  sortDir?: SortDirection
-  search?: string
-}
-
-export type PaginatedProductsResponse = PageResponse<ProductItem>
+export type { ProductItem, GetProductsParams, PaginatedProductsResponse }
 
 const MOCK_PRODUCTS: ProductItem[] = [
   {

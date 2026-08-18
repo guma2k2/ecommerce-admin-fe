@@ -2,7 +2,7 @@ import * as React from 'react'
 import { Copy, Eye, MoreHorizontal, Pencil, Trash2, FileText, Video, FileImage, File } from 'lucide-react'
 import { showToast } from '~/shared/utils/toast'
 
-import type { MediaItem } from '../types'
+import type { MediaItem } from '~/shared/types'
 import { formatFileSize, formatDateTime } from '~/shared/services/api/mediaService'
 import { Badge } from '~/core/components/shadcn/badge'
 import { Button } from '~/core/components/shadcn/button'
