@@ -1,0 +1,2 @@
+// Centralized application constants
+export {}

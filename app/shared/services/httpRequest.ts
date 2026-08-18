@@ -1,20 +1,7 @@
 import type { AxiosRequestConfig, AxiosResponse } from 'axios'
 import axiosClient from '~/shared/services/axiosClient'
 import { showToast } from '~/shared/utils/toast'
-
-// Define a generic ApiResponse interface for consistent API responses
-interface ApiResponse<T = any> {
-  status: string
-  data: T
-  message?: string
-  errors?: Record<string, string[]>
-  meta?: {
-    totalElements?: number
-    pageNumber?: number
-    pageSize?: number
-    totalPages?: number
-  }
-}
+import type { ApiResponse } from '~/shared/types'
 
 class HttpRequest {
   // GET method

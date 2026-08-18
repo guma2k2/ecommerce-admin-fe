@@ -5,14 +5,9 @@ import { redirect } from 'react-router'
 import { showToast } from '~/shared/utils/toast'
 // import { clearAuthInfo } from "~/redux/auth/authSlice";
 // import { store } from "~/redux/store";
+import type { ErrorResponse } from '~/shared/types'
 import { toCamelCase, toSnakeCase } from '~/shared/utils/appUtils'
 import StorageHelper from '~/shared/utils/storageHelper'
-
-interface ErrorResponse {
-  status: string
-  message: string
-  errors?: Record<string, string[]>
-}
 
 class AxiosClient {
   private instance: AxiosInstance

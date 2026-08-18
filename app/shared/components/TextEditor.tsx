@@ -16,3 +16,5 @@ export function TextEditor() {
   const formats = ["header", "bold", "italic", "underline", "strike", "blockquote", "list", "indent", "link", "image"]
   return <ReactQuill theme='snow' value={value} onChange={setValue} formats={formats} modules={modules} />
 }
+
+export default TextEditor

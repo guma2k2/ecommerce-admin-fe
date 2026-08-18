@@ -3,7 +3,7 @@ import { Upload, X, File, Image as ImageIcon, Loader2 } from 'lucide-react'
 import { showToast } from '~/shared/utils/toast'
 
 import { createMediaItem, formatFileSize } from '~/shared/services/api/mediaService'
-import type { MediaItem } from '../types'
+import type { MediaItem } from '~/shared/types'
 import {
   Dialog,
   DialogContent,

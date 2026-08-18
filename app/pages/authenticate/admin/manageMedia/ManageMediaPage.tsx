@@ -8,7 +8,7 @@ import {
   updateMediaItemName,
   deleteMediaItem
 } from '~/shared/services/api/mediaService'
-import type { MediaItem } from '~/features/authenticate/manageMedia/types'
+import type { MediaItem } from '~/shared/types'
 import { showToast } from '~/shared/utils/toast'
 import MediaFilter from '~/features/authenticate/manageMedia/components/MediaFilter'
 import MediaTable from '~/features/authenticate/manageMedia/components/MediaTable'

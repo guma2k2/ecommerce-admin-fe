@@ -6,15 +6,12 @@ import { useTranslation } from 'react-i18next'
 
 import {
   getBrands,
-  deleteBrand,
-  type BrandItem
+  deleteBrand
 } from '~/shared/services/api/brandService'
-import type { SortDirection } from '~/shared/types/pagination'
+import type { BrandItem, SortDirection, BrandSortField } from '~/shared/types'
 import { showToast } from '~/shared/utils/toast'
 import BrandSearch from '~/features/authenticate/manageBrand/components/BrandSearch'
-import BrandTable, {
-  type BrandSortField
-} from '~/features/authenticate/manageBrand/components/BrandTable'
+import BrandTable from '~/features/authenticate/manageBrand/components/BrandTable'
 import BrandPagination from '~/features/authenticate/manageBrand/components/BrandPagination'
 import BrandDeleteDialog from '~/features/authenticate/manageBrand/components/BrandDeleteDialog'
 import { Button } from '~/core/components/shadcn/button'

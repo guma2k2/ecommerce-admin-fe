@@ -1,10 +1,7 @@
 import type { LoginFormSchema } from '~/features/unAuthenticate/validator'
-import type { User } from '~/stores/useAuthStore'
+import type { User, LoginResponse } from '~/shared/types'
 
-export interface LoginResponse {
-  user: User
-  token: string
-}
+export type { LoginResponse }
 
 /**
  * Simulates a fake backend API call for user authentication.

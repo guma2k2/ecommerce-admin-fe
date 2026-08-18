@@ -4,16 +4,9 @@ import { Checkbox } from "~/core/components/shadcn/checkbox"
 import { Plus } from "lucide-react"
 import { cn } from "~/shared/utils/appUtils"
 
-type UploadStatus = "idle" | "uploading" | "success" | "error"
+import type { UploadType, UploadStatus } from "~/shared/types"
 
-export type UploadType = {
-  file: File | null
-  progress: number
-  status: UploadStatus
-  url: string
-  checked: boolean
-  id: string
-}
+export type { UploadType, UploadStatus }
 
 type SortableImageProps = {
   image: UploadType

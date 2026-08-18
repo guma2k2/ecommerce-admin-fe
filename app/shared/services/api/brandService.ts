@@ -1,22 +1,6 @@
-import type { PageResponse, SortDirection } from '~/shared/types/pagination'
+import type { BrandItem, GetBrandsParams, PaginatedBrandsResponse, PageResponse } from '~/shared/types'
 
-export interface BrandItem {
-  id: string
-  name: string
-  image: string
-  created_at: string
-  updated_at: string
-}
-
-export interface GetBrandsParams {
-  pageNumber?: number
-  pageSize?: number
-  sortField?: string
-  sortDir?: SortDirection
-  search?: string
-}
-
-export type PaginatedBrandsResponse = PageResponse<BrandItem>
+export type { BrandItem, GetBrandsParams, PaginatedBrandsResponse }
 
 let MOCK_BRANDS: BrandItem[] = [
   {

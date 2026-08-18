@@ -1,8 +1,7 @@
 import { useState } from 'react'
 import { Award, Pencil, Trash2, Calendar, ArrowUpDown, ArrowUp, ArrowDown, Image as ImageIcon } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
-import type { BrandItem } from '~/shared/services/api/brandService'
-import type { SortDirection } from '~/shared/types/pagination'
+import type { BrandItem, SortDirection, BrandSortField } from '~/shared/types'
 import {
   Table,
   TableBody,
@@ -14,7 +13,7 @@ import {
 import { Button } from '~/core/components/shadcn/button'
 import { Skeleton } from '~/core/components/shadcn/skeleton'
 
-export type BrandSortField = 'name' | 'created_at' | 'updated_at'
+export type { BrandSortField }
 
 interface BrandTableProps {
   brands: BrandItem[]

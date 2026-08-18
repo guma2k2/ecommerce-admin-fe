@@ -13,8 +13,9 @@ import React, { useEffect, useRef, useState } from "react"
 import { Button } from "~/core/components/shadcn/button"
 import { FieldLabel } from "~/core/components/shadcn/field"
 import { Input } from "~/core/components/shadcn/input"
-import SortableImage, { type UploadType } from "~/features/authenticate/manageProduct/components/SortableImage"
+import SortableImage from "~/features/authenticate/manageProduct/components/SortableImage"
 import MediaSelectModal from "~/features/authenticate/manageProduct/components/MediaSelectModal"
+import type { UploadType } from "~/shared/types"
 
 type UploadProps = {
   values?: { url: string; isChecked: boolean }[]
@@ -168,7 +169,7 @@ export default function Upload({ onChange, values }: UploadProps) {
   useEffect(() => {
     const filteredMedias = medias
       .filter((media) => media.url !== "")
-      .map((media) => ({ url: media.url, checked: media.checked }))
+      .map((media) => ({ url: media.url, checked: Boolean(media.checked) }))
     onChange?.(filteredMedias)
   }, [medias])
 
