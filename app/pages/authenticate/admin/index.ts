@@ -3,3 +3,6 @@ export * from './manageBrand'
 export * from './manageCategory'
 export * from './manageMedia'
 export * from './manageProduct'
+export * from './manageProductAttribute'
+export * from './manageProductAttributeTemplate'
+

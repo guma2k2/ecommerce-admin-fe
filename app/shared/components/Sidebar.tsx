@@ -7,7 +7,9 @@ import {
   FolderTree,
   LayoutDashboard,
   Package,
-  Store
+  SlidersHorizontal,
+  Store,
+  Tags
 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { Link, useLocation } from 'react-router'
@@ -65,6 +67,16 @@ export function AppSidebar() {
           title: t('label.manageBrand'),
           url: '/admin/manage-brand',
           icon: Award
+        },
+        {
+          title: t('label.manageProductAttribute'),
+          url: '/admin/manage-product-attribute',
+          icon: Tags
+        },
+        {
+          title: t('label.manageProductAttributeTemplate'),
+          url: '/admin/manage-product-attribute-template',
+          icon: SlidersHorizontal
         },
         {
           title: t('label.manageProduct'),
