@@ -1,0 +1,5 @@
+export { default as ProductAttributeTable } from './ProductAttributeTable'
+export { default as ProductAttributeSearch } from './ProductAttributeSearch'
+export { default as ProductAttributePagination } from './ProductAttributePagination'
+export { default as ProductAttributeForm } from './ProductAttributeForm'
+export { default as ProductAttributeDeleteDialog } from './ProductAttributeDeleteDialog'
