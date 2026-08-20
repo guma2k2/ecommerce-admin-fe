@@ -1,9 +1,12 @@
 export { default as AccountDialog } from './AccountDialog'
 export { default as FileUpload } from './FileUpload'
 export * from './FileUpload'
-export { default as Form, FormInput, FormSelect, FormCheckbox, FormTextarea, FormUpload } from './Form'
+export { default as Form, FormInput, FormSelect, FormCheckbox, FormTextarea, FormUpload, FormInfiniteSelect } from './Form'
 export { default as Header } from './Header'
+export { default as InfiniteSelect } from './InfiniteSelect'
+export * from './InfiniteSelect'
 export { default as LanguageSwitcher } from './LanguageSwitcher'
 export { default as MultipleUpload } from './MultipleUpload'
 export { default as Sidebar, AppSidebar } from './Sidebar'
 export { default as TextEditor, TextEditor as TextEditorComponent } from './TextEditor'
+

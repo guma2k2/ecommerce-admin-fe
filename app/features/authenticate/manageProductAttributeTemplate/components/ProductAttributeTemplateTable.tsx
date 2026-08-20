@@ -190,6 +190,20 @@ export default function ProductAttributeTemplateTable({
                         <span className='font-semibold text-gray-900 dark:text-gray-100 group-hover:text-primary transition-colors text-sm'>
                           {template.name}
                         </span>
+                        {template.attributes && template.attributes.length > 0 ? (
+                          <div className='flex items-center gap-1.5 mt-1 flex-wrap'>
+                            <span className='text-[11px] font-medium text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-950/50 px-1.5 py-0.2 rounded'>
+                              {template.attributes.length} {t('productAttributeTemplate.attributesSection').toLowerCase()}
+                            </span>
+                            <span className='text-xs text-muted-foreground truncate max-w-[280px]'>
+                              ({template.attributes.map((a) => a.name).join(', ')})
+                            </span>
+                          </div>
+                        ) : (
+                          <span className='text-[11px] text-muted-foreground mt-0.5'>
+                            0 {t('productAttributeTemplate.attributesSection').toLowerCase()}
+                          </span>
+                        )}
                       </div>
                     </div>
                   </TableCell>

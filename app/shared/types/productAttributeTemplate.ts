@@ -1,8 +1,11 @@
 import type { PageResponse, SortDirection } from './pagination'
+import type { ProductAttributeItem } from './productAttribute'
 
 export interface ProductAttributeTemplateItem {
   id: string
   name: string
+  attribute_ids?: string[]
+  attributes?: ProductAttributeItem[]
   created_at: string
   updated_at: string
 }

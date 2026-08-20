@@ -59,27 +59,27 @@ export function AppSidebar() {
       icon: FolderKanban,
       items: [
         {
-          title: t('label.manageCategory'),
+          title: t('label.category'),
           url: '/admin/manage-category',
           icon: FolderTree
         },
         {
-          title: t('label.manageBrand'),
+          title: t('label.brand'),
           url: '/admin/manage-brand',
           icon: Award
         },
         {
-          title: t('label.manageProductAttribute'),
+          title: t('label.productAttribute'),
           url: '/admin/manage-product-attribute',
           icon: Tags
         },
         {
-          title: t('label.manageProductAttributeTemplate'),
+          title: t('label.productAttributeTemplate'),
           url: '/admin/manage-product-attribute-template',
           icon: SlidersHorizontal
         },
         {
-          title: t('label.manageProduct'),
+          title: t('label.product'),
           url: '/admin/manage-product',
           icon: Package
         }
@@ -90,7 +90,7 @@ export function AppSidebar() {
       icon: FileText,
       items: [
         {
-          title: t('label.manageMedia'),
+          title: t('label.media'),
           url: '/admin/manage-media',
           icon: Image
         }

@@ -66,9 +66,13 @@ export default function UpdateProductAttributeTemplatePage() {
       </div>
 
       {/* Main Form Box */}
-      <div className='max-w-2xl bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 shadow-xs p-6'>
+      <div className='max-w-3xl bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 shadow-xs p-6'>
         <ProductAttributeTemplateForm
-          defaultValues={{ name: template.name }}
+          defaultValues={{
+            name: template.name,
+            attribute_ids: template.attribute_ids || template.attributes?.map((a) => a.id) || []
+          }}
+          initialAttributes={template.attributes || []}
           onSubmit={handleUpdate}
           isSubmitting={isSubmitting}
           onCancel={() => navigate('/admin/manage-product-attribute-template')}
@@ -78,3 +82,4 @@ export default function UpdateProductAttributeTemplatePage() {
     </div>
   )
 }
+

@@ -50,7 +50,7 @@ export default function CreateProductAttributeTemplatePage() {
       </div>
 
       {/* Main Form Box */}
-      <div className='max-w-2xl bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 shadow-xs p-6'>
+      <div className='max-w-3xl bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 shadow-xs p-6'>
         <ProductAttributeTemplateForm
           onSubmit={handleCreate}
           isSubmitting={isSubmitting}
@@ -61,3 +61,4 @@ export default function CreateProductAttributeTemplatePage() {
     </div>
   )
 }
+
