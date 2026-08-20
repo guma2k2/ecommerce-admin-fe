@@ -5,7 +5,8 @@ export const productAttributeTemplateFormSchema = z.object({
     .string()
     .trim()
     .min(1, 'Template name is required')
-    .max(100, 'Template name must be under 100 characters')
+    .max(100, 'Template name must be under 100 characters'),
+  attribute_ids: z.array(z.string())
 })
 
 export type ProductAttributeTemplateFormSchema = z.infer<typeof productAttributeTemplateFormSchema>

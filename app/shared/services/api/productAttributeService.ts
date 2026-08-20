@@ -196,3 +196,9 @@ export async function deleteProductAttribute(id: string): Promise<boolean> {
   MOCK_ATTRIBUTES = MOCK_ATTRIBUTES.filter((a) => a.id !== id)
   return true
 }
+
+export async function getAllProductAttributes(): Promise<ProductAttributeItem[]> {
+  await new Promise((resolve) => setTimeout(resolve, 150))
+  return [...MOCK_ATTRIBUTES]
+}
+

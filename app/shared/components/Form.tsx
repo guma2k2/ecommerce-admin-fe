@@ -6,6 +6,7 @@ import { Input } from "~/core/components/shadcn/input"
 import { Select, SelectContent, SelectTrigger, SelectValue } from "~/core/components/shadcn/select"
 import { Textarea } from "~/core/components/shadcn/textarea"
 import FileUpload, { type FileUploadProps } from "~/shared/components/FileUpload"
+import InfiniteSelect, { type InfiniteSelectProps } from "~/shared/components/InfiniteSelect"
 
 type FormControlProps<
   TFieldValues extends FieldValues = FieldValues,
@@ -158,3 +159,31 @@ export const FormUpload: FormControlFunc<Omit<FileUploadProps, "value" | "onChan
     </FormBase>
   )
 }
+
+export function FormInfiniteSelect<
+  TFieldValues extends FieldValues = FieldValues,
+  TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>,
+  TItem extends Record<string, any> = Record<string, any>
+>(
+  props: FormControlProps<TFieldValues, TName> &
+    Omit<InfiniteSelectProps<TItem>, "value" | "onChange"> & {
+      onChangeCustom?: (value: string, item?: TItem) => void
+    }
+) {
+  const { onChangeCustom, ...baseProps } = props
+  return (
+    <FormBase {...baseProps}>
+      {({ onChange, value }) => (
+        <InfiniteSelect<TItem>
+          {...props}
+          value={value ?? ""}
+          onChange={(val, item) => {
+            onChange(val)
+            onChangeCustom?.(val, item)
+          }}
+        />
+      )}
+    </FormBase>
+  )
+}
+
