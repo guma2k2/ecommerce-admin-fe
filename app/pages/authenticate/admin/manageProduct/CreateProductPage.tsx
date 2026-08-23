@@ -1,22 +1,26 @@
-import ProductInformationForm from "~/features/authenticate/manageProduct/components/ProductInformationForm"
-import ProductVariantForm from "~/features/authenticate/manageProduct/components/ProductVariantForm"
+import React from "react"
+import { useLoaderData } from "react-router"
+import ProductForm from "~/features/authenticate/manageProduct/components/ProductForm"
+import { getAllCategories } from "~/shared/services/api/categoryService"
+import { getAllBrands } from "~/shared/services/api/brandService"
+
+export async function clientLoader() {
+  const [categories, brands] = await Promise.all([
+    getAllCategories().catch(() => []),
+    getAllBrands().catch(() => [])
+  ])
+  return { categories, brands }
+}
+
+clientLoader.hydrate = true as const
 
 export default function CreateProductPage() {
+  const { categories, brands } = useLoaderData<typeof clientLoader>()
+
   return (
-    <div className='w-full bg-gray-100 h-full'>
-      <div className='w-5xl mx-auto p-4'>
-        <header>Add Product</header>
-        <div className='grid grid-cols-[2fr_1fr] gap-5'>
-          <div className='space-y-3'>
-            <div className='bg-white rounded-lg p-4 h-fit'>
-              <ProductInformationForm />
-            </div>
-            <div className='bg-white rounded-lg p-4 h-fit'>
-              <ProductVariantForm />
-            </div>
-          </div>
-          <div className='h-screen bg-white rounded-lg p-4'></div>
-        </div>
+    <div className="w-full min-h-screen bg-gray-50/50 dark:bg-zinc-950 p-6">
+      <div className="max-w-7xl mx-auto">
+        <ProductForm mode="create" categories={categories} brands={brands} />
       </div>
     </div>
   )

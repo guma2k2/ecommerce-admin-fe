@@ -92,6 +92,8 @@ export default function ProductVariantForm() {
     return combinations.map((values) => ({
       image: "",
       name: values.join(" / "),
+      title: values.join(" / "),
+      sku: `SKU-${values.join("-")}`,
       price: 0,
       quantity: 0
     }))
@@ -171,7 +173,7 @@ export default function ProductVariantForm() {
                       onChange={(url: string) => handleChangeProductImage(index, url)}
                     />
                   </div>
-                  <div className='col-span-9'>{field.name}</div>
+                  <div className='col-span-9'>{field.name || field.title || `Variant ${index + 1}`}</div>
                 </div>
                 <div className='col-span-4'>
                   <FormBase control={control} name={`variants.${index}.price`}>

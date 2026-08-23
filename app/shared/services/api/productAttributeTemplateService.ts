@@ -230,3 +230,9 @@ export async function deleteProductAttributeTemplate(id: string): Promise<boolea
   return true
 }
 
+export async function getAllProductAttributeTemplates(): Promise<ProductAttributeTemplateItem[]> {
+  await new Promise((resolve) => setTimeout(resolve, 150))
+  return Promise.all(MOCK_TEMPLATES.map((t) => populateTemplateAttributes(t)))
+}
+
+

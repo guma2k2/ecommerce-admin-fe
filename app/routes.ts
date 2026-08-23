@@ -10,6 +10,7 @@ export default [
       index("pages/authenticate/admin/DashboardPage.tsx"),
       route("manage-product", "pages/authenticate/admin/manageProduct/ManageProductPage.tsx"),
       route("manage-product/create", "pages/authenticate/admin/manageProduct/CreateProductPage.tsx"),
+      route("manage-product/edit/:id", "pages/authenticate/admin/manageProduct/UpdateProductPage.tsx"),
       route("manage-category", "pages/authenticate/admin/manageCategory/ManageCategoryPage.tsx"),
       route("manage-category/create", "pages/authenticate/admin/manageCategory/CreateCategoryPage.tsx"),
       route("manage-category/edit/:id", "pages/authenticate/admin/manageCategory/UpdateCategoryPage.tsx"),

@@ -9,16 +9,14 @@ type ProductOptionDragPreviewProps = {
 }
 export default function ProductOptionDragPreview({ optionId }: ProductOptionDragPreviewProps) {
   const { control, productOptionFields } = useProductVariantForm()
-  // Resolve index from id
   const index = productOptionFields.findIndex((f) => f.id === optionId)
-  if (index === -1) return null
 
   const option = useWatch({
     control,
     name: `options.${index}`
   })
 
-  if (!option) return null
+  if (index === -1 || !option) return null
   return (
     <div className={cn('border-2 border-blue-500 p-3 space-y-2 pl-12 relative z-51 bg-white rounded-md')}>
       <GripVertical className='absolute top-5 left-5 ' size={16} />
