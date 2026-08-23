@@ -175,3 +175,9 @@ export async function getBrandById(id: string): Promise<BrandItem> {
   }
   return brand
 }
+
+export async function getAllBrands(): Promise<BrandItem[]> {
+  await new Promise((resolve) => setTimeout(resolve, 150))
+  return [...MOCK_BRANDS]
+}
+

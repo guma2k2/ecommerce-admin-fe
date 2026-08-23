@@ -1,8 +1,16 @@
-import type { ProductItem, GetProductsParams, PaginatedProductsResponse, PageResponse } from '~/shared/types'
+import type {
+  ProductItem,
+  GetProductsParams,
+  PaginatedProductsResponse,
+  PageResponse,
+  ProductCreateRequest,
+  ProductUpdateRequest,
+  ProductResponse
+} from '~/shared/types'
 
 export type { ProductItem, GetProductsParams, PaginatedProductsResponse }
 
-const MOCK_PRODUCTS: ProductItem[] = [
+let MOCK_PRODUCTS: ProductItem[] = [
   {
     id: "PROD-001",
     name: "Wireless Noise-Canceling Headphones",
@@ -37,120 +45,84 @@ const MOCK_PRODUCTS: ProductItem[] = [
     image: "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=300&auto=format&fit=crop&q=80",
     created_at: "2025-01-15T13:20:00Z",
     updated_at: "2025-01-20T11:05:00Z"
-  },
-  {
-    id: "PROD-006",
-    name: "Portable Bluetooth Speaker Waterproof",
-    image: "https://images.unsplash.com/photo-1608043152269-423dbba4e7e1?w=300&auto=format&fit=crop&q=80",
-    created_at: "2025-01-16T15:10:00Z",
-    updated_at: "2025-01-21T08:50:00Z"
-  },
-  {
-    id: "PROD-007",
-    name: "USB-C Multi-Port Hub Adapter",
-    image: "https://images.unsplash.com/photo-1544816155-12df9643f363?w=300&auto=format&fit=crop&q=80",
-    created_at: "2025-01-18T10:00:00Z",
-    updated_at: "2025-01-22T17:15:00Z"
-  },
-  {
-    id: "PROD-008",
-    name: "4K Webcam with Dual Microphone",
-    image: "https://images.unsplash.com/photo-1588702547923-7093a6c3ba33?w=300&auto=format&fit=crop&q=80",
-    created_at: "2025-01-19T14:30:00Z",
-    updated_at: "2025-01-23T13:40:00Z"
-  },
-  {
-    id: "PROD-009",
-    name: "High-Speed NVMe M.2 SSD 2TB",
-    image: "https://images.unsplash.com/photo-1597872200969-2b65d56bd16b?w=300&auto=format&fit=crop&q=80",
-    created_at: "2025-01-20T16:05:00Z",
-    updated_at: "2025-01-25T12:00:00Z"
-  },
-  {
-    id: "PROD-010",
-    name: "Aluminum Laptop Stand Adjustable",
-    image: "https://images.unsplash.com/photo-1527864550417-7fd91fc51a46?w=300&auto=format&fit=crop&q=80",
-    created_at: "2025-01-22T12:40:00Z",
-    updated_at: "2025-01-26T15:25:00Z"
-  },
-  {
-    id: "PROD-011",
-    name: "Wireless Charging Pad 15W",
-    image: "https://images.unsplash.com/photo-1622445268465-843d63d0373a?w=300&auto=format&fit=crop&q=80",
-    created_at: "2025-01-24T09:50:00Z",
-    updated_at: "2025-01-28T10:10:00Z"
-  },
-  {
-    id: "PROD-012",
-    name: "True Wireless Earbuds Pro",
-    image: "https://images.unsplash.com/photo-1590658268037-6bf12165a8df?w=300&auto=format&fit=crop&q=80",
-    created_at: "2025-01-25T11:15:00Z",
-    updated_at: "2025-01-29T14:00:00Z"
-  },
-  {
-    id: "PROD-013",
-    name: "Studio Condenser Microphone Kit",
-    image: "https://images.unsplash.com/photo-1590602847861-f357a9332bbc?w=300&auto=format&fit=crop&q=80",
-    created_at: "2025-01-27T08:00:00Z",
-    updated_at: "2025-01-30T16:45:00Z"
-  },
-  {
-    id: "PROD-014",
-    name: "Electric Standing Desk Frame",
-    image: "https://images.unsplash.com/photo-1595515106969-1ce29566ff1c?w=300&auto=format&fit=crop&q=80",
-    created_at: "2025-01-28T14:20:00Z",
-    updated_at: "2025-02-01T09:30:00Z"
-  },
-  {
-    id: "PROD-015",
-    name: "Gaming Chair Mesh Ergonomic",
-    image: "https://images.unsplash.com/photo-1598300042247-d088f8ab3a91?w=300&auto=format&fit=crop&q=80",
-    created_at: "2025-01-29T17:35:00Z",
-    updated_at: "2025-02-02T11:50:00Z"
-  },
-  {
-    id: "PROD-016",
-    name: "Smart LED Desk Lamp Touch",
-    image: "https://images.unsplash.com/photo-1534073828943-f801091bb18c?w=300&auto=format&fit=crop&q=80",
-    created_at: "2025-01-30T10:00:00Z",
-    updated_at: "2025-02-03T14:15:00Z"
-  },
-  {
-    id: "PROD-017",
-    name: "Desk Mat Large XXL Leather",
-    image: "https://images.unsplash.com/photo-1616440342855-585802cf0016?w=300&auto=format&fit=crop&q=80",
-    created_at: "2025-02-01T08:10:00Z",
-    updated_at: "2025-02-04T10:00:00Z"
-  },
-  {
-    id: "PROD-018",
-    name: "External Hard Drive 4TB Rugged",
-    image: "https://images.unsplash.com/photo-1531492746076-161ca9bcad58?w=300&auto=format&fit=crop&q=80",
-    created_at: "2025-02-02T12:00:00Z",
-    updated_at: "2025-02-05T15:30:00Z"
-  },
-  {
-    id: "PROD-019",
-    name: "Power Bank 20000mAh 65W Fast Charge",
-    image: "https://images.unsplash.com/photo-1609592424109-dd9892f1b177?w=300&auto=format&fit=crop&q=80",
-    created_at: "2025-02-03T09:30:00Z",
-    updated_at: "2025-02-05T18:20:00Z"
-  },
-  {
-    id: "PROD-020",
-    name: "Smart Home Security Camera 1080p",
-    image: "https://images.unsplash.com/photo-1557324232-b8917d3c3dcb?w=300&auto=format&fit=crop&q=80",
-    created_at: "2025-02-04T15:00:00Z",
-    updated_at: "2025-02-06T09:10:00Z"
   }
 ]
+
+// Detailed product records for edit mode / detail view
+let MOCK_PRODUCT_DETAILS: Record<string, ProductResponse> = {
+  "PROD-001": {
+    id: 1,
+    name: "Wireless Noise-Canceling Headphones",
+    slug: "wireless-noise-canceling-headphones",
+    description: "<p>Experience premium acoustic performance with high-grade active noise cancellation.</p>",
+    metaTitle: "Buy Wireless Noise-Canceling Headphones",
+    metaKeyword: "headphones, noise-canceling, bluetooth, audio",
+    metaDescription: "Enjoy studio-quality audio with all-day battery life and seamless ANC.",
+    brand: {
+      id: 3,
+      name: "Sony",
+      description: "Audio & Entertainment"
+    },
+    medias: [
+      {
+        mediaId: "9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d",
+        position: 0,
+        url: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=600&auto=format&fit=crop&q=80",
+        variantIds: [101]
+      }
+    ],
+    attributes: [
+      {
+        productAttributeId: 3,
+        name: "Material",
+        value: "Synthetic Leather & Aluminum"
+      },
+      {
+        productAttributeId: 8,
+        name: "Battery Capacity",
+        value: "40 Hours ANC on"
+      }
+    ],
+    options: [
+      {
+        productOptionId: 1,
+        name: "Color",
+        position: 0,
+        values: [
+          { id: 110, value: "Midnight Black", position: 0 },
+          { id: 111, value: "Platinum Silver", position: 1 }
+        ]
+      }
+    ],
+    variants: [
+      {
+        id: 101,
+        title: "Midnight Black",
+        productOptionValueIds: [110],
+        sku: "SONY-WH-BLK-01",
+        price: 299.99,
+        quantity: 45
+      },
+      {
+        id: 102,
+        title: "Platinum Silver",
+        productOptionValueIds: [111],
+        sku: "SONY-WH-SLV-02",
+        price: 319.99,
+        quantity: 20
+      }
+    ],
+    createdAt: "2025-01-10T08:30:00Z",
+    updatedAt: "2025-01-15T10:20:00Z"
+  }
+}
 
 export async function getProducts(
   params: GetProductsParams = {}
 ): Promise<PageResponse<ProductItem>> {
   const { pageNumber = 1, pageSize = 10, search = "", sortField, sortDir = "asc" } = params
 
-  await new Promise((resolve) => setTimeout(resolve, 300))
+  await new Promise((resolve) => setTimeout(resolve, 200))
 
   const cleanSearch = search.trim().toLowerCase()
   
@@ -186,4 +158,218 @@ export async function getProducts(
     totalElements,
     totalPages
   }
+}
+
+export async function getProductById(id: string | number): Promise<ProductResponse> {
+  await new Promise((resolve) => setTimeout(resolve, 150))
+  const key = String(id)
+  
+  // Return mock detail if available
+  if (MOCK_PRODUCT_DETAILS[key]) {
+    return MOCK_PRODUCT_DETAILS[key]
+  }
+
+  // Generate fallback detail if basic product exists
+  const basic = MOCK_PRODUCTS.find((p) => p.id === key || p.id === `PROD-${key}`)
+  const numId = typeof id === 'number' ? id : parseInt(key.replace(/\D/g, ''), 10) || 45
+
+  return {
+    id: numId,
+    name: basic?.name || "Nike Air Max 270",
+    slug: (basic?.name || "Nike Air Max 270").toLowerCase().replace(/[^a-z0-9]+/g, "-"),
+    description: "<p>The Nike Air Max 270 delivers unmatched, all-day comfort.</p>",
+    metaTitle: `Buy ${basic?.name || "Nike Air Max 270"} Online`,
+    metaKeyword: "shoes, sportswear, footwear",
+    metaDescription: `Discover the best deals on ${basic?.name || "Nike Air Max 270"}.`,
+    brand: {
+      id: 3,
+      name: "Sony",
+      description: "Audio & Entertainment"
+    },
+    medias: [
+      {
+        mediaId: "9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d",
+        position: 0,
+        url: basic?.image || "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=600&auto=format&fit=crop&q=80",
+        variantIds: []
+      }
+    ],
+    attributes: [
+      { productAttributeId: 101, name: "Material", value: "Mesh & Synthetic" },
+      { productAttributeId: 102, name: "Origin", value: "Vietnam" }
+    ],
+    options: [
+      {
+        productOptionId: 1,
+        name: "Color",
+        position: 0,
+        values: [
+          { id: 110, value: "Black / White", position: 0 },
+          { id: 111, value: "Triple Red", position: 1 }
+        ]
+      }
+    ],
+    variants: [
+      {
+        id: 88,
+        title: "Black / White",
+        productOptionValueIds: [110],
+        sku: "NK-AM270-BW",
+        price: 159.99,
+        quantity: 50
+      },
+      {
+        id: 89,
+        title: "Triple Red",
+        productOptionValueIds: [111],
+        sku: "NK-AM270-RED",
+        price: 169.99,
+        quantity: 30
+      }
+    ],
+    createdAt: basic?.created_at || new Date().toISOString(),
+    updatedAt: basic?.updated_at || new Date().toISOString()
+  }
+}
+
+export async function createProduct(payload: ProductCreateRequest): Promise<ProductResponse> {
+  await new Promise((resolve) => setTimeout(resolve, 300))
+  
+  const newNumId = Math.floor(Math.random() * 900) + 100
+  const stringId = `PROD-${String(newNumId).padStart(3, "0")}`
+  const now = new Date().toISOString()
+  const firstMediaUrl = payload.medias?.[0]?.mediaId 
+    ? "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=300&auto=format&fit=crop&q=80"
+    : "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=300&auto=format&fit=crop&q=80"
+
+  const newListItem: ProductItem = {
+    id: stringId,
+    name: payload.name,
+    image: firstMediaUrl,
+    created_at: now,
+    updated_at: now
+  }
+  MOCK_PRODUCTS = [newListItem, ...MOCK_PRODUCTS]
+
+  const createdResponse: ProductResponse = {
+    id: newNumId,
+    name: payload.name,
+    slug: payload.slug,
+    description: payload.description || null,
+    metaTitle: payload.metaTitle || null,
+    metaKeyword: payload.metaKeyword || null,
+    metaDescription: payload.metaDescription || null,
+    brand: payload.brandId ? { id: payload.brandId, name: "Selected Brand" } : null,
+    medias: payload.medias?.map((m) => ({
+      mediaId: m.mediaId,
+      position: m.position,
+      url: firstMediaUrl,
+      variantIds: []
+    })) || [],
+    attributes: payload.attributes?.map((a) => ({
+      productAttributeId: a.productAttributeId,
+      name: "Attribute",
+      value: a.value
+    })) || [],
+    options: payload.options?.map((o, idx) => ({
+      productOptionId: o.productOptionId || idx + 1,
+      name: o.name || `Option ${idx + 1}`,
+      position: o.position,
+      values: o.values.map((v, vIdx) => ({
+        id: Math.floor(Math.random() * 1000) + 1,
+        value: v.value,
+        position: v.position || vIdx
+      }))
+    })) || [],
+    variants: payload.variants.map((v, idx) => ({
+      id: Math.floor(Math.random() * 1000) + 1,
+      title: v.title || `Variant ${idx + 1}`,
+      productOptionValueIds: [],
+      sku: v.sku,
+      price: v.price,
+      quantity: v.quantity
+    })),
+    createdAt: now,
+    updatedAt: now
+  }
+
+  MOCK_PRODUCT_DETAILS[stringId] = createdResponse
+  MOCK_PRODUCT_DETAILS[String(newNumId)] = createdResponse
+
+  return createdResponse
+}
+
+export async function updateProduct(
+  id: string | number,
+  payload: ProductUpdateRequest
+): Promise<ProductResponse> {
+  await new Promise((resolve) => setTimeout(resolve, 300))
+  const key = String(id)
+  const numId = typeof id === 'number' ? id : parseInt(key.replace(/\D/g, ''), 10) || 1
+  const now = new Date().toISOString()
+
+  // Update in basic list
+  const basicIndex = MOCK_PRODUCTS.findIndex((p) => p.id === key || p.id === `PROD-${key}`)
+  if (basicIndex !== -1) {
+    MOCK_PRODUCTS[basicIndex] = {
+      ...MOCK_PRODUCTS[basicIndex],
+      name: payload.name,
+      updated_at: now
+    }
+  }
+
+  const updatedResponse: ProductResponse = {
+    id: numId,
+    name: payload.name,
+    slug: payload.slug,
+    description: payload.description || null,
+    metaTitle: payload.metaTitle || null,
+    metaKeyword: payload.metaKeyword || null,
+    metaDescription: payload.metaDescription || null,
+    brand: payload.brandId ? { id: payload.brandId, name: "Brand" } : null,
+    medias: payload.medias?.map((m) => ({
+      mediaId: m.mediaId,
+      position: m.position,
+      url: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=600&auto=format&fit=crop&q=80",
+      variantIds: []
+    })) || [],
+    attributes: payload.attributes?.map((a) => ({
+      productAttributeId: a.productAttributeId,
+      name: "Attribute",
+      value: a.value
+    })) || [],
+    options: payload.options?.map((o, idx) => ({
+      productOptionId: o.productOptionId || idx + 1,
+      name: o.name || `Option ${idx + 1}`,
+      position: o.position,
+      values: o.values.map((v, vIdx) => ({
+        id: v.id || Math.floor(Math.random() * 1000) + 1,
+        value: v.value,
+        position: v.position || vIdx
+      }))
+    })) || [],
+    variants: payload.variants.map((v, idx) => ({
+      id: v.id || Math.floor(Math.random() * 1000) + 1,
+      title: v.title || `Variant ${idx + 1}`,
+      productOptionValueIds: [],
+      sku: v.sku,
+      price: v.price,
+      quantity: v.quantity
+    })),
+    createdAt: "2025-01-10T08:30:00Z",
+    updatedAt: now
+  }
+
+  MOCK_PRODUCT_DETAILS[key] = updatedResponse
+  MOCK_PRODUCT_DETAILS[String(numId)] = updatedResponse
+
+  return updatedResponse
+}
+
+export async function deleteProduct(id: string | number): Promise<boolean> {
+  await new Promise((resolve) => setTimeout(resolve, 200))
+  const key = String(id)
+  MOCK_PRODUCTS = MOCK_PRODUCTS.filter((p) => p.id !== key && p.id !== `PROD-${key}`)
+  delete MOCK_PRODUCT_DETAILS[key]
+  return true
 }

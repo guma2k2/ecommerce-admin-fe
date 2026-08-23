@@ -109,7 +109,7 @@ export default function ManageProductPage() {
           products={content}
           isLoading={isLoading}
           onEdit={(product) => {
-            console.log("Edit product:", product)
+            navigate(`/admin/manage-product/edit/${product.id}`)
           }}
           onDelete={(product) => {
             console.log("Delete product:", product)
