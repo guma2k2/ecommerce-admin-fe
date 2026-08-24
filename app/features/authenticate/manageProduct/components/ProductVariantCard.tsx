@@ -1,24 +1,36 @@
 import React, { useEffect, useState } from "react"
 import { useFormContext, useFieldArray, useWatch } from "react-hook-form"
 import {
+  closestCenter,
+  DndContext,
+  DragOverlay,
+  type DragEndEvent,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors
+} from "@dnd-kit/core"
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  verticalListSortingStrategy
+} from "@dnd-kit/sortable"
+import {
   Layers,
   Plus,
-  Trash2,
-  SlidersHorizontal,
   DollarSign,
   Package,
-  Wand2,
-  GripVertical,
-  X
+  GripVertical
 } from "lucide-react"
 import { Button } from "~/core/components/shadcn/button"
 import { Input } from "~/core/components/shadcn/input"
 import { Checkbox } from "~/core/components/shadcn/checkbox"
 import { Badge } from "~/core/components/shadcn/badge"
-import { FormInput } from "~/shared/components/Form"
 import FileUpload from "~/shared/components/FileUpload"
 import { cartesian, cn } from "~/shared/utils/appUtils"
 import type { ProductFormSchema } from "~/features/authenticate/manageProduct/validator"
+import SortableOptionAxisCard from "./SortableOptionAxisCard"
 
 export default function ProductVariantCard() {
   const { control, setValue, getValues } = useFormContext<ProductFormSchema>()
@@ -30,16 +42,24 @@ export default function ProductVariantCard() {
   const [selectedVariantIndices, setSelectedVariantIndices] = useState<number[]>([])
   const [bulkPrice, setBulkPrice] = useState("")
   const [bulkStock, setBulkStock] = useState("")
-  const [newOptionValueInputs, setNewOptionValueInputs] = useState<Record<number, string>>({})
+  const [activeOptionId, setActiveOptionId] = useState<string | null>(null)
 
   const {
     fields: optionFields,
     append: appendOption,
-    remove: removeOption
+    remove: removeOption,
+    move: moveOption
   } = useFieldArray({
     control,
     name: "options"
   })
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 4 } }),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
+  )
+
+  const optionsJson = JSON.stringify(options)
 
   // Synchronize variants when options change in multi-variant mode
   useEffect(() => {
@@ -50,23 +70,27 @@ export default function ProductVariantCard() {
       const simpleSku = getValues("simpleSku") || `${productSlug.toUpperCase()}-DEF`
       const existingId = variants[0]?.id || null
 
-      setValue("variants", [
-        {
-          id: existingId,
-          title: "Default Variant",
-          sku: simpleSku,
-          price: simplePrice,
-          quantity: simpleQuantity,
-          image: variants[0]?.image || "",
-          mediaId: variants[0]?.mediaId || undefined
-        }
-      ], { shouldValidate: true })
+      setValue(
+        "variants",
+        [
+          {
+            id: existingId,
+            title: "Default Variant",
+            sku: simpleSku,
+            price: simplePrice,
+            quantity: simpleQuantity,
+            image: variants[0]?.image || "",
+            mediaId: variants[0]?.mediaId || undefined
+          }
+        ],
+        { shouldValidate: true }
+      )
       return
     }
 
     // Filter valid options with at least one non-empty value
     const validOptions = options.filter(
-      (opt) => opt.name.trim() && opt.values && opt.values.some((v) => v.value.trim())
+      (opt) => opt.name?.trim() && opt.values && opt.values.some((v) => v.value?.trim())
     )
 
     if (validOptions.length === 0) {
@@ -85,11 +109,13 @@ export default function ProductVariantCard() {
     }
 
     const valueMatrix = validOptions.map((opt) =>
-      opt.values.filter((v) => v.value.trim()).map((v) => ({
-        optionName: opt.name,
-        value: v.value.trim(),
-        optionValueId: v.id || null
-      }))
+      opt.values
+        .filter((v) => v.value?.trim())
+        .map((v) => ({
+          optionName: opt.name,
+          value: v.value.trim(),
+          optionValueId: v.id || null
+        }))
     )
 
     const combinations = cartesian(valueMatrix)
@@ -122,47 +148,114 @@ export default function ProductVariantCard() {
     })
 
     setValue("variants", newVariants, { shouldValidate: true })
-  }, [hasOptions, JSON.stringify(options)])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [hasOptions, optionsJson])
 
   // Add a new option axis (e.g. Size, Color)
   const handleAddOption = () => {
     const nextPosition = optionFields.length
     appendOption({
-      name: nextPosition === 0 ? "Color" : nextPosition === 1 ? "Size" : `Option ${nextPosition + 1}`,
+      name: nextPosition === 0 ? "Size" : nextPosition === 1 ? "Color" : `Option ${nextPosition + 1}`,
       position: nextPosition,
       showing: true,
-      values: [{ id: null, value: "", position: 0 }]
+      values: []
     })
   }
 
-  // Add value chip to an option
-  const handleAddValueToOption = (optionIndex: number) => {
-    const text = (newOptionValueInputs[optionIndex] || "").trim()
-    if (!text) return
+  // Remove option axis
+  const handleRemoveOption = (optionIndex: number) => {
+    removeOption(optionIndex)
+  }
+
+  // Update option name
+  const handleUpdateOptionName = (optionIndex: number, name: string) => {
+    setValue(`options.${optionIndex}.name`, name, { shouldDirty: true })
+  }
+
+  // Add value to option
+  const handleAddValue = (optionIndex: number, valueText: string) => {
+    const trimmed = valueText.trim()
+    if (!trimmed) return
 
     const currentOptions = [...(getValues("options") || [])]
     const target = currentOptions[optionIndex]
     if (target) {
       const existingValues = target.values || []
-      if (!existingValues.some((v) => v.value.toLowerCase() === text.toLowerCase())) {
-        target.values = [
-          ...existingValues.filter((v) => v.value.trim()),
-          { id: null, value: text, position: existingValues.length }
-        ]
+      if (!existingValues.some((v) => v.value.toLowerCase() === trimmed.toLowerCase())) {
+        const nextPos = existingValues.length
+        currentOptions[optionIndex] = {
+          ...target,
+          values: [
+            ...existingValues.filter((v) => v.value.trim()),
+            { id: null, value: trimmed, position: nextPos }
+          ]
+        }
         setValue("options", currentOptions, { shouldDirty: true })
       }
     }
-
-    setNewOptionValueInputs((prev) => ({ ...prev, [optionIndex]: "" }))
   }
 
-  // Remove value chip
+  // Update value in option
+  const handleUpdateValue = (optionIndex: number, valueIndex: number, newValue: string) => {
+    const currentOptions = [...(getValues("options") || [])]
+    const target = currentOptions[optionIndex]
+    if (target && target.values && target.values[valueIndex]) {
+      target.values[valueIndex] = {
+        ...target.values[valueIndex],
+        value: newValue
+      }
+      setValue("options", currentOptions, { shouldDirty: true })
+    }
+  }
+
+  // Remove value from option
   const handleRemoveValue = (optionIndex: number, valueIndex: number) => {
     const currentOptions = [...(getValues("options") || [])]
     const target = currentOptions[optionIndex]
     if (target && target.values) {
-      target.values = target.values.filter((_, idx) => idx !== valueIndex)
+      const remaining = target.values
+        .filter((_, idx) => idx !== valueIndex)
+        .map((v, i) => ({ ...v, position: i }))
+      currentOptions[optionIndex] = {
+        ...target,
+        values: remaining
+      }
       setValue("options", currentOptions, { shouldDirty: true })
+    }
+  }
+
+  // Reorder values inside an option axis via Drag and Drop
+  const handleReorderValues = (optionIndex: number, oldIndex: number, newIndex: number) => {
+    const currentOptions = [...(getValues("options") || [])]
+    const target = currentOptions[optionIndex]
+    if (target && target.values) {
+      const reordered = arrayMove(target.values, oldIndex, newIndex).map((v, i) => ({
+        ...v,
+        position: i
+      }))
+      currentOptions[optionIndex] = {
+        ...target,
+        values: reordered
+      }
+      setValue("options", currentOptions, { shouldDirty: true })
+    }
+  }
+
+  // Toggle showing / collapsed state
+  const handleToggleShowing = (optionIndex: number, showing: boolean) => {
+    setValue(`options.${optionIndex}.showing`, showing, { shouldDirty: true })
+  }
+
+  // Reorder option axes via Drag and Drop
+  const handleDragEndOption = (event: DragEndEvent) => {
+    const { active, over } = event
+    if (!over || active.id === over.id) return
+
+    const oldIndex = optionFields.findIndex((f) => f.id === active.id)
+    const newIndex = optionFields.findIndex((f) => f.id === over.id)
+
+    if (oldIndex !== -1 && newIndex !== -1 && oldIndex !== newIndex) {
+      moveOption(oldIndex, newIndex)
     }
   }
 
@@ -284,105 +377,91 @@ export default function ProductVariantCard() {
       ) : (
         /* MULTI-VARIANT MODE */
         <div className="space-y-6">
-          {/* Options Axes Builder */}
+          {/* Options Axes Container (Image 1 Unified Layout) */}
           <div className="space-y-3">
             <div className="flex items-center justify-between">
               <h4 className="text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">
                 Variation Axes (Options)
               </h4>
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={handleAddOption}
-                className="h-7 text-xs gap-1 border-dashed"
-              >
-                <Plus className="size-3" />
-                Add Option Axis
-              </Button>
             </div>
 
-            {optionFields.map((field, optIdx) => (
-              <div
-                key={field.id}
-                className="p-4 rounded-xl border border-gray-200 dark:border-zinc-800 bg-gray-50/40 dark:bg-zinc-800/30 space-y-3"
-              >
-                <div className="flex items-center gap-3">
-                  <GripVertical className="size-4 text-gray-400 cursor-grab" />
-                  <div className="w-48">
-                    <Input
-                      placeholder="Option Name (e.g. Color)"
-                      value={options[optIdx]?.name || ""}
-                      onChange={(e) => {
-                        setValue(`options.${optIdx}.name`, e.target.value, { shouldDirty: true })
-                      }}
-                      className="h-8 bg-white dark:bg-zinc-900 text-xs font-medium"
-                    />
-                  </div>
-                  <div className="flex-1 text-xs text-muted-foreground">
-                    Values: {options[optIdx]?.values?.filter((v) => v.value.trim()).length || 0}
-                  </div>
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => removeOption(optIdx)}
-                    className="h-7 w-7 text-gray-400 hover:text-red-500"
+            <div className="rounded-xl border border-gray-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 shadow-xs divide-y divide-gray-200 dark:divide-zinc-800 overflow-hidden">
+              {optionFields.length > 0 && (
+                <DndContext
+                  sensors={sensors}
+                  collisionDetection={closestCenter}
+                  onDragStart={(e) => setActiveOptionId(e.active.id as string)}
+                  onDragEnd={(e) => {
+                    setActiveOptionId(null)
+                    handleDragEndOption(e)
+                  }}
+                  onDragCancel={() => setActiveOptionId(null)}
+                >
+                  <SortableContext
+                    items={optionFields.map((f) => f.id)}
+                    strategy={verticalListSortingStrategy}
                   >
-                    <Trash2 className="size-3.5" />
-                  </Button>
-                </div>
+                    <div className="divide-y divide-gray-200 dark:divide-zinc-800">
+                      {optionFields.map((field, optIdx) => (
+                        <SortableOptionAxisCard
+                          key={field.id}
+                          fieldId={field.id}
+                          optIdx={optIdx}
+                          option={options[optIdx] || field}
+                          onUpdateName={(name) => handleUpdateOptionName(optIdx, name)}
+                          onAddValue={(val) => handleAddValue(optIdx, val)}
+                          onUpdateValue={(valIdx, val) => handleUpdateValue(optIdx, valIdx, val)}
+                          onRemoveValue={(valIdx) => handleRemoveValue(optIdx, valIdx)}
+                          onReorderValues={(oldIdx, newIdx) => handleReorderValues(optIdx, oldIdx, newIdx)}
+                          onRemoveOption={() => handleRemoveOption(optIdx)}
+                          onToggleShowing={(showing) => handleToggleShowing(optIdx, showing)}
+                        />
+                      ))}
+                    </div>
+                  </SortableContext>
 
-                {/* Values Chip List */}
-                <div className="flex flex-wrap items-center gap-2 pl-7">
-                  {options[optIdx]?.values
-                    ?.filter((v) => v.value.trim())
-                    .map((val, valIdx) => (
-                      <Badge
-                        key={valIdx}
-                        variant="secondary"
-                        className="pl-2.5 pr-1.5 py-1 text-xs font-medium gap-1 bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-700 shadow-2xs"
-                      >
-                        {val.value}
-                        <button
-                          type="button"
-                          onClick={() => handleRemoveValue(optIdx, valIdx)}
-                          className="hover:bg-gray-100 dark:hover:bg-zinc-800 rounded-full p-0.5"
-                        >
-                          <X className="size-3 text-gray-400 hover:text-red-500" />
-                        </button>
-                      </Badge>
-                    ))}
+                  <DragOverlay dropAnimation={{ duration: 150, easing: "cubic-bezier(0.18, 0.67, 0.6, 1.22)" }}>
+                    {activeOptionId ? (
+                      (() => {
+                        const activeIdx = optionFields.findIndex((f) => f.id === activeOptionId)
+                        const activeOpt = activeIdx !== -1 ? options[activeIdx] : null
+                        return activeOpt ? (
+                          <div className="bg-white dark:bg-zinc-900 rounded-xl border-2 border-primary shadow-2xl p-4 flex items-center justify-between gap-3 opacity-95">
+                            <div className="flex items-center gap-3">
+                              <GripVertical className="size-4 text-primary shrink-0" />
+                              <div className="space-y-1">
+                                <div className="text-sm font-semibold text-gray-900 dark:text-gray-100">
+                                  {activeOpt.name || "Untitled Option"}
+                                </div>
+                                <div className="flex flex-wrap gap-1">
+                                  {activeOpt.values
+                                    ?.filter((v) => v.value?.trim())
+                                    .map((val, idx) => (
+                                      <Badge key={idx} variant="secondary" className="text-xs">
+                                        {val.value}
+                                      </Badge>
+                                    ))}
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        ) : null
+                      })()
+                    ) : null}
+                  </DragOverlay>
+                </DndContext>
+              )}
 
-                  {/* Add Value Input */}
-                  <div className="flex items-center gap-1.5">
-                    <Input
-                      placeholder="Type value (e.g. Red) & press Add"
-                      value={newOptionValueInputs[optIdx] || ""}
-                      onChange={(e) =>
-                        setNewOptionValueInputs((prev) => ({ ...prev, [optIdx]: e.target.value }))
-                      }
-                      onKeyDown={(e) => {
-                        if (e.key === "Enter") {
-                          e.preventDefault()
-                          handleAddValueToOption(optIdx)
-                        }
-                      }}
-                      className="h-7 w-48 bg-white dark:bg-zinc-900 text-xs"
-                    />
-                    <Button
-                      type="button"
-                      variant="secondary"
-                      size="sm"
-                      onClick={() => handleAddValueToOption(optIdx)}
-                      className="h-7 px-2.5 text-xs"
-                    >
-                      Add
-                    </Button>
-                  </div>
-                </div>
-              </div>
-            ))}
+              {/* Bottom "+ Add another option" Action Row */}
+              <button
+                type="button"
+                onClick={handleAddOption}
+                className="w-full flex items-center gap-2 p-3.5 px-5 text-xs font-semibold text-gray-700 hover:text-gray-900 dark:text-gray-300 dark:hover:text-gray-100 hover:bg-gray-50/80 dark:hover:bg-zinc-800/50 transition-colors select-none text-left"
+              >
+                <Plus className="size-4 text-gray-500 shrink-0" />
+                <span>Add another option</span>
+              </button>
+            </div>
           </div>
 
           {/* Variants Matrix Table */}

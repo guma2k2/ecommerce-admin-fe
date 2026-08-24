@@ -1,12 +1,14 @@
+import React, { useRef } from 'react'
 import { useSortable } from '@dnd-kit/sortable'
 import { GripVertical, Trash } from 'lucide-react'
-import { useFieldArray, useWatch, type Control, type FieldArrayWithId } from 'react-hook-form'
+import { useWatch, type FieldArrayWithId } from 'react-hook-form'
 import FormBase from '~/shared/components/Form'
 import { InputGroup, InputGroupAddon, InputGroupButton, InputGroupInput } from '~/core/components/shadcn/input-group'
 import { CSS } from '@dnd-kit/utilities'
 import type { ProductVariantFormSchema } from '~/features/authenticate/manageProduct/validator'
 import { useProductVariantForm } from '~/features/authenticate/manageProduct/contexts/ProductVariantFormContext'
-import { useRef } from 'react'
+import { cn } from '~/shared/utils/appUtils'
+
 type OptionValueField = FieldArrayWithId<ProductVariantFormSchema, `options.${number}.values`, 'id'>
 type SortableProductOptionValueProps = {
   field: OptionValueField
@@ -16,7 +18,8 @@ type SortableProductOptionValueProps = {
   append: any
   remove: any
 }
-export default function SortableProductOptionValue({
+
+function SortableProductOptionValueComponent({
   field,
   index,
   optionIndex,
@@ -27,38 +30,43 @@ export default function SortableProductOptionValue({
   const { control, setValue } = useProductVariantForm()
   const lastKeywordRef = useRef('')
   const keyword = useWatch({ control: control, name: `options.${optionIndex}.values.${index}.value` })
-  const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id: field.id })
-  const isHasTwoValidValues = fields.filter((f: any) => f.value.trim() !== '').length >= 2
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: field.id })
+  const isHasTwoValidValues = fields.filter((f: any) => f.value && f.value.trim() !== '').length >= 2
   const optionValueLength = fields.length
-  const style = {
-    transform: CSS.Transform.toString(transform),
-    transition
+  const style: React.CSSProperties = {
+    transform: CSS.Translate.toString(transform),
+    transition: isDragging ? undefined : transition,
+    zIndex: isDragging ? 50 : 1,
+    opacity: isDragging ? 0.3 : 1
   }
 
   return (
-    <div ref={setNodeRef} style={style} {...attributes} className='cursor-grab active:cursor-grabbing'>
+    <div ref={setNodeRef} style={style} className={cn("select-none", isDragging && "opacity-40")}>
       <FormBase control={control} name={`options.${optionIndex}.values.${index}.value`}>
-        {(field) => (
+        {(formField) => (
           <div className='relative'>
-            <GripVertical {...listeners} className='absolute top-1/2 -left-5 -translate-y-1/2' size={16} />
+            <button
+              type="button"
+              {...attributes}
+              {...listeners}
+              className='absolute top-1/2 -left-6 -translate-y-1/2 cursor-grab active:cursor-grabbing p-1 text-gray-400 hover:text-gray-600 rounded touch-none select-none focus:outline-none'
+              title="Drag to reorder"
+            >
+              <GripVertical size={16} />
+            </button>
             <InputGroup>
               <InputGroupInput
-                {...field}
+                {...formField}
                 onChange={(e) => {
                   if (index === fields.length - 1 && e.target.value.trim() && fields.length === index + 1) {
                     append({ value: '', position: optionValueLength + 1, image: '' }, { shouldFocus: false })
                   }
-                  lastKeywordRef.current = field.value ?? ''
-                  field.onChange(e)
+                  lastKeywordRef.current = formField.value ?? ''
+                  formField.onChange(e)
                 }}
-                // onFocus={() => {
-                //   lastKeywordRef.current = field.value ?? ''
-                // }}
-                onBlur={(e) => {
-                  field.onBlur()
-                  console.log(lastKeywordRef.current)
-                  console.log(field.value)
-                  if (field.value.trim() === '') {
+                onBlur={() => {
+                  formField.onBlur()
+                  if (formField.value && formField.value.trim() === '') {
                     setValue(`options.${optionIndex}.values.${index}.value`, lastKeywordRef.current, {
                       shouldDirty: false,
                       shouldTouch: false
@@ -80,3 +88,5 @@ export default function SortableProductOptionValue({
     </div>
   )
 }
+
+export default React.memo(SortableProductOptionValueComponent)
