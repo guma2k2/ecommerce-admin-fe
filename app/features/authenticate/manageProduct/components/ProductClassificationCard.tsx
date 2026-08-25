@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react"
 import { useFormContext, useWatch } from "react-hook-form"
-import { FolderTree, Tag, Eye, Layers } from "lucide-react"
+import { FolderTree, Tag, Eye } from "lucide-react"
 import {
   Select,
   SelectContent,

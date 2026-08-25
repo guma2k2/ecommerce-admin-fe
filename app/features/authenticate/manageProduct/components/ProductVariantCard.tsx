@@ -155,7 +155,7 @@ export default function ProductVariantCard() {
   const handleAddOption = () => {
     const nextPosition = optionFields.length
     appendOption({
-      name: nextPosition === 0 ? "Size" : nextPosition === 1 ? "Color" : `Option ${nextPosition + 1}`,
+      name: "",
       position: nextPosition,
       showing: true,
       values: []
