@@ -22,14 +22,12 @@ export default function UpdateProductPage() {
 
   return (
     <div className="w-full min-h-screen bg-gray-50/50 dark:bg-zinc-950 p-6">
-      <div className="max-w-7xl mx-auto">
-        <ProductForm
-          mode="edit"
-          initialData={product}
-          categories={categories}
-          brands={brands}
-        />
-      </div>
+      <ProductForm
+        mode="edit"
+        initialData={product}
+        categories={categories}
+        brands={brands}
+      />
     </div>
   )
 }

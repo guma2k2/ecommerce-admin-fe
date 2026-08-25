@@ -1,6 +1,7 @@
 import React, { useState } from "react"
 import { useForm, FormProvider } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
+import { useTranslation } from "react-i18next"
 import { Link, useNavigate } from "react-router"
 import { ArrowLeft, Save, Loader2, PackagePlus, Edit3 } from "lucide-react"
 import { Button } from "~/core/components/shadcn/button"
@@ -41,6 +42,7 @@ export default function ProductForm({
   categories,
   brands
 }: ProductFormProps) {
+  const { t } = useTranslation()
   const navigate = useNavigate()
   const [isSubmitting, setIsSubmitting] = useState(false)
 
@@ -198,7 +200,7 @@ export default function ProductForm({
         }
 
         await createProduct(createPayload)
-        showToast("success", "Product created successfully")
+        showToast("success", "toasts.productCreated")
       } else {
         const updatePayload: ProductUpdateRequest = {
           name: values.name.trim(),
@@ -217,13 +219,13 @@ export default function ProductForm({
 
         const targetId = initialData?.id || values.id || 1
         await updateProduct(targetId, updatePayload)
-        showToast("success", "Product updated successfully")
+        showToast("success", "toasts.productUpdated")
       }
 
       navigate("/admin/manage-product")
     } catch (error: any) {
       console.error("Failed to save product:", error)
-      const errorMsg = error?.message || "An error occurred while saving product."
+      const errorMsg = error?.message || t("product.saveError")
       showToast("error", errorMsg)
     } finally {
       setIsSubmitting(false)
@@ -234,7 +236,7 @@ export default function ProductForm({
     <FormProvider {...methods}>
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
         {/* Sticky Action Header */}
-        <div className="sticky top-0 z-40 -mx-6 -mt-6 px-6 py-4 bg-white/95 dark:bg-zinc-950/95 backdrop-blur-md border-b border-gray-200 dark:border-zinc-800 flex flex-wrap items-center justify-between gap-4">
+        <div className="sticky top-0 z-40 -mx-6 -mt-6 px-6 py-4 bg-white/95 dark:bg-zinc-950/95 backdrop-blur-md border-b border-gray-200 dark:border-zinc-800 flex flex-wrap items-center justify-between gap-4 shadow-2xs">
           <div className="flex items-center gap-3">
             <Button
               type="button"
@@ -245,7 +247,7 @@ export default function ProductForm({
             >
               <Link to="/admin/manage-product">
                 <ArrowLeft className="size-4" />
-                <span className="sr-only">Back to Products</span>
+                <span className="sr-only">{t("product.backToProducts")}</span>
               </Link>
             </Button>
             <div>
@@ -254,12 +256,12 @@ export default function ProductForm({
                   {mode === "create" ? (
                     <>
                       <PackagePlus className="size-5 text-primary" />
-                      Add Product
+                      {t("product.addNew")}
                     </>
                   ) : (
                     <>
                       <Edit3 className="size-5 text-primary" />
-                      Edit Product: {initialData?.name}
+                      {t("product.updateTitle")}: {initialData?.name}
                     </>
                   )}
                 </h1>
@@ -270,14 +272,14 @@ export default function ProductForm({
                 )}
                 {isDirty && (
                   <Badge variant="outline" className="text-[10px] text-amber-600 border-amber-300">
-                    Unsaved changes
+                    {t("product.unsavedChanges")}
                   </Badge>
                 )}
               </div>
               <p className="text-xs text-muted-foreground">
                 {mode === "create"
-                  ? "Create a new catalog item with media, attributes, and variations."
-                  : "Update product specifications, pricing matrix, and media assets."}
+                  ? t("product.addSubtitle")
+                  : t("product.updateSubtitle")}
               </p>
             </div>
           </div>
@@ -290,7 +292,7 @@ export default function ProductForm({
               onClick={() => navigate("/admin/manage-product")}
               className="h-9 px-4 text-xs font-medium border-gray-300 dark:border-zinc-700"
             >
-              Discard
+              {t("product.discard")}
             </Button>
 
             <Button
@@ -302,12 +304,12 @@ export default function ProductForm({
               {isSubmitting ? (
                 <>
                   <Loader2 className="size-3.5 animate-spin" />
-                  Saving...
+                  {t("product.saving")}
                 </>
               ) : (
                 <>
                   <Save className="size-3.5" />
-                  {mode === "create" ? "Save Product" : "Save Changes"}
+                  {mode === "create" ? t("product.saveProduct") : t("product.saveChanges")}
                 </>
               )}
             </Button>
@@ -333,23 +335,23 @@ export default function ProductForm({
             {mode === "edit" && initialData && (
               <div className="bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 p-5 space-y-3 shadow-xs text-xs">
                 <h4 className="font-semibold text-gray-800 dark:text-gray-200">
-                  Product Metadata
+                  {t("product.productMetadata")}
                 </h4>
                 <div className="space-y-2 text-muted-foreground">
                   <div className="flex justify-between">
-                    <span>Created:</span>
+                    <span>{t("product.createdAt")}</span>
                     <span className="font-mono text-gray-700 dark:text-gray-300">
                       {initialData.createdAt ? new Date(initialData.createdAt).toLocaleDateString() : "—"}
                     </span>
                   </div>
                   <div className="flex justify-between">
-                    <span>Last Updated:</span>
+                    <span>{t("product.lastUpdated")}</span>
                     <span className="font-mono text-gray-700 dark:text-gray-300">
                       {initialData.updatedAt ? new Date(initialData.updatedAt).toLocaleDateString() : "—"}
                     </span>
                   </div>
                   <div className="flex justify-between">
-                    <span>Total Variants:</span>
+                    <span>{t("product.totalVariants")}</span>
                     <span className="font-semibold text-primary">
                       {initialData.variants?.length || 0}
                     </span>
