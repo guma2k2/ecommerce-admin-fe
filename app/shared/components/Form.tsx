@@ -7,6 +7,7 @@ import { Select, SelectContent, SelectTrigger, SelectValue } from "~/core/compon
 import { Textarea } from "~/core/components/shadcn/textarea"
 import FileUpload, { type FileUploadProps } from "~/shared/components/FileUpload"
 import InfiniteSelect, { type InfiniteSelectProps } from "~/shared/components/InfiniteSelect"
+import PriceInput, { type PriceInputProps } from "~/shared/components/PriceInput"
 
 type FormControlProps<
   TFieldValues extends FieldValues = FieldValues,
@@ -180,6 +181,29 @@ export function FormInfiniteSelect<
           onChange={(val, item) => {
             onChange(val)
             onChangeCustom?.(val, item)
+          }}
+        />
+      )}
+    </FormBase>
+  )
+}
+
+export const FormPriceInput: FormControlFunc<
+  Omit<PriceInputProps, "name" | "value" | "onChange"> & {
+    onChangeCustom?: (val: number) => void
+  }
+> = ({ onChangeCustom, prefix, placeholder, ...props }) => {
+  return (
+    <FormBase {...props}>
+      {({ onChange, value, ...field }) => (
+        <PriceInput
+          {...field}
+          prefix={prefix}
+          value={value ?? 0}
+          placeholder={placeholder}
+          onChange={(num) => {
+            onChange(num)
+            onChangeCustom?.(num)
           }}
         />
       )}

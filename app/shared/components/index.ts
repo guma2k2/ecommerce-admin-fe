@@ -7,6 +7,8 @@ export { default as InfiniteSelect } from './InfiniteSelect'
 export * from './InfiniteSelect'
 export { default as LanguageSwitcher } from './LanguageSwitcher'
 export { default as MultipleUpload } from './MultipleUpload'
+export { default as PriceInput, PriceInput as PriceInputComponent } from './PriceInput'
+export * from './PriceInput'
 export { default as Sidebar, AppSidebar } from './Sidebar'
 export { default as TextEditor, TextEditor as TextEditorComponent } from './TextEditor'
 

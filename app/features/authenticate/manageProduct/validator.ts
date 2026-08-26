@@ -16,6 +16,12 @@ export const productOptionSchema = z.object({
   values: z.array(productOptionValueSchema)
 })
 
+export const productAttributeItemSchema = z.object({
+  productAttributeId: z.number(),
+  name: z.string().optional(),
+  value: z.string().trim().min(1, 'Attribute value is required')
+})
+
 export const productVariantSchema = z.object({
   id: z.number().nullable().optional(),
   title: z.string().optional(),
@@ -25,7 +31,8 @@ export const productVariantSchema = z.object({
   quantity: z.number(),
   mediaId: z.string().optional(),
   image: z.string().optional(),
-  productOptionValueIds: z.array(z.number()).optional()
+  productOptionValueIds: z.array(z.number()).optional(),
+  attributes: z.array(productAttributeItemSchema).optional()
 })
 
 export const productMediaItemSchema = z.object({
@@ -33,12 +40,6 @@ export const productMediaItemSchema = z.object({
   position: z.number(),
   url: z.string().optional(),
   isChecked: z.boolean().optional()
-})
-
-export const productAttributeItemSchema = z.object({
-  productAttributeId: z.number(),
-  name: z.string().optional(),
-  value: z.string().trim().min(1, 'Attribute value is required')
 })
 
 export const productVariantFormSchema = z.object({

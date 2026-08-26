@@ -16,9 +16,12 @@ import {
   verticalListSortingStrategy
 } from "@dnd-kit/sortable"
 import { CSS } from "@dnd-kit/utilities"
-import { Database, GripVertical } from "lucide-react"
+import { Database, GripVertical, Tag } from "lucide-react"
 import { Button } from "~/core/components/shadcn/button"
 import { Input } from "~/core/components/shadcn/input"
+import InfiniteSelect from "~/shared/components/InfiniteSelect"
+import { getProductAttributes } from "~/shared/services/api/productAttributeService"
+import type { ProductAttributeItem } from "~/shared/types"
 import { cn } from "~/shared/utils/appUtils"
 import SortableOptionValueItem from "./SortableOptionValueItem"
 
@@ -48,6 +51,7 @@ export interface SortableOptionAxisCardProps {
   onReorderValues: (oldIndex: number, newIndex: number) => void
   onRemoveOption: () => void
   onToggleShowing: (showing: boolean) => void
+  disabledOptionNames?: string[]
 }
 
 const COLOR_MAP: Record<string, string> = {
@@ -84,7 +88,8 @@ function SortableOptionAxisCardComponent({
   onRemoveValue,
   onReorderValues,
   onRemoveOption,
-  onToggleShowing
+  onToggleShowing,
+  disabledOptionNames
 }: SortableOptionAxisCardProps) {
   const [newValInput, setNewValInput] = useState("")
   const [activeValueId, setActiveValueId] = useState<string | null>(null)
@@ -251,12 +256,31 @@ function SortableOptionAxisCardComponent({
             <GripVertical className="size-4" />
           </button>
 
-          <Input
-            value={option.name || ""}
-            onChange={(e) => onUpdateName(e.target.value)}
-            placeholder="e.g. Size, Color, Material"
-            className="h-9 flex-1 bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-700 rounded-lg text-sm font-medium text-gray-900 dark:text-gray-100 shadow-2xs focus-visible:ring-1"
-          />
+          <div className="flex-1 min-w-0">
+            <InfiniteSelect<ProductAttributeItem>
+              fetchData={getProductAttributes}
+              value={option.name || ""}
+              onChange={(val) => onUpdateName(val)}
+              getOptionValue={(item) => item.name}
+              getOptionLabel={(item) => item.name}
+              disabledOptionIds={disabledOptionNames}
+              disabledOptionBadge="Added"
+              placeholder="Select option (e.g. Size, Color, Material)"
+              searchPlaceholder="Search option name..."
+              triggerClassName="h-9 text-xs"
+              renderOption={(item) => (
+                <div className="flex items-center justify-between w-full pr-2">
+                  <div className="flex items-center gap-2 min-w-0">
+                    <Tag className="size-3.5 text-primary shrink-0" />
+                    <span className="font-medium truncate">{item.name}</span>
+                  </div>
+                  <span className="text-[11px] font-mono text-muted-foreground shrink-0 ml-2">
+                    {item.id}
+                  </span>
+                </div>
+              )}
+            />
+          </div>
         </div>
       </div>
 

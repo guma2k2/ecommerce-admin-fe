@@ -124,7 +124,12 @@ export default function ProductForm({
         sku: v.sku,
         price: v.price,
         quantity: v.quantity,
-        productOptionValueIds: v.productOptionValueIds
+        productOptionValueIds: v.productOptionValueIds,
+        attributes: (v.attributes || []).map((a) => ({
+          productAttributeId: a.productAttributeId,
+          name: a.name,
+          value: a.value
+        }))
       }))
     }
   }, [initialData, mode])
@@ -166,7 +171,13 @@ export default function ProductForm({
         sku: (v.sku || "").trim() || `${values.slug.toUpperCase()}-${idx + 1}`,
         price: Number(v.price) || 0,
         quantity: Number(v.quantity) || 0,
-        mediaId: v.mediaId
+        mediaId: v.mediaId,
+        attributes: (v.attributes || [])
+          .filter((a) => a.value?.trim())
+          .map((a) => ({
+            productAttributeId: Number(a.productAttributeId),
+            value: a.value.trim()
+          }))
       }))
 
       // 3. Prepare medias payload
