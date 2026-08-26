@@ -21,13 +21,23 @@ import {
   Plus,
   DollarSign,
   Package,
-  GripVertical
+  GripVertical,
+  ChevronDown,
+  ChevronUp,
+  SlidersHorizontal,
+  Trash2,
+  Tag,
+  Copy
 } from "lucide-react"
 import { Button } from "~/core/components/shadcn/button"
 import { Input } from "~/core/components/shadcn/input"
 import { Checkbox } from "~/core/components/shadcn/checkbox"
 import { Badge } from "~/core/components/shadcn/badge"
 import FileUpload from "~/shared/components/FileUpload"
+import InfiniteSelect from "~/shared/components/InfiniteSelect"
+import { getProductAttributes } from "~/shared/services/api/productAttributeService"
+import type { ProductAttributeItem } from "~/shared/types"
+import PriceInput from "~/shared/components/PriceInput"
 import { cartesian, cn } from "~/shared/utils/appUtils"
 import type { ProductFormSchema } from "~/features/authenticate/manageProduct/validator"
 import SortableOptionAxisCard from "./SortableOptionAxisCard"
@@ -40,6 +50,7 @@ export default function ProductVariantCard() {
   const productSlug = useWatch({ control, name: "slug" }) || "PROD"
 
   const [selectedVariantIndices, setSelectedVariantIndices] = useState<number[]>([])
+  const [expandedVariantIndices, setExpandedVariantIndices] = useState<number[]>([])
   const [bulkPrice, setBulkPrice] = useState("")
   const [bulkStock, setBulkStock] = useState("")
   const [activeOptionId, setActiveOptionId] = useState<string | null>(null)
@@ -143,7 +154,8 @@ export default function ProductVariantCard() {
         mediaId: matchingExisting?.mediaId || undefined,
         productOptionValueIds: combo
           .map((c) => c.optionValueId)
-          .filter((id): id is number => typeof id === "number")
+          .filter((id): id is number => typeof id === "number"),
+        attributes: matchingExisting?.attributes || []
       }
     })
 
@@ -292,6 +304,81 @@ export default function ProductVariantCard() {
     setBulkStock("")
   }
 
+  // Variant-level attribute handlers
+  const toggleExpandVariant = (index: number) => {
+    setExpandedVariantIndices((prev) =>
+      prev.includes(index) ? prev.filter((i) => i !== index) : [...prev, index]
+    )
+  }
+
+  const handleAddVariantAttribute = (variantIndex: number) => {
+    const currentVariants = [...(getValues("variants") || [])]
+    const target = currentVariants[variantIndex]
+    if (target) {
+      const existingAttrs = target.attributes || []
+      currentVariants[variantIndex] = {
+        ...target,
+        attributes: [
+          ...existingAttrs,
+          { productAttributeId: 101, name: "", value: "" }
+        ]
+      }
+      setValue("variants", currentVariants, { shouldDirty: true })
+      if (!expandedVariantIndices.includes(variantIndex)) {
+        setExpandedVariantIndices((prev) => [...prev, variantIndex])
+      }
+    }
+  }
+
+  const handleUpdateVariantAttribute = (
+    variantIndex: number,
+    attrIndex: number,
+    field: "productAttributeId" | "name" | "value",
+    val: any
+  ) => {
+    const currentVariants = [...(getValues("variants") || [])]
+    const target = currentVariants[variantIndex]
+    if (target && target.attributes && target.attributes[attrIndex]) {
+      target.attributes[attrIndex] = {
+        ...target.attributes[attrIndex],
+        [field]: val
+      }
+      setValue("variants", currentVariants, { shouldDirty: true })
+    }
+  }
+
+  const handleRemoveVariantAttribute = (variantIndex: number, attrIndex: number) => {
+    const currentVariants = [...(getValues("variants") || [])]
+    const target = currentVariants[variantIndex]
+    if (target && target.attributes) {
+      target.attributes = target.attributes.filter((_, idx) => idx !== attrIndex)
+      setValue("variants", currentVariants, { shouldDirty: true })
+    }
+  }
+
+  const handleCopyAttributesToSelected = (sourceVariantIndex: number) => {
+    const currentVariants = [...(getValues("variants") || [])]
+    const source = currentVariants[sourceVariantIndex]
+    if (!source || !source.attributes) return
+
+    const sourceAttrs = [...source.attributes]
+    const targets =
+      selectedVariantIndices.length > 0
+        ? selectedVariantIndices.filter((i) => i !== sourceVariantIndex)
+        : currentVariants.map((_, i) => i).filter((i) => i !== sourceVariantIndex)
+
+    targets.forEach((i) => {
+      if (currentVariants[i]) {
+        currentVariants[i] = {
+          ...currentVariants[i],
+          attributes: sourceAttrs.map((a) => ({ ...a }))
+        }
+      }
+    })
+
+    setValue("variants", currentVariants, { shouldDirty: true })
+  }
+
   return (
     <div className="bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 p-6 space-y-6 shadow-xs">
       {/* Header & Mode Switch */}
@@ -324,17 +411,13 @@ export default function ProductVariantCard() {
               <DollarSign className="size-3.5 text-emerald-600" />
               Price ($) *
             </label>
-            <Input
-              type="number"
-              step="0.01"
-              min="0"
-              placeholder="0.00"
+            <PriceInput
               value={variants[0]?.price ?? 0}
-              onChange={(e) => {
-                const val = parseFloat(e.target.value) || 0
+              onChange={(val) => {
                 setValue("simplePrice", val)
                 setValue("variants.0.price", val, { shouldDirty: true })
               }}
+              placeholder="0.00"
               className="bg-gray-50/50 dark:bg-zinc-800/50 font-medium"
             />
           </div>
@@ -402,21 +485,29 @@ export default function ProductVariantCard() {
                     strategy={verticalListSortingStrategy}
                   >
                     <div className="divide-y divide-gray-200 dark:divide-zinc-800">
-                      {optionFields.map((field, optIdx) => (
-                        <SortableOptionAxisCard
-                          key={field.id}
-                          fieldId={field.id}
-                          optIdx={optIdx}
-                          option={options[optIdx] || field}
-                          onUpdateName={(name) => handleUpdateOptionName(optIdx, name)}
-                          onAddValue={(val) => handleAddValue(optIdx, val)}
-                          onUpdateValue={(valIdx, val) => handleUpdateValue(optIdx, valIdx, val)}
-                          onRemoveValue={(valIdx) => handleRemoveValue(optIdx, valIdx)}
-                          onReorderValues={(oldIdx, newIdx) => handleReorderValues(optIdx, oldIdx, newIdx)}
-                          onRemoveOption={() => handleRemoveOption(optIdx)}
-                          onToggleShowing={(showing) => handleToggleShowing(optIdx, showing)}
-                        />
-                      ))}
+                      {optionFields.map((field, optIdx) => {
+                        const otherOptionNames = options
+                          .filter((_, i) => i !== optIdx)
+                          .map((o) => o.name?.trim())
+                          .filter(Boolean) as string[]
+
+                        return (
+                          <SortableOptionAxisCard
+                            key={field.id}
+                            fieldId={field.id}
+                            optIdx={optIdx}
+                            option={options[optIdx] || field}
+                            disabledOptionNames={otherOptionNames}
+                            onUpdateName={(name) => handleUpdateOptionName(optIdx, name)}
+                            onAddValue={(val) => handleAddValue(optIdx, val)}
+                            onUpdateValue={(valIdx, val) => handleUpdateValue(optIdx, valIdx, val)}
+                            onRemoveValue={(valIdx) => handleRemoveValue(optIdx, valIdx)}
+                            onReorderValues={(oldIdx, newIdx) => handleReorderValues(optIdx, oldIdx, newIdx)}
+                            onRemoveOption={() => handleRemoveOption(optIdx)}
+                            onToggleShowing={(showing) => handleToggleShowing(optIdx, showing)}
+                          />
+                        )
+                      })}
                     </div>
                   </SortableContext>
 
@@ -485,11 +576,10 @@ export default function ProductVariantCard() {
 
                 <div className="flex flex-wrap items-center gap-2">
                   <div className="flex items-center gap-1">
-                    <Input
-                      type="number"
+                    <PriceInput
                       placeholder="Bulk Price ($)"
-                      value={bulkPrice}
-                      onChange={(e) => setBulkPrice(e.target.value)}
+                      value={bulkPrice ? parseFloat(bulkPrice) : ""}
+                      onChange={(val) => setBulkPrice(val ? String(val) : "")}
                       className="h-7 w-28 bg-white dark:bg-zinc-900 text-xs"
                     />
                     <Button
@@ -532,94 +622,233 @@ export default function ProductVariantCard() {
                       <th className="py-2.5 px-3 w-8"></th>
                       <th className="py-2.5 px-3 w-14">Image</th>
                       <th className="py-2.5 px-3 min-w-[160px]">Variant Combination</th>
-                      <th className="py-2.5 px-3 min-w-[160px]">SKU *</th>
-                      <th className="py-2.5 px-3 w-32">Price ($) *</th>
-                      <th className="py-2.5 px-3 w-28">Available *</th>
+                      <th className="py-2.5 px-3 min-w-[140px]">SKU *</th>
+                      <th className="py-2.5 px-3 w-28">Price ($) *</th>
+                      <th className="py-2.5 px-3 w-24">Available *</th>
+                      <th className="py-2.5 px-3 w-32 text-right">Attributes</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-100 dark:divide-zinc-800">
                     {variants.map((v, index) => {
                       const isSelected = selectedVariantIndices.includes(index)
+                      const isExpanded = expandedVariantIndices.includes(index)
+                      const attrCount = v.attributes?.filter((a) => a.value?.trim())?.length || 0
+                      const hasAttrs = (v.attributes?.length || 0) > 0
+
                       return (
-                        <tr
-                          key={index}
-                          className={cn(
-                            "hover:bg-gray-50/50 dark:hover:bg-zinc-800/30 transition-colors",
-                            isSelected && "bg-primary/5"
-                          )}
-                        >
-                          <td className="py-2.5 px-3">
-                            <Checkbox
-                              checked={isSelected}
-                              onCheckedChange={(checked) => {
-                                setSelectedVariantIndices((prev) =>
-                                  checked ? [...prev, index] : prev.filter((i) => i !== index)
-                                )
-                              }}
-                            />
-                          </td>
-                          <td className="py-2 px-3">
-                            <div className="w-10 h-10 rounded border overflow-hidden bg-gray-50 dark:bg-zinc-800">
-                              <FileUpload
-                                variant="compact"
-                                value={v.image || ""}
-                                onChange={(url: string) => {
-                                  setValue(`variants.${index}.image`, url, { shouldDirty: true })
+                        <React.Fragment key={index}>
+                          <tr
+                            className={cn(
+                              "hover:bg-gray-50/50 dark:hover:bg-zinc-800/30 transition-colors",
+                              isSelected && "bg-primary/5",
+                              isExpanded && "border-b-transparent bg-gray-50/30 dark:bg-zinc-800/20"
+                            )}
+                          >
+                            <td className="py-2.5 px-3">
+                              <Checkbox
+                                checked={isSelected}
+                                onCheckedChange={(checked) => {
+                                  setSelectedVariantIndices((prev) =>
+                                    checked ? [...prev, index] : prev.filter((i) => i !== index)
+                                  )
                                 }}
                               />
-                            </div>
-                          </td>
-                          <td className="py-2.5 px-3 font-medium text-gray-900 dark:text-gray-100">
-                            {v.title || `Variant ${index + 1}`}
-                            {v.id && (
-                              <span className="ml-1.5 text-[10px] text-muted-foreground font-mono">
-                                #id:{v.id}
-                              </span>
-                            )}
-                          </td>
-                          <td className="py-2 px-3">
-                            <Input
-                              value={v.sku || ""}
-                              onChange={(e) => {
-                                setValue(`variants.${index}.sku`, e.target.value, {
-                                  shouldDirty: true
-                                })
-                              }}
-                              className="h-8 font-mono text-xs bg-transparent"
-                            />
-                          </td>
-                          <td className="py-2 px-3">
-                            <Input
-                              type="number"
-                              step="0.01"
-                              min="0"
-                              value={v.price ?? 0}
-                              onChange={(e) => {
-                                setValue(
-                                  `variants.${index}.price`,
-                                  parseFloat(e.target.value) || 0,
-                                  { shouldDirty: true }
-                                )
-                              }}
-                              className="h-8 text-xs bg-transparent font-medium"
-                            />
-                          </td>
-                          <td className="py-2 px-3">
-                            <Input
-                              type="number"
-                              min="0"
-                              value={v.quantity ?? 0}
-                              onChange={(e) => {
-                                setValue(
-                                  `variants.${index}.quantity`,
-                                  parseInt(e.target.value, 10) || 0,
-                                  { shouldDirty: true }
-                                )
-                              }}
-                              className="h-8 text-xs bg-transparent"
-                            />
-                          </td>
-                        </tr>
+                            </td>
+                            <td className="py-2 px-3">
+                              <div className="w-10 h-10 rounded border overflow-hidden bg-gray-50 dark:bg-zinc-800">
+                                <FileUpload
+                                  variant="compact"
+                                  value={v.image || ""}
+                                  onChange={(url: string) => {
+                                    setValue(`variants.${index}.image`, url, { shouldDirty: true })
+                                  }}
+                                />
+                              </div>
+                            </td>
+                            <td className="py-2.5 px-3 font-medium text-gray-900 dark:text-gray-100">
+                              {v.title || `Variant ${index + 1}`}
+                              {v.id && (
+                                <span className="ml-1.5 text-[10px] text-muted-foreground font-mono">
+                                  #id:{v.id}
+                                </span>
+                              )}
+                            </td>
+                            <td className="py-2 px-3">
+                              <Input
+                                value={v.sku || ""}
+                                onChange={(e) => {
+                                  setValue(`variants.${index}.sku`, e.target.value, {
+                                    shouldDirty: true
+                                  })
+                                }}
+                                className="h-8 font-mono text-xs bg-transparent"
+                              />
+                            </td>
+                            <td className="py-2 px-3">
+                              <PriceInput
+                                value={v.price ?? 0}
+                                onChange={(val) => {
+                                  setValue(`variants.${index}.price`, val, {
+                                    shouldDirty: true
+                                  })
+                                }}
+                                placeholder="0.00"
+                                className="h-8 text-xs bg-transparent font-medium"
+                              />
+                            </td>
+                            <td className="py-2 px-3">
+                              <Input
+                                type="number"
+                                min="0"
+                                value={v.quantity ?? 0}
+                                onChange={(e) => {
+                                  setValue(
+                                    `variants.${index}.quantity`,
+                                    parseInt(e.target.value, 10) || 0,
+                                    { shouldDirty: true }
+                                  )
+                                }}
+                                className="h-8 text-xs bg-transparent"
+                              />
+                            </td>
+                            <td className="py-2 px-3 text-right">
+                              <button
+                                type="button"
+                                onClick={() => toggleExpandVariant(index)}
+                                className={cn(
+                                  "inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium border transition-all select-none",
+                                  hasAttrs
+                                    ? "bg-indigo-50 dark:bg-indigo-950/40 text-indigo-700 dark:text-indigo-300 border-indigo-200 dark:border-indigo-900/50 hover:bg-indigo-100 dark:hover:bg-indigo-900/60"
+                                    : "bg-gray-100 dark:bg-zinc-800 text-gray-600 dark:text-gray-400 border-gray-200 dark:border-zinc-700 hover:bg-gray-200 dark:hover:bg-zinc-700"
+                                )}
+                              >
+                                <SlidersHorizontal className="size-3 text-indigo-500" />
+                                <span>{attrCount > 0 ? `${attrCount} Specs` : "Specs"}</span>
+                                {isExpanded ? (
+                                  <ChevronUp className="size-3" />
+                                ) : (
+                                  <ChevronDown className="size-3 opacity-60" />
+                                )}
+                              </button>
+                            </td>
+                          </tr>
+
+                          {/* Expandable Specifications Sub-Row */}
+                          {isExpanded && (
+                            <tr className="bg-gray-50/70 dark:bg-zinc-900/60 border-b border-gray-200 dark:border-zinc-800">
+                              <td colSpan={7} className="p-3.5 pl-12">
+                                <div className="rounded-lg border border-gray-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-4 space-y-3 shadow-2xs">
+                                  <div className="flex flex-wrap items-center justify-between gap-2 pb-2.5 border-b border-gray-100 dark:border-zinc-800">
+                                    <div className="flex items-center gap-2">
+                                      <Tag className="size-4 text-indigo-500" />
+                                      <span className="text-xs font-semibold text-gray-900 dark:text-gray-100">
+                                        Specifications for {v.title || `Variant ${index + 1}`}
+                                      </span>
+                                      <Badge variant="secondary" className="text-[10px] px-1.5 py-0 font-medium">
+                                        {attrCount} configured
+                                      </Badge>
+                                    </div>
+
+                                    <div className="flex items-center gap-2">
+                                      {attrCount > 0 && (
+                                        <Button
+                                          type="button"
+                                          variant="ghost"
+                                          size="sm"
+                                          onClick={() => handleCopyAttributesToSelected(index)}
+                                          className="h-7 px-2 text-[11px] text-muted-foreground hover:text-foreground gap-1"
+                                          title="Copy these specifications to other variants"
+                                        >
+                                          <Copy className="size-3" />
+                                          Copy to other variants
+                                        </Button>
+                                      )}
+                                      <Button
+                                        type="button"
+                                        variant="outline"
+                                        size="sm"
+                                        onClick={() => handleAddVariantAttribute(index)}
+                                        className="h-7 px-2.5 text-xs gap-1 text-indigo-600 dark:text-indigo-400 border-indigo-200 dark:border-indigo-900"
+                                      >
+                                        <Plus className="size-3.5" />
+                                        Add Attribute
+                                      </Button>
+                                    </div>
+                                  </div>
+
+                                  {!v.attributes || v.attributes.length === 0 ? (
+                                    <div className="py-4 text-center text-xs text-muted-foreground">
+                                      No variant-specific attributes added yet (e.g. Weight, Dimensions, GTIN, RAM, Material).
+                                      <button
+                                        type="button"
+                                        onClick={() => handleAddVariantAttribute(index)}
+                                        className="ml-1 text-primary hover:underline font-medium"
+                                      >
+                                        Click to add
+                                      </button>
+                                    </div>
+                                  ) : (
+                                    <div className="space-y-2">
+                                      {v.attributes.map((attr, attrIdx) => (
+                                        <div
+                                          key={attrIdx}
+                                          className="flex items-center gap-2.5 p-2 rounded-lg bg-gray-50/60 dark:bg-zinc-800/40 border border-gray-100 dark:border-zinc-800"
+                                        >
+                                          <div className="w-1/3 min-w-[180px]">
+                                            <InfiniteSelect<ProductAttributeItem>
+                                              fetchData={getProductAttributes}
+                                              value={attr.name || ""}
+                                              onChange={(val, item) => {
+                                                const numId = item ? parseInt(item.id.replace(/\D/g, ""), 10) || 101 : 101
+                                                handleUpdateVariantAttribute(index, attrIdx, "name", val)
+                                                handleUpdateVariantAttribute(index, attrIdx, "productAttributeId", numId)
+                                              }}
+                                              getOptionValue={(item) => item.name}
+                                              getOptionLabel={(item) => item.name}
+                                              placeholder="Select attribute..."
+                                              searchPlaceholder="Search attribute..."
+                                              triggerClassName="h-8 text-xs bg-white dark:bg-zinc-900"
+                                              renderOption={(item) => (
+                                                <div className="flex items-center justify-between w-full pr-2">
+                                                  <span className="font-medium truncate">{item.name}</span>
+                                                  <span className="text-[10px] font-mono text-muted-foreground ml-2">
+                                                    {item.id}
+                                                  </span>
+                                                </div>
+                                              )}
+                                            />
+                                          </div>
+
+                                          <div className="flex-1 min-w-0">
+                                            <Input
+                                              value={attr.value || ""}
+                                              onChange={(e) =>
+                                                handleUpdateVariantAttribute(index, attrIdx, "value", e.target.value)
+                                              }
+                                              placeholder="Value (e.g. 180g, 15x8cm, Waterproof)"
+                                              className="h-8 text-xs bg-white dark:bg-zinc-900"
+                                            />
+                                          </div>
+
+                                          <Button
+                                            type="button"
+                                            variant="ghost"
+                                            size="icon"
+                                            onClick={() => handleRemoveVariantAttribute(index, attrIdx)}
+                                            className="size-8 text-gray-400 hover:text-red-500 shrink-0"
+                                            title="Remove specification"
+                                          >
+                                            <Trash2 className="size-3.5" />
+                                          </Button>
+                                        </div>
+                                      ))}
+                                    </div>
+                                  )}
+                                </div>
+                              </td>
+                            </tr>
+                          )}
+                        </React.Fragment>
                       )
                     })}
                   </tbody>

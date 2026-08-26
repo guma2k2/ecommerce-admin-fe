@@ -257,13 +257,15 @@ export default function InfiniteSelect<T extends Record<string, any>>({
             disabled={disabled}
             className={cn(
               'w-full justify-between font-normal bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-800 text-left h-10 px-3 hover:bg-gray-50/80 dark:hover:bg-zinc-800/80 transition-colors',
-              !currentSelected && 'text-muted-foreground',
+              !currentSelected && !value && 'text-muted-foreground',
               triggerClassName
             )}
           >
             <span className='truncate block max-w-[calc(100%-2rem)]'>
               {currentSelected
                 ? getOptionLabel(currentSelected)
+                : value
+                ? value
                 : placeholder || t('infiniteSelect.placeholder', 'Select an option...')}
             </span>
 
