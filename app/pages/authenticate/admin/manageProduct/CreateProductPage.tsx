@@ -1,4 +1,3 @@
-import React from "react"
 import { useLoaderData } from "react-router"
 import ProductForm from "~/features/authenticate/manageProduct/components/ProductForm"
 import { getAllCategories } from "~/shared/services/api/categoryService"
