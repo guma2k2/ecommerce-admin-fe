@@ -1,4 +1,4 @@
-import React, { useState } from "react"
+import { useState } from "react"
 import { useFormContext, useWatch } from "react-hook-form"
 import {
   closestCenter,
@@ -17,7 +17,6 @@ import {
 } from "@dnd-kit/sortable"
 import { ImagePlus, Trash2, FolderOpen, UploadCloud, Star } from "lucide-react"
 import { Button } from "~/core/components/shadcn/button"
-import { Checkbox } from "~/core/components/shadcn/checkbox"
 import MediaSelectModal from "./MediaSelectModal"
 import SortableImage from "./SortableImage"
 import type { ProductFormSchema } from "~/features/authenticate/manageProduct/validator"

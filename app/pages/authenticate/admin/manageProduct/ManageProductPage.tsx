@@ -1,4 +1,3 @@
-import * as React from "react"
 import { useLoaderData, useSearchParams, useNavigation, Link, useNavigate } from "react-router"
 import type { ClientLoaderFunctionArgs } from "react-router"
 import { Plus, Package } from "lucide-react"
