@@ -1,4 +1,4 @@
-import { Award, FolderTree, Image, Package, ArrowRight, LayoutDashboard, Sparkles, TrendingUp } from 'lucide-react'
+import { Award, FolderTree, Image, Package, ArrowRight, LayoutDashboard, Sparkles, TrendingUp, User as UserIcon } from 'lucide-react'
 import { Link } from 'react-router'
 import { useTranslation } from 'react-i18next'
 import { Button } from '~/core/components/shadcn/button'
@@ -41,8 +41,18 @@ export default function DashboardPage() {
       icon: Image,
       color: 'text-purple-600 dark:text-purple-400',
       bg: 'bg-purple-500/10'
+    },
+    {
+      title: t('label.account'),
+      description: 'Update profile details and account security',
+      url: '/admin/account',
+      icon: UserIcon,
+      color: 'text-indigo-600 dark:text-indigo-400',
+      bg: 'bg-indigo-500/10'
     }
   ]
+
+
 
   return (
     <div className='w-full min-h-screen bg-gray-50/50 dark:bg-zinc-950 p-6 space-y-8'>

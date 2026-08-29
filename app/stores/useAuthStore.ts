@@ -1,8 +1,9 @@
 import { create } from 'zustand'
 import { devtools, persist } from 'zustand/middleware'
-import type { User, AuthState } from '~/shared/types'
+import type { AdminProfile, AuthState } from '~/shared/types'
+import { setAccessToken } from '~/shared/services/axiosClient'
 
-export type { User, AuthState }
+export type { AdminProfile, AuthState }
 
 export const useAuthStore = create<AuthState>()(
   devtools(
@@ -12,7 +13,8 @@ export const useAuthStore = create<AuthState>()(
         token: null,
         isAuthenticated: false,
 
-        login: (user, token) =>
+        login: (user, token) => {
+          setAccessToken(token)
           set(
             {
               user,
@@ -21,9 +23,32 @@ export const useAuthStore = create<AuthState>()(
             },
             false,
             'login'
+          )
+        },
+
+        setUser: (user) =>
+          set(
+            {
+              user
+            },
+            false,
+            'setUser'
           ),
 
-        logout: () =>
+        setToken: (token) => {
+          setAccessToken(token)
+          set(
+            {
+              token,
+              isAuthenticated: Boolean(token)
+            },
+            false,
+            'setToken'
+          )
+        },
+
+        logout: () => {
+          setAccessToken(null)
           set(
             {
               user: null,
@@ -33,11 +58,18 @@ export const useAuthStore = create<AuthState>()(
             false,
             'logout'
           )
+        }
       }),
       {
-        name: 'auth-storage'
+        name: 'auth-storage',
+        onRehydrateStorage: () => (state) => {
+          if (state?.token) {
+            setAccessToken(state.token)
+          }
+        }
       }
     ),
     { name: 'AuthStore' }
   )
 )
+

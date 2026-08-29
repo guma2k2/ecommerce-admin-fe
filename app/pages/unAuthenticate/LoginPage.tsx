@@ -8,7 +8,7 @@ import type { z } from 'zod'
 import { Button } from '~/core/components/shadcn/button'
 import { FieldGroup, FieldSet } from '~/core/components/shadcn/field'
 import { showToast } from '~/shared/utils/toast'
-import { fakeLoginApi } from '~/shared/services/api/authApi'
+import { getAdminProfile, signIn } from '~/shared/services/api/authApi'
 import { loginFormSchema, type LoginFormSchema } from '~/features/unAuthenticate/validator'
 import { FormInput } from '~/shared/components/Form'
 import { useAuthStore } from '~/stores'
@@ -31,16 +31,23 @@ export default function LoginPage() {
   async function onSubmit(values: z.infer<typeof loginFormSchema>) {
     try {
       setIsLoading(true)
-      const res = await fakeLoginApi(values)
-      login(res.user, res.token)
+      const accessToken = await signIn(values)
+      const adminProfile = await getAdminProfile()
+      login(adminProfile, accessToken)
       showToast('success', 'toasts.loginSuccess')
       navigate('/admin', { replace: true })
-    } catch (error) {
-      showToast('error', 'toasts.loginError')
+    } catch (error: any) {
+      const serverMessage = error?.response?.data?.message
+      if (serverMessage) {
+        showToast('error', serverMessage)
+      } else {
+        showToast('error', 'toasts.loginError')
+      }
     } finally {
       setIsLoading(false)
     }
   }
+
 
   return (
     <div className='flex items-center justify-center w-full h-screen bg-gray-300'>
