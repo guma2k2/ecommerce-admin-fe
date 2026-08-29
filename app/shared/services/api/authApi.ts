@@ -1,35 +1,72 @@
-import type { LoginFormSchema } from '~/features/unAuthenticate/validator'
-import type { User, LoginResponse } from '~/shared/types'
+import apiClient, { setAccessToken } from '~/shared/services/axiosClient'
+import type {
+  AdminProfile,
+  ApiResponse,
+  SignInPayload,
+  SignInResponseData,
+  UpdateProfilePayload
+} from '~/shared/types'
 
-export type { LoginResponse }
+export type { AdminProfile, SignInPayload, UpdateProfilePayload }
 
 /**
- * Simulates a fake backend API call for user authentication.
- * Returns user details and a dummy JWT token after 1 second.
+ * Authenticates user credentials and sets the Access Token.
+ * Refresh Token cookie is automatically set by the server.
  */
-export async function fakeLoginApi(credentials: LoginFormSchema): Promise<LoginResponse> {
-  return new Promise((resolve, reject) => {
-    setTimeout(() => {
-      // Simple validation logic for testing error state if needed
-      if (credentials.email.includes('error')) {
-        reject(new Error('Invalid email or password.'))
-        return
-      }
-
-      const mockUser: User = {
-        id: 'usr_1001',
-        email: credentials.email,
-        name: credentials.email.split('@')[0] || 'Admin User',
-        avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150',
-        role: 'ADMIN'
-      }
-
-      const mockToken = `mock-jwt-token-${Date.now()}`
-
-      resolve({
-        user: mockUser,
-        token: mockToken
-      })
-    }, 1000)
-  })
+export async function signIn(payload: SignInPayload): Promise<string> {
+  const response = await apiClient.post<ApiResponse<SignInResponseData>>(
+    '/auth/public/sign-in',
+    payload
+  )
+  const token = response.data.data.accessToken
+  setAccessToken(token)
+  return token
 }
+
+/**
+ * Exchanges valid HttpOnly refresh token cookie for a new Access Token.
+ */
+export async function refreshToken(): Promise<string> {
+  const response = await apiClient.post<ApiResponse<string | SignInResponseData>>(
+    '/auth/refresh'
+  )
+  const data = response.data.data
+  const token = typeof data === 'string' ? data : data.accessToken
+  setAccessToken(token)
+  return token
+}
+
+/**
+ * Revokes refresh token in backend and clears client session.
+ */
+export async function signOut(): Promise<void> {
+  try {
+    await apiClient.post('/auth/sign-out')
+  } finally {
+    setAccessToken(null)
+  }
+}
+
+/**
+ * Retrieves profile details of the authenticated administrator.
+ */
+export async function getAdminProfile(): Promise<AdminProfile> {
+  const response = await apiClient.get<ApiResponse<AdminProfile>>(
+    '/admin-profile/my-profile'
+  )
+  return response.data.data
+}
+
+/**
+ * Updates the name and/or avatar of the authenticated administrator.
+ */
+export async function updateAdminProfile(
+  payload: UpdateProfilePayload
+): Promise<AdminProfile> {
+  const response = await apiClient.put<ApiResponse<AdminProfile>>(
+    '/admin-profile/my-profile',
+    payload
+  )
+  return response.data.data
+}
+

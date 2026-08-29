@@ -1,38 +1,69 @@
-import type { AxiosError, AxiosInstance, AxiosResponse } from 'axios'
+import type { AxiosError, AxiosInstance, AxiosResponse, InternalAxiosRequestConfig } from 'axios'
 import axios from 'axios'
-import i18n from '~/shared/i18n'
-import { redirect } from 'react-router'
-import { showToast } from '~/shared/utils/toast'
-// import { clearAuthInfo } from "~/redux/auth/authSlice";
-// import { store } from "~/redux/store";
 import type { ErrorResponse } from '~/shared/types'
 import { toCamelCase, toSnakeCase } from '~/shared/utils/appUtils'
 import StorageHelper from '~/shared/utils/storageHelper'
 
+let accessToken: string | null = null
+
+export const setAccessToken = (token: string | null) => {
+  accessToken = token
+  if (token) {
+    StorageHelper.setCookie('token', token)
+  } else {
+    StorageHelper.removeCookie('token')
+  }
+}
+
+export const getAccessToken = (): string | null => {
+  if (!accessToken) {
+    accessToken = StorageHelper.getCookie('token') || null
+  }
+  return accessToken
+}
+
 class AxiosClient {
   private instance: AxiosInstance
+  private isRefreshing = false
+  private failedQueue: Array<{
+    resolve: (value?: unknown) => void
+    reject: (reason?: unknown) => void
+  }> = []
 
   constructor() {
-    console.log('AxiosClient initialized with base URL:', import.meta.env.VITE_API_SERVER_URL)
+    const baseURL = import.meta.env.VITE_API_SERVER_URL || 'http://localhost:8080/api/v1'
+    console.log('AxiosClient initialized with base URL:', baseURL)
 
     this.instance = axios.create({
-      baseURL: import.meta.env.VITE_API_SERVER_URL,
+      baseURL,
       headers: {
         'Content-Type': 'application/json',
         Accept: 'application/json'
-      }
+      },
+      withCredentials: true // Required for HttpOnly refresh_token cookie
     })
 
     this.setupInterceptors()
   }
 
+  private processQueue(error: Error | null, token: string | null = null): void {
+    this.failedQueue.forEach((promise) => {
+      if (error) {
+        promise.reject(error)
+      } else {
+        promise.resolve(token)
+      }
+    })
+    this.failedQueue = []
+  }
+
   private setupInterceptors(): void {
     // Request interceptor
     this.instance.interceptors.request.use(
-      (config) => {
-        const token = this.getToken()
-        if (token) {
-          config.headers['Auth-Token'] = `${token}`
+      (config: InternalAxiosRequestConfig) => {
+        const token = getAccessToken()
+        if (token && config.headers) {
+          config.headers.Authorization = `Bearer ${token}`
         }
 
         if (config.data && !(config.data instanceof FormData)) {
@@ -60,65 +91,112 @@ class AxiosClient {
 
         return response
       },
-      (error: AxiosError<ErrorResponse>) => {
-        this.handleError(error)
+      async (error: AxiosError<ErrorResponse>) => {
+        const originalRequest = error.config as (InternalAxiosRequestConfig & { _retry?: boolean }) | undefined
+
+        // Handle 401 Unauthorized token refresh
+        if (error.response?.status === 401 && originalRequest && !originalRequest._retry) {
+          const url = originalRequest.url || ''
+          // Avoid refreshing on sign-in or refresh endpoint itself
+          if (url.includes('/auth/public/sign-in') || url.includes('/auth/refresh')) {
+            return Promise.reject(error)
+          }
+
+          if (this.isRefreshing) {
+            return new Promise((resolve, reject) => {
+              this.failedQueue.push({ resolve, reject })
+            })
+              .then((token) => {
+                if (originalRequest.headers && token) {
+                  originalRequest.headers.Authorization = `Bearer ${token}`
+                }
+                return this.instance(originalRequest)
+              })
+              .catch((err) => Promise.reject(err))
+          }
+
+          originalRequest._retry = true
+          this.isRefreshing = true
+
+          try {
+            // Call refresh endpoint with credentials (cookie sent automatically)
+            const refreshResponse = await this.instance.post<{ status: string; data: string | { accessToken: string } }>(
+              '/auth/refresh'
+            )
+
+            const data = refreshResponse.data?.data
+            const newAccessToken = typeof data === 'string' ? data : data?.accessToken
+
+            if (!newAccessToken) {
+              throw new Error('No access token returned from refresh endpoint')
+            }
+
+            setAccessToken(newAccessToken)
+            this.processQueue(null, newAccessToken)
+
+            if (originalRequest.headers) {
+              originalRequest.headers.Authorization = `Bearer ${newAccessToken}`
+            }
+
+            return this.instance(originalRequest)
+          } catch (refreshError: any) {
+            console.group('🔒 [Auth Refresh Error]')
+            console.error('❌ Failed to refresh access token on 401 response')
+            console.error('Request URL:', originalRequest.url)
+            console.error('Refresh Error:', refreshError)
+            if (axios.isAxiosError(refreshError)) {
+              console.error('Refresh Response Status:', refreshError.response?.status)
+              console.error('Refresh Response Data:', refreshError.response?.data)
+              console.error('Refresh Request Headers:', refreshError.config?.headers)
+            }
+            console.groupEnd()
+
+            this.processQueue(refreshError as Error, null)
+            setAccessToken(null)
+
+            // Properly clear Zustand auth store to avoid redirect loops between /login and /admin
+            import('~/stores').then(({ useAuthStore }) => {
+              useAuthStore.getState().logout()
+            }).catch(() => {})
+
+            this.handleUnauthorized(refreshError)
+            return Promise.reject(refreshError)
+          } finally {
+            this.isRefreshing = false
+          }
+        }
+
         return Promise.reject(error)
       }
     )
   }
 
-  private getToken(): string | null {
-    return StorageHelper.getCookie('token')
-  }
+  private handleUnauthorized(error?: any): void {
+    if (typeof window === 'undefined') return
 
-  private handleError(error: AxiosError<ErrorResponse>): void {
-    const { response, request, message: errorMessage } = error
+    // Debug mode check: allow developers to prevent auto-redirect by running `localStorage.setItem('DEBUG_AUTH', 'true')` in Console
+    const isDebugNoRedirect =
+      localStorage.getItem('DEBUG_AUTH') === 'true' ||
+      (window as any).__DISABLE_AUTH_REDIRECT__ === true ||
+      import.meta.env.VITE_DISABLE_AUTH_REDIRECT === 'true'
 
-    if (response) {
-      const { data } = response
-
-      this.showError(data?.status)
-
-      // Handle unauthorized access and redirect to login
-      if (data && data?.status === 'unauthorized') {
-        this.handleUnauthorized()
-      }
+    if (isDebugNoRedirect) {
+      console.warn('⚠️ [Auth Debug] Auto-redirect to /login suppressed because DEBUG_AUTH is enabled.')
+      return
     }
+
+    // window.location.href = '/login'
   }
 
-  private showError(errorKey: string): void {
-    console.log('Show error for key:', errorKey)
-
-    const translatedMessage = i18n.t(`errors.${errorKey}`, { defaultValue: errorKey })
-    console.log('Translated error:', translatedMessage)
-  }
-
-  private handleUnauthorized(): void {
-    const currentPath = window.location.pathname
-    let consolePath = 'admin' // default
-
-    if (currentPath.startsWith('/diving')) {
-      consolePath = 'diving'
-    }
-    showToast('error', 'errors.unauthorized')
-
-    // store.dispatch(clearAuthInfo());
-
-    // window.location.href = `/${consolePath}/login`;
-    // redirect(`/${consolePath}/login`);
-    // Clear auth data
-  }
 
   // Set authorization token
   public setToken(token: string): void {
-    StorageHelper.setCookie('token', token)
-    this.instance.defaults.headers['Auth-Token'] = token
+    setAccessToken(token)
   }
 
   // Remove authorization token
   public removeToken(): void {
-    StorageHelper.removeCookie('token')
-    delete this.instance.defaults.headers['Auth-Token']
+    setAccessToken(null)
   }
 
   // Get axios instance for usage
@@ -128,10 +206,13 @@ class AxiosClient {
 }
 
 // Create and export singleton instance
-const axiosClient = new AxiosClient()
+const axiosClientInstance = new AxiosClient()
+export const apiClient = axiosClientInstance.getInstance()
 
-// Export the axios instance directly
-export default axiosClient.getInstance()
+// Export the axios instance directly as default
+export default apiClient
 
 // Export utility methods
-export const { setToken, removeToken } = axiosClient
+export const setToken = (token: string) => axiosClientInstance.setToken(token)
+export const removeToken = () => axiosClientInstance.removeToken()
+
