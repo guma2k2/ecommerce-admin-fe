@@ -33,12 +33,13 @@ export default function UpdateProductAttributePage() {
   const handleUpdate = async (values: ProductAttributeFormSchema) => {
     try {
       setIsSubmitting(true)
-      await updateProductAttribute(attribute.id, values)
+      await updateProductAttribute(attribute.id, { name: values.name })
       showToast('success', 'toasts.attributeUpdated')
       navigate('/admin/manage-product-attribute')
-    } catch (error) {
+    } catch (error: any) {
       console.error('Update product attribute error:', error)
-      showToast('error', 'toasts.error')
+      const errorMsg = error?.response?.data?.message || 'toasts.error'
+      showToast('error', errorMsg)
     } finally {
       setIsSubmitting(false)
     }
@@ -60,7 +61,7 @@ export default function UpdateProductAttributePage() {
             {t('productAttribute.updateTitle')}
           </h1>
           <p className='text-sm text-muted-foreground'>
-            {t('productAttribute.updateSubtitle', { id: attribute.id, name: attribute.name })}
+            {t('productAttribute.updateSubtitle', { name: attribute.name })}
           </p>
         </div>
       </div>

@@ -30,8 +30,8 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger
 } from "~/core/components/shadcn/dropdown-menu"
-import { getMediaList, createMediaItem } from "~/shared/services/api/mediaService"
-import type { MediaItem } from "~/shared/types"
+import { getMediaPage, uploadMedia } from "~/shared/services/api/mediaService"
+import type { MediaResponse } from "~/shared/types"
 import { cn } from "~/shared/utils/appUtils"
 
 interface MediaSelectModalProps {
@@ -47,7 +47,7 @@ export default function MediaSelectModal({
   onSelectMedia,
   initialSelectedUrls = []
 }: MediaSelectModalProps) {
-  const [mediaList, setMediaList] = useState<MediaItem[]>([])
+  const [mediaList, setMediaList] = useState<MediaResponse[]>([])
   const [isLoading, setIsLoading] = useState(false)
   const [searchQuery, setSearchQuery] = useState("")
   const [fileTypeFilter, setFileTypeFilter] = useState<string>("all")
@@ -67,13 +67,13 @@ export default function MediaSelectModal({
   const fetchMedia = async () => {
     setIsLoading(true)
     try {
-      const res = await getMediaList({ pageSize: 100 })
-      setMediaList(res.content)
+      const res = await getMediaPage({ pageSize: 100 })
+      setMediaList(res.content || [])
 
       // Pre-select items if matching initialSelectedUrls
       if (initialSelectedUrls.length > 0) {
         const matchingIds = new Set<string>()
-        res.content.forEach((item: MediaItem) => {
+        res.content.forEach((item: MediaResponse) => {
           if (initialSelectedUrls.includes(item.url)) {
             matchingIds.add(item.id)
           }
@@ -96,7 +96,7 @@ export default function MediaSelectModal({
 
     setIsLoading(true)
     try {
-      const uploadPromises = fileArray.map((file) => createMediaItem(file))
+      const uploadPromises = fileArray.map((file) => uploadMedia(file))
       const newItems = await Promise.all(uploadPromises)
       
       setMediaList((prev) => [...newItems, ...prev])
@@ -113,6 +113,7 @@ export default function MediaSelectModal({
       setIsLoading(false)
     }
   }
+
 
   const handleFileInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
@@ -155,8 +156,11 @@ export default function MediaSelectModal({
     .sort((a, b) => {
       if (sortOrder === "name") return a.name.localeCompare(b.name)
       if (sortOrder === "size") return b.size - a.size
-      return new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+      const dateA = a.created_at ? new Date(a.created_at).getTime() : 0
+      const dateB = b.created_at ? new Date(b.created_at).getTime() : 0
+      return dateB - dateA
     })
+
 
   const handleDone = () => {
     const selectedItems = mediaList
@@ -332,16 +336,23 @@ export default function MediaSelectModal({
                   <DropdownMenuItem onClick={() => {
                     const url = prompt("Enter Image URL:")
                     if (url) {
-                      createMediaItem(new File([""], "external-image.jpg"), "external-image.jpg").then((item) => {
-                        item.url = url
-                        setMediaList((prev) => [item, ...prev])
-                        setSelectedIds((prev) => new Set(prev).add(item.id))
-                      })
+                      const tempItem: MediaResponse = {
+                        id: `ext_${Date.now()}`,
+                        name: "external-image.jpg",
+                        url: url,
+                        type: "IMAGE",
+                        size: 0,
+                        fileType: "jpg",
+                        active: true
+                      }
+                      setMediaList((prev) => [tempItem, ...prev])
+                      setSelectedIds((prev) => new Set(prev).add(tempItem.id))
                     }
                   }} className="cursor-pointer">
                     <Plus className="size-4 mr-2 text-emerald-500" />
                     Add from URL
                   </DropdownMenuItem>
+
                 </DropdownMenuContent>
               </DropdownMenu>
 

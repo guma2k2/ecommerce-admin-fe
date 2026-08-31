@@ -1,13 +1,28 @@
+import type { AxiosProgressEvent } from 'axios'
 import type { PageResponse, SortDirection } from './pagination'
 
-export interface MediaItem {
+export type MediaType = 'IMAGE' | 'VIDEO'
+
+export interface MediaResponse {
   id: string
   name: string
   url: string
-  size: number // file size in bytes
-  type: string // MIME type e.g., 'image/png', 'image/jpeg', 'video/mp4', 'application/pdf'
-  created_at: string
-  updated_at: string
+  type: MediaType
+  size: number
+  altText?: string | null
+  fileType: string
+  active: boolean
+  duration?: string | null
+  created_at?: string
+  updated_at?: string
+}
+
+export type MediaItem = MediaResponse
+
+export interface UploadMediaPayload {
+  file: File
+  altText?: string
+  onUploadProgress?: (progressEvent: AxiosProgressEvent) => void
 }
 
 export interface GetMediaParams {
@@ -19,5 +34,6 @@ export interface GetMediaParams {
   type?: string
 }
 
-export type GetMediaResponse = PageResponse<MediaItem>
+export type GetMediaResponse = PageResponse<MediaResponse>
 export type MediaTypeFilter = 'all' | 'image' | 'video' | 'document'
+

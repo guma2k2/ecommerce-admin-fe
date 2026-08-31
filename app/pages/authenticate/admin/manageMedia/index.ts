@@ -1,1 +1,3 @@
-export { default as ManageMediaPage, clientLoader as manageMediaClientLoader } from './ManageMediaPage'
+export { default as ManageMediaPage } from './ManageMediaPage'
+export * from './ManageMediaPage'
+

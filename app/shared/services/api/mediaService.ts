@@ -1,191 +1,122 @@
-import type { GetMediaParams, GetMediaResponse, MediaItem } from '~/shared/types'
+import type { AxiosProgressEvent } from 'axios'
+import apiClient from '~/shared/services/axiosClient'
+import type {
+  ApiResponse,
+  GetMediaParams,
+  GetMediaResponse,
+  MediaItem,
+  MediaResponse,
+  PageResponse,
+  UploadMediaPayload
+} from '~/shared/types'
 
-export type { GetMediaParams, GetMediaResponse, MediaItem }
+export type { GetMediaParams, GetMediaResponse, MediaItem, MediaResponse, UploadMediaPayload }
 
-// Initial mock data with realistic items
-let mockMediaDatabase: MediaItem[] = [
-  {
-    id: 'med_01H8X9A001',
-    name: 'hero-banner-summer-sale.jpg',
-    url: 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&w=800&q=80',
-    size: 1548576, // ~1.5 MB
-    type: 'image/jpeg',
-    created_at: '2026-08-01T10:15:30.000Z',
-    updated_at: '2026-08-01T10:15:30.000Z'
-  },
-  {
-    id: 'med_01H8X9A002',
-    name: 'wireless-headphones-black.png',
-    url: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=800&q=80',
-    size: 842100, // ~822 KB
-    type: 'image/png',
-    created_at: '2026-08-02T14:22:10.000Z',
-    updated_at: '2026-08-05T09:30:00.000Z'
-  },
-  {
-    id: 'med_01H8X9A003',
-    name: 'minimalist-smartwatch-titanium.webp',
-    url: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=800&q=80',
-    size: 412980, // ~403 KB
-    type: 'image/webp',
-    created_at: '2026-08-03T11:05:45.000Z',
-    updated_at: '2026-08-03T11:05:45.000Z'
-  },
-  {
-    id: 'med_01H8X9A004',
-    name: 'product-demo-overview.mp4',
-    url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4',
-    size: 15830000, // ~15.1 MB
-    type: 'video/mp4',
-    created_at: '2026-08-04T16:40:00.000Z',
-    updated_at: '2026-08-04T16:40:00.000Z'
-  },
-  {
-    id: 'med_01H8X9A005',
-    name: 'store-catalog-2026-q3.pdf',
-    url: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf',
-    size: 2450000, // ~2.3 MB
-    type: 'application/pdf',
-    created_at: '2026-08-05T08:12:00.000Z',
-    updated_at: '2026-08-06T13:45:20.000Z'
-  },
-  {
-    id: 'med_01H8X9A006',
-    name: 'nike-air-running-shoes.jpg',
-    url: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=800&q=80',
-    size: 1920400, // ~1.8 MB
-    type: 'image/jpeg',
-    created_at: '2026-08-06T09:10:15.000Z',
-    updated_at: '2026-08-06T09:10:15.000Z'
-  },
-  {
-    id: 'med_01H8X9A007',
-    name: 'camera-lens-professional.jpg',
-    url: 'https://images.unsplash.com/photo-1516035069371-29a1b244cc32?auto=format&fit=crop&w=800&q=80',
-    size: 2150000, // ~2.0 MB
-    type: 'image/jpeg',
-    created_at: '2026-08-07T12:00:00.000Z',
-    updated_at: '2026-08-07T12:00:00.000Z'
-  },
-  {
-    id: 'med_01H8X9A008',
-    name: 'brand-logo-vector.svg',
-    url: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=800&q=80',
-    size: 34500, // ~33 KB
-    type: 'image/svg+xml',
-    created_at: '2026-08-08T07:20:00.000Z',
-    updated_at: '2026-08-08T07:20:00.000Z'
-  }
-]
+/**
+ * Uploads an image or video file to backend media service.
+ * Media type is automatically detected by the backend.
+ */
+export async function uploadMedia(
+  fileOrPayload: File | UploadMediaPayload,
+  altTextParam?: string,
+  onUploadProgressParam?: (progressEvent: AxiosProgressEvent) => void
+): Promise<MediaResponse> {
+  let file: File
+  let altText: string | undefined
+  let onUploadProgress: ((progressEvent: AxiosProgressEvent) => void) | undefined
 
-export const getMediaList = async (params: GetMediaParams): Promise<GetMediaResponse> => {
-  await new Promise((resolve) => setTimeout(resolve, 100))
-
-  const { pageNumber = 1, pageSize = 10, search = '', type = 'all', sortField, sortDir = 'asc' } = params
-
-  let filtered = [...mockMediaDatabase]
-
-  if (search.trim()) {
-    const searchLower = search.toLowerCase().trim()
-    filtered = filtered.filter(
-      (item) =>
-        item.name.toLowerCase().includes(searchLower) ||
-        item.id.toLowerCase().includes(searchLower) ||
-        item.type.toLowerCase().includes(searchLower)
-    )
+  if (fileOrPayload instanceof File) {
+    file = fileOrPayload
+    altText = altTextParam
+    onUploadProgress = onUploadProgressParam
+  } else {
+    file = fileOrPayload.file
+    altText = fileOrPayload.altText
+    onUploadProgress = fileOrPayload.onUploadProgress
   }
 
-  if (type && type !== 'all') {
-    if (type === 'image') {
-      filtered = filtered.filter((item) => item.type.startsWith('image/'))
-    } else if (type === 'video') {
-      filtered = filtered.filter((item) => item.type.startsWith('video/'))
-    } else if (type === 'document') {
-      filtered = filtered.filter(
-        (item) => item.type.includes('pdf') || item.type.includes('word') || item.type.includes('text')
-      )
+  const formData = new FormData()
+  formData.append('file', file)
+
+  if (altText && altText.trim().length > 0) {
+    formData.append('altText', altText.trim())
+  }
+
+  const response = await apiClient.post<ApiResponse<MediaResponse>>('/medias', formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data'
+    },
+    onUploadProgress
+  })
+
+  return response.data.data
+}
+
+/**
+ * Fetches paginated list of uploaded media records.
+ * Supports zero-based page indexing as per backend specification.
+ */
+export async function getMediaPage(
+  params: GetMediaParams = {}
+): Promise<PageResponse<MediaResponse>> {
+  const { pageNumber = 0, pageSize = 10 } = params
+
+  const response = await apiClient.get<ApiResponse<PageResponse<MediaResponse>>>('/medias/page', {
+    params: {
+      pageNumber,
+      pageSize
     }
-  }
+  })
 
-  if (sortField) {
-    filtered.sort((a, b) => {
-      const valA = (a as any)[sortField] || ''
-      const valB = (b as any)[sortField] || ''
-      const comp = String(valA).localeCompare(String(valB))
-      return sortDir === 'asc' ? comp : -comp
-    })
-  }
-
-  const totalElements = filtered.length
-  const totalPages = Math.ceil(totalElements / pageSize) || 1
-  const currentPage = Math.max(1, Math.min(pageNumber, totalPages))
-  const startIndex = (currentPage - 1) * pageSize
-  const content = filtered.slice(startIndex, startIndex + pageSize)
-
-  return {
-    content,
-    pageNumber: currentPage,
-    pageSize,
-    totalElements,
-    totalPages
-  }
+  return response.data.data
 }
 
-export const createMediaItem = async (file: File, customName?: string): Promise<MediaItem> => {
-  const now = new Date().toISOString()
-  const randomSuffix = Math.random().toString(36).substring(2, 7).toUpperCase()
-  const id = `med_${Date.now().toString(36).toUpperCase()}${randomSuffix}`
-
-  const url = URL.createObjectURL(file)
-
-  const newItem: MediaItem = {
-    id,
-    name: customName || file.name,
-    url,
-    size: file.size,
-    type: file.type || 'application/octet-stream',
-    created_at: now,
-    updated_at: now
-  }
-
-  mockMediaDatabase = [newItem, ...mockMediaDatabase]
-  return newItem
+/**
+ * Fetches a single media record by UUID.
+ */
+export async function getMediaById(mediaId: string): Promise<MediaResponse> {
+  const response = await apiClient.get<ApiResponse<MediaResponse>>(`/medias/${mediaId}`)
+  return response.data.data
 }
 
-export const updateMediaItemName = async (id: string, newName: string): Promise<MediaItem> => {
-  const index = mockMediaDatabase.findIndex((item) => item.id === id)
-  if (index === -1) {
-    throw new Error('Media item not found')
-  }
-
-  const updatedItem: MediaItem = {
-    ...mockMediaDatabase[index],
-    name: newName,
-    updated_at: new Date().toISOString()
-  }
-
-  mockMediaDatabase[index] = updatedItem
-  return updatedItem
+// Aliases for compatibility
+export const getMediaList = async (params: GetMediaParams): Promise<GetMediaResponse> => {
+  // Convert 1-based pageNumber to 0-based if needed
+  const pageNumber = params.pageNumber !== undefined ? Math.max(0, params.pageNumber - 1) : 0
+  return getMediaPage({ ...params, pageNumber })
 }
 
-export const deleteMediaItem = async (id: string): Promise<boolean> => {
-  const initialLength = mockMediaDatabase.length
-  mockMediaDatabase = mockMediaDatabase.filter((item) => item.id !== id)
-  return mockMediaDatabase.length < initialLength
+export const createMediaItem = async (file: File, customName?: string): Promise<MediaResponse> => {
+  return uploadMedia(file, customName)
 }
 
+export const mediaApi = {
+  uploadMedia,
+  getMediaPage,
+  getMediaById,
+  getMediaList,
+  createMediaItem
+}
+
+/**
+ * Format bytes into human-readable size string.
+ */
 export const formatFileSize = (bytes: number): string => {
-  if (bytes === 0) return '0 Bytes'
+  if (!bytes || bytes === 0) return '0 Bytes'
   const k = 1024
   const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB']
   const i = Math.floor(Math.log(bytes) / Math.log(k))
   return `${parseFloat((bytes / Math.pow(k, i)).toFixed(2))} ${sizes[i]}`
 }
 
-export const formatDateTime = (isoString: string): string => {
+/**
+ * Format ISO datetime string for display.
+ */
+export const formatDateTime = (isoString?: string | null): string => {
   if (!isoString) return '-'
   try {
     const date = new Date(isoString)
+    if (isNaN(date.getTime())) return '-'
     return new Intl.DateTimeFormat('en-US', {
       year: 'numeric',
       month: 'short',
@@ -197,3 +128,32 @@ export const formatDateTime = (isoString: string): string => {
     return isoString
   }
 }
+
+/**
+ * Checks if media is an image.
+ */
+export const isImageMedia = (media: { type?: string; fileType?: string }): boolean => {
+  if (!media) return false
+  if (media.type === 'IMAGE') return true
+  const mime = (media.type || '').toLowerCase()
+  const ext = (media.fileType || '').toLowerCase()
+  return (
+    mime.startsWith('image/') ||
+    ['png', 'jpg', 'jpeg', 'webp', 'svg', 'gif', 'bmp', 'ico', 'avif', 'heic', 'heif'].includes(ext)
+  )
+}
+
+/**
+ * Checks if media is a video.
+ */
+export const isVideoMedia = (media: { type?: string; fileType?: string }): boolean => {
+  if (!media) return false
+  if (media.type === 'VIDEO') return true
+  const mime = (media.type || '').toLowerCase()
+  const ext = (media.fileType || '').toLowerCase()
+  return (
+    mime.startsWith('video/') ||
+    ['mp4', 'mov', 'avi', 'mkv', 'flv', 'wmv', 'webm', 'm4v', '3gp', 'ts', 'mpg', 'mpeg'].includes(ext)
+  )
+}
+

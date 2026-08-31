@@ -1,11 +1,32 @@
 import type { PageResponse, SortDirection } from './pagination'
 
-export interface BrandItem {
-  id: string
+export interface BrandResponse {
+  id: number
   name: string
-  image: string
-  created_at: string
-  updated_at: string
+  description: string | null
+  createdAt: string | null
+  updatedAt: string | null
+}
+
+export interface BrandCreateRequest {
+  name: string
+  description?: string | null
+}
+
+export interface BrandUpdateRequest {
+  name: string
+  description?: string | null
+}
+
+export interface BrandItem {
+  id: number | string
+  name: string
+  description?: string | null
+  image?: string | null
+  createdAt?: string | null
+  updatedAt?: string | null
+  created_at?: string | null
+  updated_at?: string | null
 }
 
 export interface GetBrandsParams {
@@ -16,6 +37,6 @@ export interface GetBrandsParams {
   search?: string
 }
 
-export type PaginatedBrandsResponse = PageResponse<BrandItem>
+export type PaginatedBrandsResponse = PageResponse<BrandResponse>
 
-export type BrandSortField = 'name' | 'created_at' | 'updated_at'
+export type BrandSortField = 'name' | 'created_at' | 'updated_at' | 'createdAt' | 'updatedAt' | 'id'

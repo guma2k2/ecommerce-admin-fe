@@ -29,14 +29,15 @@ export type { ProductAttributeSortField }
 interface ProductAttributeTableProps {
   attributes: ProductAttributeItem[]
   isLoading?: boolean
-  sortField: ProductAttributeSortField
-  sortOrder: SortDirection
+  sortField?: ProductAttributeSortField
+  sortOrder?: SortDirection
   onSort: (field: ProductAttributeSortField) => void
   onEdit: (attribute: ProductAttributeItem) => void
   onDelete: (attribute: ProductAttributeItem) => void
 }
 
-function formatDate(isoString: string): { dateStr: string; timeStr: string } {
+function formatDate(isoString?: string | null): { dateStr: string; timeStr: string } {
+  if (!isoString) return { dateStr: '-', timeStr: '' }
   try {
     const d = new Date(isoString)
     if (isNaN(d.getTime())) return { dateStr: isoString, timeStr: '' }
@@ -101,24 +102,24 @@ export default function ProductAttributeTable({
               <Button
                 variant='ghost'
                 size='sm'
-                onClick={() => onSort('created_at')}
+                onClick={() => onSort('createdAt')}
                 className='-ml-2 h-8 font-semibold text-gray-700 dark:text-gray-200 hover:text-gray-900 dark:hover:text-white'
               >
                 {t('productAttribute.createdAt')}
-                {renderSortIcon('created_at')}
+                {renderSortIcon('createdAt')}
               </Button>
             </TableHead>
 
             {/* Updated At Column */}
-            <TableHead className='w-[220px]'>
+            <TableHead className='w-[220px] hidden sm:table-cell'>
               <Button
                 variant='ghost'
                 size='sm'
-                onClick={() => onSort('updated_at')}
+                onClick={() => onSort('updatedAt')}
                 className='-ml-2 h-8 font-semibold text-gray-700 dark:text-gray-200 hover:text-gray-900 dark:hover:text-white'
               >
                 {t('productAttribute.updatedAt')}
-                {renderSortIcon('updated_at')}
+                {renderSortIcon('updatedAt')}
               </Button>
             </TableHead>
 
@@ -134,15 +135,12 @@ export default function ProductAttributeTable({
             Array.from({ length: 5 }).map((_, idx) => (
               <TableRow key={`skeleton-${idx}`}>
                 <TableCell className='py-4'>
-                  <div className='flex items-center gap-3'>
-                    <Skeleton className='size-8 rounded-md' />
-                    <Skeleton className='h-5 w-48' />
-                  </div>
+                  <Skeleton className='h-5 w-48' />
                 </TableCell>
                 <TableCell className='py-4'>
                   <Skeleton className='h-5 w-32' />
                 </TableCell>
-                <TableCell className='py-4'>
+                <TableCell className='py-4 hidden sm:table-cell'>
                   <Skeleton className='h-5 w-32' />
                 </TableCell>
                 <TableCell className='py-4 text-right pr-4'>
@@ -171,8 +169,8 @@ export default function ProductAttributeTable({
             </TableRow>
           ) : (
             attributes.map((attribute) => {
-              const created = formatDate(attribute.created_at)
-              const updated = formatDate(attribute.updated_at)
+              const created = formatDate(attribute.createdAt || attribute.created_at)
+              const updated = formatDate(attribute.updatedAt || attribute.updated_at)
 
               return (
                 <TableRow
@@ -183,14 +181,12 @@ export default function ProductAttributeTable({
                   {/* Attribute Name */}
                   <TableCell className='py-3.5'>
                     <div className='flex items-center gap-3'>
-                      <div className='w-8 h-8 rounded-lg bg-emerald-50 dark:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform'>
+                      <div className='w-8 h-8 rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0'>
                         <Tag className='size-4' />
                       </div>
-                      <div className='flex flex-col'>
-                        <span className='font-semibold text-gray-900 dark:text-gray-100 group-hover:text-primary transition-colors text-sm'>
-                          {attribute.name}
-                        </span>
-                      </div>
+                      <span className='font-semibold text-gray-900 dark:text-gray-100 group-hover:text-primary transition-colors text-sm'>
+                        {attribute.name}
+                      </span>
                     </div>
                   </TableCell>
 
@@ -199,16 +195,20 @@ export default function ProductAttributeTable({
                     <div className='flex items-center gap-1.5'>
                       <Calendar className='size-3.5 text-muted-foreground shrink-0' />
                       <span>{created.dateStr}</span>
-                      <span className='text-gray-400 dark:text-gray-500 font-mono'>{created.timeStr}</span>
+                      {created.timeStr && (
+                        <span className='text-gray-400 dark:text-gray-500 font-mono'>{created.timeStr}</span>
+                      )}
                     </div>
                   </TableCell>
 
                   {/* Updated At */}
-                  <TableCell className='py-3.5 text-xs text-gray-600 dark:text-gray-400'>
+                  <TableCell className='py-3.5 text-xs text-gray-600 dark:text-gray-400 hidden sm:table-cell'>
                     <div className='flex items-center gap-1.5'>
                       <Calendar className='size-3.5 text-muted-foreground shrink-0' />
                       <span>{updated.dateStr}</span>
-                      <span className='text-gray-400 dark:text-gray-500 font-mono'>{updated.timeStr}</span>
+                      {updated.timeStr && (
+                        <span className='text-gray-400 dark:text-gray-500 font-mono'>{updated.timeStr}</span>
+                      )}
                     </div>
                   </TableCell>
 

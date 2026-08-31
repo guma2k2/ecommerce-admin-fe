@@ -1,13 +1,34 @@
 import type { PageResponse, SortDirection } from './pagination'
-import type { ProductAttributeItem } from './productAttribute'
+import type { ProductAttributeItem, ProductAttributeResponse } from './productAttribute'
+
+export interface ProductTemplateResponse {
+  id: number
+  name: string
+  createdAt: string | null
+  updatedAt: string | null
+  attributeIds: number[]
+}
+
+export interface ProductTemplateCreateRequest {
+  name: string
+  attributeIds?: number[]
+}
+
+export interface ProductTemplateUpdateRequest {
+  name: string
+  attributeIds?: number[]
+}
 
 export interface ProductAttributeTemplateItem {
-  id: string
+  id: number | string
   name: string
-  attribute_ids?: string[]
-  attributes?: ProductAttributeItem[]
-  created_at: string
-  updated_at: string
+  attributeIds?: number[]
+  attribute_ids?: (number | string)[]
+  attributes?: (ProductAttributeItem | ProductAttributeResponse)[]
+  createdAt?: string | null
+  updatedAt?: string | null
+  created_at?: string | null
+  updated_at?: string | null
 }
 
 export interface GetProductAttributeTemplatesParams {
@@ -18,6 +39,6 @@ export interface GetProductAttributeTemplatesParams {
   search?: string
 }
 
-export type PaginatedProductAttributeTemplatesResponse = PageResponse<ProductAttributeTemplateItem>
+export type PaginatedProductAttributeTemplatesResponse = PageResponse<ProductTemplateResponse>
 
-export type ProductAttributeTemplateSortField = 'id' | 'name' | 'created_at' | 'updated_at'
+export type ProductAttributeTemplateSortField = 'id' | 'name' | 'created_at' | 'updated_at' | 'createdAt' | 'updatedAt'

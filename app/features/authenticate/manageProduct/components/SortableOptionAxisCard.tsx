@@ -20,8 +20,8 @@ import { Database, GripVertical, Tag } from "lucide-react"
 import { Button } from "~/core/components/shadcn/button"
 import { Input } from "~/core/components/shadcn/input"
 import InfiniteSelect from "~/shared/components/InfiniteSelect"
-import { getProductAttributes } from "~/shared/services/api/productAttributeService"
-import type { ProductAttributeItem } from "~/shared/types"
+import { getOptionsPage } from "~/shared/services/api/productOptionService"
+import type { ProductOptionResponse } from "~/shared/types"
 import { cn } from "~/shared/utils/appUtils"
 import SortableOptionValueItem from "./SortableOptionValueItem"
 
@@ -257,8 +257,8 @@ function SortableOptionAxisCardComponent({
           </button>
 
           <div className="flex-1 min-w-0">
-            <InfiniteSelect<ProductAttributeItem>
-              fetchData={getProductAttributes}
+            <InfiniteSelect<ProductOptionResponse>
+              fetchData={getOptionsPage}
               value={option.name || ""}
               onChange={(val) => onUpdateName(val)}
               getOptionValue={(item) => item.name}

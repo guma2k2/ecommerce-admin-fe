@@ -17,12 +17,16 @@ export default function CreateBrandPage() {
   const handleCreate = async (values: BrandFormSchema) => {
     try {
       setIsSubmitting(true)
-      await createBrand(values)
+      await createBrand({
+        name: values.name,
+        description: values.description || null
+      })
       showToast('success', 'toasts.brandCreated')
       navigate('/admin/manage-brand')
-    } catch (error) {
+    } catch (error: any) {
       console.error('Create brand error:', error)
-      showToast('error', 'toasts.error')
+      const errorMsg = error?.response?.data?.message || 'toasts.error'
+      showToast('error', errorMsg)
     } finally {
       setIsSubmitting(false)
     }

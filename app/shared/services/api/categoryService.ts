@@ -1,226 +1,220 @@
-import type { CategoryItem, CategoryInput, GetCategoriesParams, PaginatedCategoriesResponse, PageResponse } from '~/shared/types'
+import apiClient from '~/shared/services/axiosClient'
+import type {
+  ApiResponse,
+  CategoryCreateRequest,
+  CategoryInput,
+  CategoryItem,
+  CategoryResponse,
+  CategoryUpdateRequest,
+  GetCategoriesParams,
+  PageResponse,
+  PaginationParams,
+  PaginatedCategoriesResponse
+} from '~/shared/types'
 
-export type { CategoryItem, CategoryInput, GetCategoriesParams, PaginatedCategoriesResponse }
-
-let MOCK_CATEGORIES: CategoryItem[] = [
-  {
-    id: "CAT-001",
-    name: "Electronics",
-    parentId: null,
-    created_at: "2025-01-10T08:30:00Z",
-    updated_at: "2025-01-15T10:20:00Z"
-  },
-  {
-    id: "CAT-002",
-    name: "Computers & Accessories",
-    parentId: "CAT-001",
-    created_at: "2025-01-11T09:15:00Z",
-    updated_at: "2025-01-16T14:45:00Z"
-  },
-  {
-    id: "CAT-003",
-    name: "Audio & Headphones",
-    parentId: "CAT-001",
-    created_at: "2025-01-12T11:00:00Z",
-    updated_at: "2025-01-18T16:30:00Z"
-  },
-  {
-    id: "CAT-004",
-    name: "Smart Home Devices",
-    parentId: "CAT-001",
-    created_at: "2025-01-14T07:45:00Z",
-    updated_at: "2025-01-19T09:10:00Z"
-  },
-  {
-    id: "CAT-005",
-    name: "Wearable Technology",
-    parentId: "CAT-001",
-    created_at: "2025-01-15T13:20:00Z",
-    updated_at: "2025-01-20T11:05:00Z"
-  },
-  {
-    id: "CAT-006",
-    name: "Gaming Gear",
-    parentId: "CAT-002",
-    created_at: "2025-01-16T15:10:00Z",
-    updated_at: "2025-01-21T08:50:00Z"
-  },
-  {
-    id: "CAT-007",
-    name: "Mobile Phones & Tablets",
-    parentId: "CAT-001",
-    created_at: "2025-01-18T10:00:00Z",
-    updated_at: "2025-01-22T17:15:00Z"
-  },
-  {
-    id: "CAT-008",
-    name: "Cameras & Photography",
-    parentId: "CAT-001",
-    created_at: "2025-01-19T14:30:00Z",
-    updated_at: "2025-01-23T13:40:00Z"
-  },
-  {
-    id: "CAT-009",
-    name: "Storage & Networking",
-    parentId: "CAT-002",
-    created_at: "2025-01-20T16:05:00Z",
-    updated_at: "2025-01-25T12:00:00Z"
-  },
-  {
-    id: "CAT-010",
-    name: "Office Electronics",
-    parentId: "CAT-001",
-    created_at: "2025-01-22T12:40:00Z",
-    updated_at: "2025-01-26T15:25:00Z"
-  },
-  {
-    id: "CAT-011",
-    name: "Cables & Power Adapters",
-    parentId: "CAT-001",
-    created_at: "2025-01-24T09:50:00Z",
-    updated_at: "2025-01-28T10:10:00Z"
-  },
-  {
-    id: "CAT-012",
-    name: "Monitors & Displays",
-    parentId: "CAT-002",
-    created_at: "2025-01-25T11:15:00Z",
-    updated_at: "2025-01-29T14:00:00Z"
-  }
-]
-
-function enrichCategoryWithParent(category: CategoryItem, allCats: CategoryItem[]): CategoryItem {
-  if (!category.parentId) {
-    return { ...category, parent: null }
-  }
-  const parent = allCats.find((c) => c.id === category.parentId)
-  return {
-    ...category,
-    parent: parent ? { id: parent.id, name: parent.name } : null
-  }
+export type {
+  CategoryItem,
+  CategoryResponse,
+  CategoryInput,
+  CategoryCreateRequest,
+  CategoryUpdateRequest,
+  GetCategoriesParams,
+  PaginatedCategoriesResponse
 }
 
-export async function getAllCategories(): Promise<CategoryItem[]> {
-  await new Promise((resolve) => setTimeout(resolve, 150))
-  return MOCK_CATEGORIES.map((cat) => enrichCategoryWithParent(cat, MOCK_CATEGORIES))
-}
+/**
+ * Recursively flattens a category tree and enriches each node with parent reference.
+ */
+export function flattenCategoryTree(
+  tree: CategoryResponse[],
+  parent: { id: number | string; name: string } | null = null
+): CategoryItem[] {
+  const result: CategoryItem[] = []
 
-export async function getCategoryById(id: string): Promise<CategoryItem> {
-  await new Promise((resolve) => setTimeout(resolve, 150))
-  const category = MOCK_CATEGORIES.find((cat) => cat.id === id)
-  if (!category) {
-    throw new Error(`Category with ID ${id} not found`)
+  for (const node of tree) {
+    const item: CategoryItem = {
+      id: node.id,
+      name: node.name,
+      parentId: parent ? parent.id : null,
+      parent: parent ? { id: parent.id, name: parent.name } : null,
+      children: node.children || [],
+      createdAt: node.createdAt || null,
+      updatedAt: node.updatedAt || null,
+      created_at: node.createdAt || null,
+      updated_at: node.updatedAt || null
+    }
+    result.push(item)
+
+    if (node.children && node.children.length > 0) {
+      result.push(...flattenCategoryTree(node.children, { id: node.id, name: node.name }))
+    }
   }
-  return enrichCategoryWithParent(category, MOCK_CATEGORIES)
+
+  return result
 }
 
-export async function getCategories(params: GetCategoriesParams = {}): Promise<PageResponse<CategoryItem>> {
-  const { pageNumber = 1, pageSize = 10, search = "", sortField, sortDir = "asc" } = params
+/**
+ * Fetches a paginated list of categories from the backend API.
+ * Uses 0-based page numbering as required by backend.
+ */
+export async function getCategoriesPage(
+  params: PaginationParams & { search?: string } = {}
+): Promise<PageResponse<CategoryResponse>> {
+  const pageNumber = params.pageNumber !== undefined ? Math.max(0, params.pageNumber) : 0
+  const pageSize = params.pageSize ?? 10
 
-  await new Promise((resolve) => setTimeout(resolve, 200))
+  const response = await apiClient.get<ApiResponse<PageResponse<CategoryResponse>>>('/categories/page', {
+    params: {
+      pageNumber,
+      pageSize,
+      ...(params.search?.trim() ? { search: params.search.trim() } : {})
+    }
+  })
 
-  const cleanSearch = search.trim().toLowerCase()
+  return response.data.data
+}
 
-  const enriched = MOCK_CATEGORIES.map((cat) => enrichCategoryWithParent(cat, MOCK_CATEGORIES))
+/**
+ * Helper for React Router clientLoader & UI components using 1-based page numbers.
+ */
+export async function getCategories(
+  params: GetCategoriesParams = {}
+): Promise<PageResponse<CategoryItem>> {
+  const uiPageNumber = params.pageNumber ?? 1
+  const zeroBasedPage = Math.max(0, uiPageNumber - 1)
+  const pageSize = params.pageSize ?? 10
 
-  let filtered = cleanSearch
-    ? enriched.filter(
-        (cat) =>
-          cat.name.toLowerCase().includes(cleanSearch) ||
-          cat.id.toLowerCase().includes(cleanSearch) ||
-          cat.parent?.name.toLowerCase().includes(cleanSearch)
-      )
-    : [...enriched]
+  const response = await apiClient.get<ApiResponse<PageResponse<CategoryResponse>>>('/categories/page', {
+    params: {
+      pageNumber: zeroBasedPage,
+      pageSize,
+      ...(params.search?.trim() ? { search: params.search.trim() } : {})
+    }
+  })
 
-  if (sortField) {
-    filtered.sort((a, b) => {
-      let valA = (a as any)[sortField] || ""
-      let valB = (b as any)[sortField] || ""
+  const data = response.data.data
+  const rawContent = data.content || []
+  const flattened = flattenCategoryTree(rawContent)
 
-      if (sortField === "id") {
-        const numA = parseInt(String(valA).replace("CAT-", ""), 10)
-        const numB = parseInt(String(valB).replace("CAT-", ""), 10)
-        if (!isNaN(numA) && !isNaN(numB)) {
-          return sortDir === "asc" ? numA - numB : numB - numA
-        }
+  let content = flattened
+  if (params.search?.trim()) {
+    const term = params.search.trim().toLowerCase()
+    content = content.filter(
+      (c) =>
+        c.name.toLowerCase().includes(term) ||
+        String(c.id).includes(term) ||
+        c.parent?.name.toLowerCase().includes(term)
+    )
+  }
+
+  if (params.sortField) {
+    content = [...content].sort((a, b) => {
+      let valA = (a as unknown as Record<string, string>)[params.sortField!] ?? ''
+      let valB = (b as unknown as Record<string, string>)[params.sortField!] ?? ''
+
+      if (params.sortField === 'parent') {
+        valA = a.parent?.name || ''
+        valB = b.parent?.name || ''
       }
 
-      if (sortField === "parent") {
-        valA = a.parent?.name || ""
-        valB = b.parent?.name || ""
-      }
-
-      const comparison = String(valA).localeCompare(String(valB))
-      return sortDir === "asc" ? comparison : -comparison
+      const comp = String(valA).localeCompare(String(valB))
+      return params.sortDir === 'desc' ? -comp : comp
     })
   }
 
-  const totalElements = filtered.length
-  const totalPages = Math.ceil(totalElements / pageSize) || 1
-  const currentPage = Math.max(1, Math.min(pageNumber, totalPages))
-
-  const startIndex = (currentPage - 1) * pageSize
-  const endIndex = startIndex + pageSize
-  const content = filtered.slice(startIndex, endIndex)
-
   return {
+    ...data,
     content,
-    pageNumber: currentPage,
-    pageSize,
-    totalElements,
-    totalPages
+    pageNumber: uiPageNumber
   }
 }
 
-export async function createCategory(data: string | CategoryInput): Promise<CategoryItem> {
-  await new Promise((resolve) => setTimeout(resolve, 250))
-  const name = typeof data === "string" ? data : data.name
-  const parentId = typeof data === "string" ? null : data.parentId === "none" ? null : data.parentId || null
-
-  const maxNum = MOCK_CATEGORIES.reduce((max, item) => {
-    const num = parseInt(item.id.replace("CAT-", ""), 10)
-    return isNaN(num) ? max : Math.max(max, num)
-  }, 0)
-  const nextId = `CAT-${String(maxNum + 1).padStart(3, "0")}`
-  const now = new Date().toISOString()
-  const newCat: CategoryItem = {
-    id: nextId,
-    name: name.trim(),
-    parentId: parentId || null,
-    created_at: now,
-    updated_at: now
-  }
-  MOCK_CATEGORIES = [newCat, ...MOCK_CATEGORIES]
-  return enrichCategoryWithParent(newCat, MOCK_CATEGORIES)
+/**
+ * Fetches a single category with its nested children hierarchy tree.
+ */
+export async function getCategoryById(categoryId: number | string): Promise<CategoryResponse> {
+  const response = await apiClient.get<ApiResponse<CategoryResponse>>(`/categories/${categoryId}`)
+  return response.data.data
 }
 
-export async function updateCategory(id: string, data: string | CategoryInput): Promise<CategoryItem> {
-  await new Promise((resolve) => setTimeout(resolve, 250))
-  const index = MOCK_CATEGORIES.findIndex((cat) => cat.id === id)
-  if (index === -1) {
-    throw new Error(`Category with ID ${id} not found`)
-  }
-  const name = typeof data === "string" ? data : data.name
-  const parentId =
-    typeof data === "string" ? MOCK_CATEGORIES[index].parentId : data.parentId === "none" ? null : data.parentId || null
+/**
+ * Creates a new category (root or child).
+ */
+export async function createCategory(payload: CategoryCreateRequest | CategoryInput | string): Promise<void> {
+  let name = ''
+  let parentId: number | null = null
 
-  const now = new Date().toISOString()
-  const updated: CategoryItem = {
-    ...MOCK_CATEGORIES[index],
-    name: name.trim(),
-    parentId: parentId || null,
-    updated_at: now
+  if (typeof payload === 'string') {
+    name = payload.trim()
+  } else {
+    name = payload.name.trim()
+    if (payload.parentId !== undefined && payload.parentId !== null && payload.parentId !== 'none') {
+      const parsedId = typeof payload.parentId === 'number' ? payload.parentId : parseInt(String(payload.parentId), 10)
+      parentId = isNaN(parsedId) ? null : parsedId
+    }
   }
-  MOCK_CATEGORIES[index] = updated
-  return enrichCategoryWithParent(updated, MOCK_CATEGORIES)
+
+  await apiClient.post<ApiResponse<void>>('/categories', {
+    name,
+    parentId
+  })
 }
 
-export async function deleteCategory(id: string): Promise<boolean> {
-  await new Promise((resolve) => setTimeout(resolve, 200))
-  const index = MOCK_CATEGORIES.findIndex((cat) => cat.id === id)
-  if (index === -1) {
-    throw new Error(`Category with ID ${id} not found`)
+/**
+ * Updates an existing category by ID.
+ */
+export async function updateCategory(
+  categoryId: number | string,
+  payload: CategoryUpdateRequest | CategoryInput | string
+): Promise<void> {
+  let name = ''
+  let parentId: number | null = null
+
+  if (typeof payload === 'string') {
+    name = payload.trim()
+  } else {
+    name = payload.name.trim()
+    if (payload.parentId !== undefined && payload.parentId !== null && payload.parentId !== 'none') {
+      const parsedId = typeof payload.parentId === 'number' ? payload.parentId : parseInt(String(payload.parentId), 10)
+      parentId = isNaN(parsedId) ? null : parsedId
+    }
   }
-  MOCK_CATEGORIES = MOCK_CATEGORIES.filter((cat) => cat.id !== id)
-  return true
+
+  await apiClient.put<ApiResponse<void>>(`/categories/${categoryId}`, {
+    name,
+    parentId
+  })
 }
+
+/**
+ * Deletes a category by ID.
+ */
+export async function deleteCategory(categoryId: number | string): Promise<void> {
+  await apiClient.delete<ApiResponse<void>>(`/categories/${categoryId}`)
+}
+
+/**
+ * Fetches all categories and flattens tree for select dropdowns.
+ */
+export async function getAllCategories(): Promise<CategoryItem[]> {
+  try {
+    const res = await getCategoriesPage({ pageNumber: 0, pageSize: 1000 })
+    return flattenCategoryTree(res.content || [])
+  } catch (err) {
+    console.error('Failed to load all categories:', err)
+    return []
+  }
+}
+
+export const categoryService = {
+  getCategoriesPage,
+  getCategories,
+  getCategoryById,
+  createCategory,
+  updateCategory,
+  deleteCategory,
+  getAllCategories,
+  flattenCategoryTree
+}
+
+export default categoryService

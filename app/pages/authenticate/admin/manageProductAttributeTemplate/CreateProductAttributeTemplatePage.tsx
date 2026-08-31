@@ -17,12 +17,16 @@ export default function CreateProductAttributeTemplatePage() {
   const handleCreate = async (values: ProductAttributeTemplateFormSchema) => {
     try {
       setIsSubmitting(true)
-      await createProductAttributeTemplate(values)
+      await createProductAttributeTemplate({
+        name: values.name,
+        attribute_ids: values.attribute_ids
+      })
       showToast('success', 'toasts.attributeTemplateCreated')
       navigate('/admin/manage-product-attribute-template')
-    } catch (error) {
+    } catch (error: any) {
       console.error('Create product attribute template error:', error)
-      showToast('error', 'toasts.error')
+      const errorMsg = error?.response?.data?.message || 'toasts.error'
+      showToast('error', errorMsg)
     } finally {
       setIsSubmitting(false)
     }
@@ -61,4 +65,3 @@ export default function CreateProductAttributeTemplatePage() {
     </div>
   )
 }
-

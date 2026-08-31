@@ -13,7 +13,7 @@ import { useTranslation } from "react-i18next"
 import { Button } from "~/core/components/shadcn/button"
 import { Spinner } from "~/core/components/shadcn/spinner"
 import MediaSelectModal from "~/features/authenticate/manageProduct/components/MediaSelectModal"
-import { createMediaItem } from "~/shared/services/api/mediaService"
+import { uploadMedia } from "~/shared/services/api/mediaService"
 import { showToast } from "~/shared/utils/toast"
 import { cn } from "~/shared/utils/appUtils"
 
@@ -112,7 +112,7 @@ export default function FileUpload({
     try {
       setIsUploading(true)
       setImagePreviewFailed(false)
-      const newItem = await createMediaItem(file)
+      const newItem = await uploadMedia(file)
       
       setInternalUrl(newItem.url)
       onChange?.(newItem.url)
@@ -127,6 +127,7 @@ export default function FileUpload({
       }
     }
   }
+
 
   const handleFileInputChange = (e: ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files?.length) return

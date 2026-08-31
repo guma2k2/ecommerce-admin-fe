@@ -17,12 +17,13 @@ export default function CreateProductAttributePage() {
   const handleCreate = async (values: ProductAttributeFormSchema) => {
     try {
       setIsSubmitting(true)
-      await createProductAttribute(values)
+      await createProductAttribute({ name: values.name })
       showToast('success', 'toasts.attributeCreated')
       navigate('/admin/manage-product-attribute')
-    } catch (error) {
+    } catch (error: any) {
       console.error('Create product attribute error:', error)
-      showToast('error', 'toasts.error')
+      const errorMsg = error?.response?.data?.message || 'toasts.error'
+      showToast('error', errorMsg)
     } finally {
       setIsSubmitting(false)
     }

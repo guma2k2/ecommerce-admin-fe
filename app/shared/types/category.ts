@@ -1,20 +1,41 @@
 import type { PageResponse, SortDirection } from './pagination'
 
-export interface CategoryItem {
-  id: string
+export interface CategoryResponse {
+  id: number
   name: string
-  parentId?: string | null
+  children?: CategoryResponse[]
+  createdAt?: string | null
+  updatedAt?: string | null
+}
+
+export interface CategoryCreateRequest {
+  name: string
+  parentId?: number | null
+}
+
+export interface CategoryUpdateRequest {
+  name: string
+  parentId?: number | null
+}
+
+export interface CategoryItem {
+  id: number | string
+  name: string
+  parentId?: number | string | null
   parent?: {
-    id: string
+    id: number | string
     name: string
   } | null
-  created_at: string
-  updated_at: string
+  children?: CategoryResponse[]
+  createdAt?: string | null
+  updatedAt?: string | null
+  created_at?: string | null
+  updated_at?: string | null
 }
 
 export interface CategoryInput {
   name: string
-  parentId?: string | null
+  parentId?: number | string | null
 }
 
 export interface GetCategoriesParams {
@@ -25,7 +46,7 @@ export interface GetCategoriesParams {
   search?: string
 }
 
-export type PaginatedCategoriesResponse = PageResponse<CategoryItem>
+export type PaginatedCategoriesResponse = PageResponse<CategoryResponse>
 
-export type CategorySortField = 'id' | 'name' | 'parent' | 'created_at' | 'updated_at'
+export type CategorySortField = 'id' | 'name' | 'parent' | 'created_at' | 'updated_at' | 'createdAt' | 'updatedAt'
 export type SortField = CategorySortField
