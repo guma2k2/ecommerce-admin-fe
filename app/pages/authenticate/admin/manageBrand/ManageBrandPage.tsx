@@ -92,9 +92,15 @@ export default function ManageBrandPage() {
 
   const handleDeleteConfirm = async () => {
     if (!brandToDelete) return
-    await deleteBrand(brandToDelete.id)
-    showToast('success', 'toasts.brandDeleted')
-    updateQueryParams({ _t: String(Date.now()) })
+    try {
+      await deleteBrand(brandToDelete.id)
+      showToast('success', 'toasts.brandDeleted')
+      updateQueryParams({ _t: String(Date.now()) })
+    } catch (error: any) {
+      console.error('Delete brand error:', error)
+      const errorMsg = error?.response?.data?.message || 'toasts.error'
+      showToast('error', errorMsg)
+    }
   }
 
   const handleRefresh = () => {

@@ -103,7 +103,11 @@ export default function ProductVariantSpecsRow({
                       fetchData={getProductAttributes}
                       value={attr.name || ""}
                       onChange={(val, item) => {
-                        const numId = item ? parseInt(item.id.replace(/\D/g, ""), 10) || 101 : 101
+                        const numId = item
+                          ? typeof item.id === 'number'
+                            ? item.id
+                            : parseInt(String(item.id).replace(/\D/g, ""), 10) || 101
+                          : 101
                         onUpdateAttribute(variantIndex, attrIdx, "name", val)
                         onUpdateAttribute(variantIndex, attrIdx, "productAttributeId", numId)
                       }}

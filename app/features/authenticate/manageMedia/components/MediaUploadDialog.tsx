@@ -1,9 +1,9 @@
 import { useState, useRef, type DragEvent } from 'react'
-import { Upload, X, File, Image as ImageIcon, Loader2 } from 'lucide-react'
+import { Upload, X, File, Image as ImageIcon, Video, Loader2, Sparkles } from 'lucide-react'
+import { useUploadMedia } from '~/shared/hooks/queries/useMediaQuery'
+import { formatFileSize } from '~/shared/services/api/mediaService'
+import type { MediaResponse } from '~/shared/types'
 import { showToast } from '~/shared/utils/toast'
-
-import { createMediaItem, formatFileSize } from '~/shared/services/api/mediaService'
-import type { MediaItem } from '~/shared/types'
 import {
   Dialog,
   DialogContent,
@@ -15,38 +15,62 @@ import {
 import { Button } from '~/core/components/shadcn/button'
 import { Input } from '~/core/components/shadcn/input'
 import { Label } from '~/core/components/shadcn/label'
+import { Progress } from '~/core/components/shadcn/progress'
 
 interface MediaUploadDialogProps {
   open: boolean
   onOpenChange: (open: boolean) => void
-  onSuccess: (newItem: MediaItem) => void
+  onSuccess?: (newItem: MediaResponse) => void
 }
 
 export default function MediaUploadDialog({ open, onOpenChange, onSuccess }: MediaUploadDialogProps) {
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
-  const [customName, setCustomName] = useState<string>('')
+  const [altText, setAltText] = useState<string>('')
   const [previewUrl, setPreviewUrl] = useState<string | null>(null)
-  const [isUploading, setIsUploading] = useState<boolean>(false)
+  const [isVideo, setIsVideo] = useState<boolean>(false)
+  const [uploadProgress, setUploadProgress] = useState<number>(0)
   const [isDragging, setIsDragging] = useState<boolean>(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
+  const uploadMutation = useUploadMedia({
+    onSuccess: (newItem) => {
+      onSuccess?.(newItem)
+      onOpenChange(false)
+      resetForm()
+    }
+  })
+
   const resetForm = () => {
     setSelectedFile(null)
-    setCustomName('')
+    setAltText('')
+    setUploadProgress(0)
     if (previewUrl) {
       URL.revokeObjectURL(previewUrl)
       setPreviewUrl(null)
     }
-    setIsUploading(false)
+    setIsVideo(false)
   }
 
   const handleFileSelect = (file: File) => {
     setSelectedFile(file)
-    setCustomName(file.name)
+    setUploadProgress(0)
+    
+    // Auto-populate altText with clean file name if empty
+    if (!altText) {
+      const baseName = file.name.replace(/\.[^/.]+$/, '').replace(/[-_]/g, ' ')
+      setAltText(baseName)
+    }
+
     if (file.type.startsWith('image/')) {
+      setIsVideo(false)
+      const url = URL.createObjectURL(file)
+      setPreviewUrl(url)
+    } else if (file.type.startsWith('video/')) {
+      setIsVideo(true)
       const url = URL.createObjectURL(file)
       setPreviewUrl(url)
     } else {
+      setIsVideo(false)
       setPreviewUrl(null)
     }
   }
@@ -69,26 +93,26 @@ export default function MediaUploadDialog({ open, onOpenChange, onSuccess }: Med
     }
   }
 
-  const handleUpload = async () => {
+  const handleUpload = () => {
     if (!selectedFile) {
       showToast('error', 'toasts.selectFileToUpload')
       return
     }
 
-    try {
-      setIsUploading(true)
-      const newItem = await createMediaItem(selectedFile, customName.trim() || selectedFile.name)
-      showToast('success', 'toasts.uploadSuccess')
-      onSuccess(newItem)
-      onOpenChange(false)
-      resetForm()
-    } catch (err) {
-      console.error('Upload error:', err)
-      showToast('error', 'toasts.uploadFailed')
-    } finally {
-      setIsUploading(false)
-    }
+    setUploadProgress(0)
+    uploadMutation.mutate({
+      file: selectedFile,
+      altText: altText.trim() || undefined,
+      onUploadProgress: (progressEvent) => {
+        if (progressEvent.total) {
+          const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total)
+          setUploadProgress(percentCompleted)
+        }
+      }
+    })
   }
+
+  const isUploading = uploadMutation.isPending
 
   return (
     <Dialog
@@ -98,14 +122,14 @@ export default function MediaUploadDialog({ open, onOpenChange, onSuccess }: Med
         onOpenChange(val)
       }}
     >
-      <DialogContent className='sm:max-w-[520px]'>
+      <DialogContent className='sm:max-w-[540px]'>
         <DialogHeader>
           <DialogTitle className='flex items-center gap-2 text-xl font-bold'>
             <Upload className='size-5 text-primary' />
             Upload New Media
           </DialogTitle>
           <DialogDescription>
-            Select or drag and drop images, videos, or documents to upload to your media library.
+            Upload images (PNG, JPG, WEBP, SVG) or videos (MP4, WEBM). File format is auto-detected.
           </DialogDescription>
         </DialogHeader>
 
@@ -128,15 +152,16 @@ export default function MediaUploadDialog({ open, onOpenChange, onSuccess }: Med
               </div>
               <div className='space-y-1'>
                 <p className='text-sm font-semibold text-gray-900 dark:text-gray-100'>
-                  Click to choose a file or drag & drop here
+                  Click to select file or drag & drop here
                 </p>
                 <p className='text-xs text-muted-foreground'>
-                  Supports PNG, JPG, WEBP, SVG, MP4, PDF up to 50MB
+                  Supports PNG, JPG, WEBP, SVG, MP4, MOV, WEBM
                 </p>
               </div>
               <input
                 ref={fileInputRef}
                 type='file'
+                accept='image/*,video/*'
                 className='hidden'
                 onChange={(e) => {
                   if (e.target.files && e.target.files[0]) {
@@ -152,7 +177,11 @@ export default function MediaUploadDialog({ open, onOpenChange, onSuccess }: Med
                 <div className='flex items-center gap-3 min-w-0'>
                   <div className='size-14 rounded-lg border border-gray-200 dark:border-zinc-700 overflow-hidden bg-white dark:bg-zinc-800 shrink-0 flex items-center justify-center'>
                     {previewUrl ? (
-                      <img src={previewUrl} alt='Preview' className='size-full object-cover' />
+                      isVideo ? (
+                        <video src={previewUrl} className='size-full object-cover' />
+                      ) : (
+                        <img src={previewUrl} alt='Preview' className='size-full object-cover' />
+                      )
                     ) : (
                       <File className='size-7 text-primary' />
                     )}
@@ -162,33 +191,52 @@ export default function MediaUploadDialog({ open, onOpenChange, onSuccess }: Med
                       {selectedFile.name}
                     </p>
                     <p className='text-xs font-mono text-muted-foreground'>
-                      {formatFileSize(selectedFile.size)} • {selectedFile.type || 'Unknown type'}
+                      {formatFileSize(selectedFile.size)} • {selectedFile.type || 'Auto-detect'}
                     </p>
                   </div>
                 </div>
-                <Button
-                  variant='ghost'
-                  size='icon'
-                  className='size-8 text-gray-500 hover:text-red-600'
-                  onClick={() => setSelectedFile(null)}
-                >
-                  <X className='size-4' />
-                </Button>
+                {!isUploading && (
+                  <Button
+                    variant='ghost'
+                    size='icon'
+                    className='size-8 text-gray-500 hover:text-red-600'
+                    onClick={() => resetForm()}
+                  >
+                    <X className='size-4' />
+                  </Button>
+                )}
               </div>
 
-              {/* Name field */}
+              {/* Alt Text field for SEO and Accessibility */}
               <div className='space-y-1.5'>
-                <Label htmlFor='media-name' className='text-xs font-medium'>
-                  Display Name
-                </Label>
+                <div className='flex items-center justify-between'>
+                  <Label htmlFor='media-alt-text' className='text-xs font-medium'>
+                    Alt Text / Description (Optional)
+                  </Label>
+                  <span className='text-[10px] text-muted-foreground'>Recommended for SEO</span>
+                </div>
                 <Input
-                  id='media-name'
-                  value={customName}
-                  onChange={(e) => setCustomName(e.target.value)}
-                  placeholder='Enter media display name'
+                  id='media-alt-text'
+                  value={altText}
+                  onChange={(e) => setAltText(e.target.value)}
+                  placeholder='e.g. Summer sale promo banner'
+                  disabled={isUploading}
                   className='h-9 bg-white dark:bg-zinc-800'
                 />
               </div>
+
+              {/* Upload Progress Bar */}
+              {isUploading && (
+                <div className='space-y-1.5 pt-1'>
+                  <div className='flex justify-between text-xs font-medium'>
+                    <span className='text-primary flex items-center gap-1.5'>
+                      <Loader2 className='size-3.5 animate-spin' /> Uploading to server...
+                    </span>
+                    <span className='font-mono'>{uploadProgress}%</span>
+                  </div>
+                  <Progress value={uploadProgress} className='h-2' />
+                </div>
+              )}
             </div>
           )}
         </div>
@@ -213,3 +261,4 @@ export default function MediaUploadDialog({ open, onOpenChange, onSuccess }: Med
     </Dialog>
   )
 }
+

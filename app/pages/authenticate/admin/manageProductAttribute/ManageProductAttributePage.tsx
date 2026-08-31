@@ -96,9 +96,15 @@ export default function ManageProductAttributePage() {
 
   const handleDeleteConfirm = async () => {
     if (!attributeToDelete) return
-    await deleteProductAttribute(attributeToDelete.id)
-    showToast('success', 'toasts.attributeDeleted')
-    updateQueryParams({ _t: String(Date.now()) })
+    try {
+      await deleteProductAttribute(attributeToDelete.id)
+      showToast('success', 'toasts.attributeDeleted')
+      updateQueryParams({ _t: String(Date.now()) })
+    } catch (error: any) {
+      console.error('Delete attribute error:', error)
+      const errorMsg = error?.response?.data?.message || 'toasts.error'
+      showToast('error', errorMsg)
+    }
   }
 
   const handleRefresh = () => {

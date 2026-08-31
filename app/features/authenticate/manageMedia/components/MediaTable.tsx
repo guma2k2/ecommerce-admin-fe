@@ -4,19 +4,15 @@ import {
   Check,
   Eye,
   MoreHorizontal,
-  Pencil,
-  Trash2,
   ExternalLink,
-  FileText,
   FileImage,
   Video,
-  FileCode,
   File
 } from 'lucide-react'
 import { showToast } from '~/shared/utils/toast'
 
-import type { MediaItem } from '~/shared/types'
-import { formatFileSize, formatDateTime } from '~/shared/services/api/mediaService'
+import type { MediaResponse } from '~/shared/types'
+import { formatFileSize, formatDateTime, isImageMedia, isVideoMedia } from '~/shared/services/api/mediaService'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '~/core/components/shadcn/table'
 import { Button } from '~/core/components/shadcn/button'
 import { Badge } from '~/core/components/shadcn/badge'
@@ -24,21 +20,18 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuSeparator,
   DropdownMenuTrigger
 } from '~/core/components/shadcn/dropdown-menu'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '~/core/components/shadcn/tooltip'
 import { Skeleton } from '~/core/components/shadcn/skeleton'
 
 interface MediaTableProps {
-  mediaList: MediaItem[]
+  mediaList: MediaResponse[]
   isLoading: boolean
-  onPreview: (media: MediaItem) => void
-  onEdit: (media: MediaItem) => void
-  onDelete: (media: MediaItem) => void
+  onPreview: (media: MediaResponse) => void
 }
 
-export default function MediaTable({ mediaList, isLoading, onPreview, onEdit, onDelete }: MediaTableProps) {
+export default function MediaTable({ mediaList, isLoading, onPreview }: MediaTableProps) {
   const [copiedId, setCopiedId] = useState<string | null>(null)
 
   const handleCopyUrl = (url: string, id: string) => {
@@ -48,16 +41,34 @@ export default function MediaTable({ mediaList, isLoading, onPreview, onEdit, on
     setTimeout(() => setCopiedId(null), 2000)
   }
 
-  const renderMediaTypeIcon = (type: string) => {
-    if (type.startsWith('image/')) return <FileImage className='size-4 text-blue-500' />
-    if (type.startsWith('video/')) return <Video className='size-4 text-purple-500' />
-    if (type.includes('pdf') || type.includes('document') || type.includes('text')) {
-      return <FileText className='size-4 text-emerald-500' />
+  const renderMediaTypeBadge = (item: MediaResponse) => {
+    const isImg = isImageMedia(item)
+    const isVid = isVideoMedia(item)
+
+    if (isVid) {
+      return (
+        <Badge variant='outline' className='gap-1 text-[11px] font-mono border-purple-300 dark:border-purple-800 text-purple-700 dark:text-purple-300 bg-purple-50 dark:bg-purple-950/40'>
+          <Video className='size-3' />
+          VIDEO {item.fileType ? `(${item.fileType.toUpperCase()})` : ''}
+        </Badge>
+      )
     }
-    if (type.includes('json') || type.includes('xml') || type.includes('javascript')) {
-      return <FileCode className='size-4 text-amber-500' />
+
+    if (isImg) {
+      return (
+        <Badge variant='outline' className='gap-1 text-[11px] font-mono border-blue-300 dark:border-blue-800 text-blue-700 dark:text-blue-300 bg-blue-50 dark:bg-blue-950/40'>
+          <FileImage className='size-3' />
+          IMAGE {item.fileType ? `(${item.fileType.toUpperCase()})` : ''}
+        </Badge>
+      )
     }
-    return <File className='size-4 text-gray-500' />
+
+    return (
+      <Badge variant='outline' className='gap-1 text-[11px] font-mono'>
+        <File className='size-3 text-gray-500' />
+        {item.type || item.fileType || 'MEDIA'}
+      </Badge>
+    )
   }
 
   if (isLoading) {
@@ -66,24 +77,26 @@ export default function MediaTable({ mediaList, isLoading, onPreview, onEdit, on
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Name</TableHead>
-              <TableHead>Preview & URL</TableHead>
-              <TableHead>Size</TableHead>
+              <TableHead>Preview</TableHead>
+              <TableHead>Name & Alt Text</TableHead>
               <TableHead>Type</TableHead>
+              <TableHead>Size</TableHead>
+              <TableHead>Status</TableHead>
+              <TableHead>URL</TableHead>
               <TableHead>Created At</TableHead>
-              <TableHead>Updated At</TableHead>
               <TableHead className='text-right'>Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {Array.from({ length: 5 }).map((_, i) => (
               <TableRow key={i}>
+                <TableCell><Skeleton className='h-10 w-10 rounded' /></TableCell>
                 <TableCell><Skeleton className='h-5 w-40' /></TableCell>
-                <TableCell><Skeleton className='h-10 w-28' /></TableCell>
-                <TableCell><Skeleton className='h-5 w-16' /></TableCell>
                 <TableCell><Skeleton className='h-5 w-20' /></TableCell>
-                <TableCell><Skeleton className='h-5 w-28' /></TableCell>
-                <TableCell><Skeleton className='h-5 w-28' /></TableCell>
+                <TableCell><Skeleton className='h-5 w-16' /></TableCell>
+                <TableCell><Skeleton className='h-5 w-16' /></TableCell>
+                <TableCell><Skeleton className='h-5 w-32' /></TableCell>
+                <TableCell><Skeleton className='h-5 w-24' /></TableCell>
                 <TableCell className='text-right'><Skeleton className='h-8 w-8 ml-auto rounded-full' /></TableCell>
               </TableRow>
             ))}
@@ -101,7 +114,7 @@ export default function MediaTable({ mediaList, isLoading, onPreview, onEdit, on
         </div>
         <div className='space-y-1'>
           <p className='text-base font-semibold text-gray-900 dark:text-gray-100'>No media files found</p>
-          <p className='text-sm text-muted-foreground'>Try adjusting your search query or file filter, or upload a new file.</p>
+          <p className='text-sm text-muted-foreground'>Try adjusting your search query or upload a new image or video.</p>
         </div>
       </div>
     )
@@ -112,46 +125,87 @@ export default function MediaTable({ mediaList, isLoading, onPreview, onEdit, on
       <Table>
         <TableHeader className='bg-gray-50/80 dark:bg-zinc-800/50'>
           <TableRow>
-            <TableHead className='font-semibold text-gray-700 dark:text-gray-200 min-w-[200px]'>Name</TableHead>
-            <TableHead className='font-semibold text-gray-700 dark:text-gray-200 min-w-[220px]'>URL</TableHead>
-            <TableHead className='font-semibold text-gray-700 dark:text-gray-200'>Size</TableHead>
+            <TableHead className='w-[70px]'>Preview</TableHead>
+            <TableHead className='font-semibold text-gray-700 dark:text-gray-200 min-w-[200px]'>Name / Alt Text</TableHead>
             <TableHead className='font-semibold text-gray-700 dark:text-gray-200'>Type</TableHead>
-            <TableHead className='font-semibold text-gray-700 dark:text-gray-200'>Created At</TableHead>
-            <TableHead className='font-semibold text-gray-700 dark:text-gray-200'>Updated At</TableHead>
+            <TableHead className='font-semibold text-gray-700 dark:text-gray-200'>Size</TableHead>
+            <TableHead className='font-semibold text-gray-700 dark:text-gray-200'>Status</TableHead>
+            <TableHead className='font-semibold text-gray-700 dark:text-gray-200 min-w-[180px]'>URL</TableHead>
+            <TableHead className='font-semibold text-gray-700 dark:text-gray-200'>Created</TableHead>
             <TableHead className='font-semibold text-gray-700 dark:text-gray-200 text-right pr-6'>Actions</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
-          {mediaList.map((item) => (
-            <TableRow key={item.id} className='hover:bg-gray-50/60 dark:hover:bg-zinc-800/40 transition-colors'>
-              {/* Field 1: Name (ID hidden) */}
-              <TableCell className='font-medium text-gray-900 dark:text-gray-100 max-w-[240px] truncate'>
-                <div className='flex items-center gap-2 truncate' title={item.name}>
-                  {renderMediaTypeIcon(item.type)}
-                  <span className='truncate'>{item.name}</span>
-                </div>
-              </TableCell>
+          {mediaList.map((item) => {
+            const isImg = isImageMedia(item)
+            const isVid = isVideoMedia(item)
 
-              {/* Field 3: URL (Thumbnail + Link + Copy) */}
-              <TableCell>
-                <div className='flex items-center gap-2'>
+            return (
+              <TableRow key={item.id} className='hover:bg-gray-50/60 dark:hover:bg-zinc-800/40 transition-colors'>
+                {/* Thumbnail Preview */}
+                <TableCell>
                   <div
                     onClick={() => onPreview(item)}
                     className='relative group size-10 rounded border border-gray-200 dark:border-zinc-700 overflow-hidden bg-gray-100 dark:bg-zinc-800 shrink-0 cursor-pointer flex items-center justify-center'
                   >
-                    {item.type.startsWith('image/') ? (
-                      <img src={item.url} alt={item.name} className='size-full object-cover group-hover:scale-110 transition-transform duration-200' />
-                    ) : item.type.startsWith('video/') ? (
+                    {isImg ? (
+                      <img src={item.url} alt={item.altText || item.name} className='size-full object-cover group-hover:scale-110 transition-transform duration-200' />
+                    ) : isVid ? (
                       <Video className='size-5 text-purple-500' />
                     ) : (
-                      <FileText className='size-5 text-gray-500' />
+                      <File className='size-5 text-gray-500' />
                     )}
                     <div className='absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity'>
                       <Eye className='size-4 text-white' />
                     </div>
                   </div>
+                </TableCell>
 
-                  <div className='flex items-center gap-1 min-w-0 max-w-[160px]'>
+                {/* Name & Alt Text */}
+                <TableCell className='max-w-[240px] truncate'>
+                  <div className='flex flex-col min-w-0'>
+                    <span className='font-medium text-gray-900 dark:text-gray-100 truncate text-sm' title={item.name}>
+                      {item.name}
+                    </span>
+                    {item.altText && (
+                      <span className='text-xs text-muted-foreground truncate' title={item.altText}>
+                        Alt: {item.altText}
+                      </span>
+                    )}
+                  </div>
+                </TableCell>
+
+                {/* Media Type */}
+                <TableCell className='whitespace-nowrap'>
+                  {renderMediaTypeBadge(item)}
+                </TableCell>
+
+                {/* Size */}
+                <TableCell className='text-xs text-gray-600 dark:text-zinc-400 font-mono whitespace-nowrap'>
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <span className='cursor-help border-b border-dotted border-gray-400'>
+                          {formatFileSize(item.size)}
+                        </span>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p className='text-xs'>{item.size.toLocaleString()} bytes</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                </TableCell>
+
+                {/* Active Status */}
+                <TableCell className='whitespace-nowrap'>
+                  <Badge variant={item.active ? 'default' : 'secondary'} className='text-[10px] uppercase font-semibold'>
+                    {item.active ? 'Active' : 'Inactive'}
+                  </Badge>
+                </TableCell>
+
+                {/* URL + Copy */}
+                <TableCell>
+                  <div className='flex items-center gap-1 min-w-0 max-w-[180px]'>
                     <a
                       href={item.url}
                       target='_blank'
@@ -180,78 +234,45 @@ export default function MediaTable({ mediaList, isLoading, onPreview, onEdit, on
                       </Tooltip>
                     </TooltipProvider>
                   </div>
-                </div>
-              </TableCell>
+                </TableCell>
 
-              {/* Field 4: Size */}
-              <TableCell className='text-xs text-gray-600 dark:text-zinc-400 font-mono whitespace-nowrap'>
-                <TooltipProvider>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <span className='cursor-help border-b border-dotted border-gray-400'>
-                        {formatFileSize(item.size)}
-                      </span>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p className='text-xs'>{item.size.toLocaleString()} bytes</p>
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
-              </TableCell>
+                {/* Created At */}
+                <TableCell className='text-xs text-gray-600 dark:text-zinc-400 whitespace-nowrap font-mono'>
+                  {formatDateTime(item.created_at)}
+                </TableCell>
 
-              {/* Field 5: Type */}
-              <TableCell className='whitespace-nowrap'>
-                <Badge
-                  variant='outline'
-                  className='text-[11px] font-mono font-normal bg-gray-50 dark:bg-zinc-800/80 text-gray-700 dark:text-zinc-300 border-gray-200 dark:border-zinc-700'
-                >
-                  {item.type}
-                </Badge>
-              </TableCell>
-
-              {/* Field 6: Created At */}
-              <TableCell className='text-xs text-gray-600 dark:text-zinc-400 whitespace-nowrap font-mono'>
-                {formatDateTime(item.created_at)}
-              </TableCell>
-
-              {/* Field 7: Updated At */}
-              <TableCell className='text-xs text-gray-600 dark:text-zinc-400 whitespace-nowrap font-mono'>
-                {formatDateTime(item.updated_at)}
-              </TableCell>
-
-              {/* Actions */}
-              <TableCell className='text-right pr-4 whitespace-nowrap'>
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant='ghost' size='icon' className='size-8 text-gray-500 hover:text-gray-900 dark:hover:text-gray-100'>
-                      <MoreHorizontal className='size-4' />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align='end' className='w-44'>
-                    <DropdownMenuItem onClick={() => onPreview(item)} className='cursor-pointer gap-2'>
-                      <Eye className='size-4 text-blue-500' />
-                      Preview Details
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => handleCopyUrl(item.url, item.id)} className='cursor-pointer gap-2'>
-                      <Copy className='size-4 text-emerald-500' />
-                      Copy URL
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => onEdit(item)} className='cursor-pointer gap-2'>
-                      <Pencil className='size-4 text-amber-500' />
-                      Edit Name
-                    </DropdownMenuItem>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem onClick={() => onDelete(item)} className='cursor-pointer gap-2 text-red-600 focus:text-red-600 focus:bg-red-50 dark:focus:bg-red-950/40'>
-                      <Trash2 className='size-4' />
-                      Delete Media
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </TableCell>
-            </TableRow>
-          ))}
+                {/* Actions */}
+                <TableCell className='text-right pr-4 whitespace-nowrap'>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant='ghost' size='icon' className='size-8 text-gray-500 hover:text-gray-900 dark:hover:text-gray-100'>
+                        <MoreHorizontal className='size-4' />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align='end' className='w-40'>
+                      <DropdownMenuItem onClick={() => onPreview(item)} className='cursor-pointer gap-2'>
+                        <Eye className='size-4 text-blue-500' />
+                        Preview Details
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => handleCopyUrl(item.url, item.id)} className='cursor-pointer gap-2'>
+                        <Copy className='size-4 text-emerald-500' />
+                        Copy URL
+                      </DropdownMenuItem>
+                      <DropdownMenuItem asChild className='cursor-pointer gap-2'>
+                        <a href={item.url} target='_blank' rel='noreferrer'>
+                          <ExternalLink className='size-4 text-purple-500' />
+                          Open File
+                        </a>
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </TableCell>
+              </TableRow>
+            )
+          })}
         </TableBody>
       </Table>
     </div>
   )
 }
+

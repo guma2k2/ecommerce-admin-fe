@@ -96,9 +96,15 @@ export default function ManageProductAttributeTemplatePage() {
 
   const handleDeleteConfirm = async () => {
     if (!templateToDelete) return
-    await deleteProductAttributeTemplate(templateToDelete.id)
-    showToast('success', 'toasts.attributeTemplateDeleted')
-    updateQueryParams({ _t: String(Date.now()) })
+    try {
+      await deleteProductAttributeTemplate(templateToDelete.id)
+      showToast('success', 'toasts.attributeTemplateDeleted')
+      updateQueryParams({ _t: String(Date.now()) })
+    } catch (error: any) {
+      console.error('Delete template error:', error)
+      const errorMsg = error?.response?.data?.message || 'toasts.error'
+      showToast('error', errorMsg)
+    }
   }
 
   const handleRefresh = () => {

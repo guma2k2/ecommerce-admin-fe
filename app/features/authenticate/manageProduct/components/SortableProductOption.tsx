@@ -6,8 +6,8 @@ import { useWatch, type FieldArrayWithId } from 'react-hook-form'
 import { Badge } from '~/core/components/shadcn/badge'
 import { Button } from '~/core/components/shadcn/button'
 import InfiniteSelect from '~/shared/components/InfiniteSelect'
-import { getProductAttributes } from '~/shared/services/api/productAttributeService'
-import type { ProductAttributeItem } from '~/shared/types'
+import { getOptionsPage } from '~/shared/services/api/productOptionService'
+import type { ProductOptionResponse } from '~/shared/types'
 import ProductOptionValueForm from '~/features/authenticate/manageProduct/components/ProductOptionValueForm'
 import { useProductVariantForm } from '~/features/authenticate/manageProduct/contexts/ProductVariantFormContext'
 import type { ProductVariantFormSchema } from '~/features/authenticate/manageProduct/validator'
@@ -128,8 +128,8 @@ function SortableProductOptionComponent({ field, index }: SortableProductOptionP
           </button>
 
           <div className='flex-1 min-w-0'>
-            <InfiniteSelect<ProductAttributeItem>
-              fetchData={getProductAttributes}
+            <InfiniteSelect<ProductOptionResponse>
+              fetchData={getOptionsPage}
               value={option.name || ''}
               onChange={(val) => setValue(`options.${index}.name`, val, { shouldDirty: true })}
               getOptionValue={(item) => item.name}

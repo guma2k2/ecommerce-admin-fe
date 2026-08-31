@@ -98,7 +98,7 @@ class AxiosClient {
         if (error.response?.status === 401 && originalRequest && !originalRequest._retry) {
           const url = originalRequest.url || ''
           // Avoid refreshing on sign-in or refresh endpoint itself
-          if (url.includes('/auth/public/sign-in') || url.includes('/auth/refresh')) {
+          if (url.includes('/auth/public/sign-in') || url.includes('/auth/public/refresh')) {
             return Promise.reject(error)
           }
 
@@ -121,8 +121,9 @@ class AxiosClient {
           try {
             // Call refresh endpoint with credentials (cookie sent automatically)
             const refreshResponse = await this.instance.post<{ status: string; data: string | { accessToken: string } }>(
-              '/auth/refresh'
+              '/auth/public/refresh'
             )
+
 
             const data = refreshResponse.data?.data
             const newAccessToken = typeof data === 'string' ? data : data?.accessToken

@@ -30,12 +30,16 @@ export default function UpdateBrandPage() {
   const handleUpdate = async (values: BrandFormSchema) => {
     try {
       setIsSubmitting(true)
-      await updateBrand(brand.id, values)
+      await updateBrand(brand.id, {
+        name: values.name,
+        description: values.description || null
+      })
       showToast('success', 'toasts.brandUpdated')
       navigate('/admin/manage-brand')
-    } catch (error) {
+    } catch (error: any) {
       console.error('Update brand error:', error)
-      showToast('error', 'toasts.error')
+      const errorMsg = error?.response?.data?.message || 'toasts.error'
+      showToast('error', errorMsg)
     } finally {
       setIsSubmitting(false)
     }
@@ -65,7 +69,10 @@ export default function UpdateBrandPage() {
       {/* Main Form Box */}
       <div className='max-w-2xl bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 shadow-xs p-6'>
         <BrandForm
-          defaultValues={{ name: brand.name, image: brand.image }}
+          defaultValues={{
+            name: brand.name,
+            description: brand.description || ''
+          }}
           onSubmit={handleUpdate}
           isSubmitting={isSubmitting}
           onCancel={() => navigate('/admin/manage-brand')}

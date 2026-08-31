@@ -28,13 +28,14 @@ export async function signIn(payload: SignInPayload): Promise<string> {
  */
 export async function refreshToken(): Promise<string> {
   const response = await apiClient.post<ApiResponse<string | SignInResponseData>>(
-    '/auth/refresh'
+    '/auth/public/refresh'
   )
   const data = response.data.data
   const token = typeof data === 'string' ? data : data.accessToken
   setAccessToken(token)
   return token
 }
+
 
 /**
  * Revokes refresh token in backend and clears client session.

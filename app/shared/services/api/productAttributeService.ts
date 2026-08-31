@@ -1,204 +1,167 @@
+import apiClient from '~/shared/services/axiosClient'
 import type {
-  ProductAttributeItem,
+  ApiResponse,
   GetProductAttributesParams,
+  PageResponse,
+  PaginationParams,
   PaginatedProductAttributesResponse,
-  PageResponse
+  ProductAttributeCreateRequest,
+  ProductAttributeItem,
+  ProductAttributeResponse,
+  ProductAttributeUpdateRequest
 } from '~/shared/types'
 
 export type {
-  ProductAttributeItem,
   GetProductAttributesParams,
-  PaginatedProductAttributesResponse
+  PaginatedProductAttributesResponse,
+  ProductAttributeCreateRequest,
+  ProductAttributeItem,
+  ProductAttributeResponse,
+  ProductAttributeUpdateRequest
 }
 
-let MOCK_ATTRIBUTES: ProductAttributeItem[] = [
-  {
-    id: 'ATTR-001',
-    name: 'Color',
-    created_at: '2025-01-05T08:30:00Z',
-    updated_at: '2025-01-10T10:15:00Z'
-  },
-  {
-    id: 'ATTR-002',
-    name: 'Size',
-    created_at: '2025-01-06T09:15:00Z',
-    updated_at: '2025-01-12T14:20:00Z'
-  },
-  {
-    id: 'ATTR-003',
-    name: 'Material',
-    created_at: '2025-01-08T11:00:00Z',
-    updated_at: '2025-01-15T16:40:00Z'
-  },
-  {
-    id: 'ATTR-004',
-    name: 'Storage Capacity',
-    created_at: '2025-01-10T14:25:00Z',
-    updated_at: '2025-01-18T09:30:00Z'
-  },
-  {
-    id: 'ATTR-005',
-    name: 'RAM',
-    created_at: '2025-01-12T10:45:00Z',
-    updated_at: '2025-01-20T11:50:00Z'
-  },
-  {
-    id: 'ATTR-006',
-    name: 'Screen Size',
-    created_at: '2025-01-15T13:20:00Z',
-    updated_at: '2025-01-22T08:15:00Z'
-  },
-  {
-    id: 'ATTR-007',
-    name: 'Weight',
-    created_at: '2025-01-18T16:00:00Z',
-    updated_at: '2025-01-24T17:35:00Z'
-  },
-  {
-    id: 'ATTR-008',
-    name: 'Battery Capacity',
-    created_at: '2025-01-20T08:40:00Z',
-    updated_at: '2025-01-26T12:10:00Z'
-  },
-  {
-    id: 'ATTR-009',
-    name: 'Connectivity',
-    created_at: '2025-01-22T15:10:00Z',
-    updated_at: '2025-01-28T10:00:00Z'
-  },
-  {
-    id: 'ATTR-010',
-    name: 'Warranty Period',
-    created_at: '2025-01-25T11:30:00Z',
-    updated_at: '2025-01-30T15:45:00Z'
-  },
-  {
-    id: 'ATTR-011',
-    name: 'Resolution',
-    created_at: '2025-01-28T09:00:00Z',
-    updated_at: '2025-02-02T13:20:00Z'
-  },
-  {
-    id: 'ATTR-012',
-    name: 'Operating System',
-    created_at: '2025-01-30T14:15:00Z',
-    updated_at: '2025-02-05T16:50:00Z'
-  }
-]
+/**
+ * Fetches a paginated list of product attributes (0-based pageNumber).
+ */
+export async function getAttributesPage(
+  params: PaginationParams & { search?: string } = {}
+): Promise<PageResponse<ProductAttributeResponse>> {
+  const pageNumber = params.pageNumber !== undefined ? Math.max(0, params.pageNumber) : 0
+  const pageSize = params.pageSize ?? 10
 
+  const response = await apiClient.get<ApiResponse<PageResponse<ProductAttributeResponse>>>(
+    '/product-attributes/page',
+    {
+      params: {
+        pageNumber,
+        pageSize,
+        ...(params.search?.trim() ? { search: params.search.trim() } : {})
+      }
+    }
+  )
+
+  return response.data.data
+}
+
+/**
+ * Helper for React Router clientLoader & UI components using 1-based page numbers.
+ */
 export async function getProductAttributes(
   params: GetProductAttributesParams = {}
-): Promise<PageResponse<ProductAttributeItem>> {
-  const { pageNumber = 1, pageSize = 10, search = '', sortField, sortDir = 'asc' } = params
+): Promise<PageResponse<ProductAttributeResponse>> {
+  const uiPageNumber = params.pageNumber ?? 1
+  const zeroBasedPage = Math.max(0, uiPageNumber - 1)
+  const pageSize = params.pageSize ?? 10
 
-  await new Promise((resolve) => setTimeout(resolve, 200))
-
-  const cleanSearch = search.trim().toLowerCase()
-
-  let filtered = cleanSearch
-    ? MOCK_ATTRIBUTES.filter(
-        (attr) =>
-          attr.name.toLowerCase().includes(cleanSearch) ||
-          attr.id.toLowerCase().includes(cleanSearch)
-      )
-    : [...MOCK_ATTRIBUTES]
-
-  if (sortField) {
-    filtered.sort((a, b) => {
-      const valA = (a as unknown as Record<string, string>)[sortField] || ''
-      const valB = (b as unknown as Record<string, string>)[sortField] || ''
-
-      if (sortField === 'id') {
-        const numA = parseInt(String(valA).replace('ATTR-', ''), 10)
-        const numB = parseInt(String(valB).replace('ATTR-', ''), 10)
-        if (!isNaN(numA) && !isNaN(numB)) {
-          return sortDir === 'asc' ? numA - numB : numB - numA
-        }
+  const response = await apiClient.get<ApiResponse<PageResponse<ProductAttributeResponse>>>(
+    '/product-attributes/page',
+    {
+      params: {
+        pageNumber: zeroBasedPage,
+        pageSize,
+        ...(params.search?.trim() ? { search: params.search.trim() } : {})
       }
+    }
+  )
 
-      const comp = String(valA).localeCompare(String(valB))
-      return sortDir === 'asc' ? comp : -comp
+  const data = response.data.data
+  let content = data.content || []
+
+  if (params.search?.trim()) {
+    const term = params.search.trim().toLowerCase()
+    content = content.filter((a) => a.name.toLowerCase().includes(term))
+  }
+
+  if (params.sortField) {
+    content = [...content].sort((a, b) => {
+      const field = params.sortField as keyof ProductAttributeResponse
+      const valA = String(a[field] ?? '')
+      const valB = String(b[field] ?? '')
+      const comp = valA.localeCompare(valB)
+      return params.sortDir === 'desc' ? -comp : comp
     })
   }
 
-  const totalElements = filtered.length
-  const totalPages = Math.ceil(totalElements / pageSize) || 1
-  const currentPage = Math.max(1, Math.min(pageNumber, totalPages))
-
-  const startIndex = (currentPage - 1) * pageSize
-  const endIndex = startIndex + pageSize
-  const content = filtered.slice(startIndex, endIndex)
-
   return {
+    ...data,
     content,
-    pageNumber: currentPage,
-    pageSize,
-    totalElements,
-    totalPages
+    pageNumber: uiPageNumber
   }
 }
 
-export async function getProductAttributeById(id: string): Promise<ProductAttributeItem> {
-  await new Promise((resolve) => setTimeout(resolve, 150))
-  const attr = MOCK_ATTRIBUTES.find((a) => a.id === id)
-  if (!attr) {
-    throw new Error(`Product Attribute with ID ${id} not found`)
-  }
-  return attr
+/**
+ * Fetches a single product attribute by ID.
+ */
+export async function getProductAttributeById(
+  id: number | string
+): Promise<ProductAttributeResponse> {
+  const response = await apiClient.get<ApiResponse<ProductAttributeResponse>>(`/product-attributes/${id}`)
+  return response.data.data
 }
 
-export async function createProductAttribute(data: {
-  name: string
-}): Promise<ProductAttributeItem> {
-  await new Promise((resolve) => setTimeout(resolve, 250))
-  const maxNum = MOCK_ATTRIBUTES.reduce((max, item) => {
-    const num = parseInt(item.id.replace('ATTR-', ''), 10)
-    return isNaN(num) ? max : Math.max(max, num)
-  }, 0)
-  const nextId = `ATTR-${String(maxNum + 1).padStart(3, '0')}`
-  const now = new Date().toISOString()
+export const getAttributeById = getProductAttributeById
 
-  const newAttr: ProductAttributeItem = {
-    id: nextId,
-    name: data.name.trim(),
-    created_at: now,
-    updated_at: now
-  }
-  MOCK_ATTRIBUTES = [newAttr, ...MOCK_ATTRIBUTES]
-  return newAttr
+/**
+ * Creates a new product attribute.
+ */
+export async function createProductAttribute(
+  payload: ProductAttributeCreateRequest | { name: string }
+): Promise<void> {
+  await apiClient.post<ApiResponse<void>>('/product-attributes', {
+    name: payload.name.trim()
+  })
 }
 
+export const createAttribute = createProductAttribute
+
+/**
+ * Updates an existing product attribute by ID.
+ */
 export async function updateProductAttribute(
-  id: string,
-  data: { name: string }
-): Promise<ProductAttributeItem> {
-  await new Promise((resolve) => setTimeout(resolve, 250))
-  const index = MOCK_ATTRIBUTES.findIndex((a) => a.id === id)
-  if (index === -1) {
-    throw new Error(`Product Attribute with ID ${id} not found`)
-  }
-  const now = new Date().toISOString()
-  const updated: ProductAttributeItem = {
-    ...MOCK_ATTRIBUTES[index],
-    name: data.name.trim(),
-    updated_at: now
-  }
-  MOCK_ATTRIBUTES[index] = updated
-  return updated
+  id: number | string,
+  payload: ProductAttributeUpdateRequest | { name: string }
+): Promise<void> {
+  await apiClient.put<ApiResponse<void>>(`/product-attributes/${id}`, {
+    name: payload.name.trim()
+  })
 }
 
-export async function deleteProductAttribute(id: string): Promise<boolean> {
-  await new Promise((resolve) => setTimeout(resolve, 200))
-  const index = MOCK_ATTRIBUTES.findIndex((a) => a.id === id)
-  if (index === -1) {
-    throw new Error(`Product Attribute with ID ${id} not found`)
+export const updateAttribute = updateProductAttribute
+
+/**
+ * Deletes a product attribute by ID.
+ */
+export async function deleteProductAttribute(id: number | string): Promise<void> {
+  await apiClient.delete<ApiResponse<void>>(`/product-attributes/${id}`)
+}
+
+export const deleteAttribute = deleteProductAttribute
+
+/**
+ * Fetches all product attributes for selection dropdowns and template associations.
+ */
+export async function getAllProductAttributes(): Promise<ProductAttributeResponse[]> {
+  try {
+    const res = await getAttributesPage({ pageNumber: 0, pageSize: 1000 })
+    return res.content || []
+  } catch (err) {
+    console.error('Failed to load all product attributes:', err)
+    return []
   }
-  MOCK_ATTRIBUTES = MOCK_ATTRIBUTES.filter((a) => a.id !== id)
-  return true
 }
 
-export async function getAllProductAttributes(): Promise<ProductAttributeItem[]> {
-  await new Promise((resolve) => setTimeout(resolve, 150))
-  return [...MOCK_ATTRIBUTES]
+export const productAttributeService = {
+  getAttributesPage,
+  getProductAttributes,
+  getProductAttributeById,
+  getAttributeById,
+  createProductAttribute,
+  createAttribute,
+  updateProductAttribute,
+  updateAttribute,
+  deleteProductAttribute,
+  deleteAttribute,
+  getAllProductAttributes
 }
 
+export default productAttributeService

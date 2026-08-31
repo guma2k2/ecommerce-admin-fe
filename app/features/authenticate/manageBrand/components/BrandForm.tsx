@@ -3,7 +3,7 @@ import { useForm } from 'react-hook-form'
 import { Loader2 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 
-import { FormInput, FormUpload } from '~/shared/components/Form'
+import { FormInput, FormTextarea, FormUpload } from '~/shared/components/Form'
 import { Button } from '~/core/components/shadcn/button'
 import { FieldGroup } from '~/core/components/shadcn/field'
 import { brandFormSchema, type BrandFormSchema } from '../validator'
@@ -17,7 +17,7 @@ interface BrandFormProps {
 }
 
 export default function BrandForm({
-  defaultValues = { name: '', image: '' },
+  defaultValues = { name: '', description: '', image: '' },
   onSubmit,
   isSubmitting = false,
   onCancel,
@@ -29,6 +29,7 @@ export default function BrandForm({
     resolver: zodResolver(brandFormSchema),
     defaultValues: {
       name: defaultValues.name || '',
+      description: defaultValues.description || '',
       image: defaultValues.image || ''
     }
   })
@@ -44,6 +45,15 @@ export default function BrandForm({
           name='name'
           label={t('brand.name')}
           placeholder={t('brand.namePlaceholder')}
+          disabled={isSubmitting}
+        />
+
+        {/* Brand Description Field */}
+        <FormTextarea
+          control={control}
+          name='description'
+          label={t('brand.description', 'Description')}
+          placeholder={t('brand.descriptionPlaceholder', 'Enter brand description...')}
           disabled={isSubmitting}
         />
 

@@ -1,6 +1,6 @@
-import { useState, useEffect } from "react"
-import { FolderPlus, Pencil, Loader2 } from "lucide-react"
-import type { CategoryItem } from "~/shared/services/api/categoryService"
+import { useState, useEffect } from 'react'
+import { FolderPlus, Pencil, Loader2 } from 'lucide-react'
+import type { CategoryItem } from '~/shared/services/api/categoryService'
 import {
   Dialog,
   DialogContent,
@@ -8,10 +8,10 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle
-} from "~/core/components/shadcn/dialog"
-import { Button } from "~/core/components/shadcn/button"
-import { Input } from "~/core/components/shadcn/input"
-import { Label } from "~/core/components/shadcn/label"
+} from '~/core/components/shadcn/dialog'
+import { Button } from '~/core/components/shadcn/button'
+import { Input } from '~/core/components/shadcn/input'
+import { Label } from '~/core/components/shadcn/label'
 
 interface CategoryFormDialogProps {
   open: boolean
@@ -21,8 +21,8 @@ interface CategoryFormDialogProps {
 }
 
 export default function CategoryFormDialog({ open, onOpenChange, categoryToEdit, onSubmit }: CategoryFormDialogProps) {
-  const [name, setName] = useState("")
-  const [error, setError] = useState("")
+  const [name, setName] = useState('')
+  const [error, setError] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   const isEditing = Boolean(categoryToEdit)
@@ -32,9 +32,9 @@ export default function CategoryFormDialog({ open, onOpenChange, categoryToEdit,
       if (categoryToEdit) {
         setName(categoryToEdit.name)
       } else {
-        setName("")
+        setName('')
       }
-      setError("")
+      setError('')
     }
   }, [open, categoryToEdit])
 
@@ -43,25 +43,25 @@ export default function CategoryFormDialog({ open, onOpenChange, categoryToEdit,
     const trimmedName = name.trim()
 
     if (!trimmedName) {
-      setError("Category name is required")
+      setError('Category name is required')
       return
     }
 
     if (trimmedName.length < 2) {
-      setError("Category name must be at least 2 characters long")
+      setError('Category name must be at least 2 characters long')
       return
     }
 
     try {
       setIsSubmitting(true)
-      setError("")
+      setError('')
       await onSubmit(trimmedName)
       onOpenChange(false)
     } catch (err: unknown) {
       if (err instanceof Error) {
         setError(err.message)
       } else {
-        setError("Failed to save category")
+        setError('Failed to save category')
       }
     } finally {
       setIsSubmitting(false)
@@ -77,11 +77,11 @@ export default function CategoryFormDialog({ open, onOpenChange, categoryToEdit,
               {isEditing ? <Pencil className='size-5' /> : <FolderPlus className='size-5' />}
             </div>
             <div>
-              <DialogTitle className='text-xl'>{isEditing ? "Edit Category" : "Add New Category"}</DialogTitle>
+              <DialogTitle className='text-xl'>{isEditing ? 'Edit Category' : 'Add New Category'}</DialogTitle>
               <DialogDescription className='text-xs text-muted-foreground mt-0.5'>
                 {isEditing
-                  ? `Update category details for ${categoryToEdit?.id}`
-                  : "Fill in the category name below to create a new category."}
+                  ? `Update category details for #${categoryToEdit?.id}`
+                  : 'Fill in the category name below to create a new category.'}
               </DialogDescription>
             </div>
           </div>
@@ -92,7 +92,7 @@ export default function CategoryFormDialog({ open, onOpenChange, categoryToEdit,
             <div className='space-y-1.5'>
               <Label className='text-xs text-muted-foreground font-medium'>Category ID</Label>
               <Input
-                value={categoryToEdit.id}
+                value={String(categoryToEdit.id)}
                 disabled
                 className='bg-gray-100 dark:bg-zinc-800 font-mono text-sm cursor-not-allowed opacity-80'
               />
@@ -109,11 +109,11 @@ export default function CategoryFormDialog({ open, onOpenChange, categoryToEdit,
               value={name}
               onChange={(e) => {
                 setName(e.target.value)
-                if (error) setError("")
+                if (error) setError('')
               }}
               placeholder='e.g. Smart Home Electronics'
               autoFocus
-              className={error ? "border-red-500 focus-visible:ring-red-500" : ""}
+              className={error ? 'border-red-500 focus-visible:ring-red-500' : ''}
             />
             {error && <p className='text-xs text-red-500 font-medium'>{error}</p>}
           </div>
@@ -124,7 +124,7 @@ export default function CategoryFormDialog({ open, onOpenChange, categoryToEdit,
             </Button>
             <Button type='submit' disabled={isSubmitting} className='gap-2'>
               {isSubmitting && <Loader2 className='size-4 animate-spin' />}
-              {isEditing ? "Save Changes" : "Create Category"}
+              {isEditing ? 'Save Changes' : 'Create Category'}
             </Button>
           </DialogFooter>
         </form>

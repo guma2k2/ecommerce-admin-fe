@@ -18,14 +18,15 @@ export type { BrandSortField }
 interface BrandTableProps {
   brands: BrandItem[]
   isLoading?: boolean
-  sortField: BrandSortField
-  sortOrder: SortDirection
+  sortField?: BrandSortField
+  sortOrder?: SortDirection
   onSort: (field: BrandSortField) => void
   onEdit: (brand: BrandItem) => void
   onDelete: (brand: BrandItem) => void
 }
 
-function formatDate(isoString: string): { dateStr: string; timeStr: string } {
+function formatDate(isoString?: string | null): { dateStr: string; timeStr: string } {
+  if (!isoString) return { dateStr: '-', timeStr: '' }
   try {
     const d = new Date(isoString)
     if (isNaN(d.getTime())) return { dateStr: isoString, timeStr: '' }
@@ -57,8 +58,8 @@ export default function BrandTable({
   const { t } = useTranslation()
   const [failedImages, setFailedImages] = useState<Record<string, boolean>>({})
 
-  const handleImageError = (id: string) => {
-    setFailedImages((prev) => ({ ...prev, [id]: true }))
+  const handleImageError = (id: string | number) => {
+    setFailedImages((prev) => ({ ...prev, [String(id)]: true }))
   }
 
   const renderSortIcon = (field: BrandSortField) => {
@@ -78,7 +79,7 @@ export default function BrandTable({
         <TableHeader className='bg-gray-50/80 dark:bg-zinc-800/50'>
           <TableRow className='hover:bg-transparent'>
             {/* Logo Column */}
-            <TableHead className='w-[100px] text-center font-semibold text-gray-700 dark:text-gray-200'>
+            <TableHead className='w-[80px] text-center font-semibold text-gray-700 dark:text-gray-200'>
               {t('brand.logo')}
             </TableHead>
 
@@ -94,27 +95,33 @@ export default function BrandTable({
               </Button>
             </TableHead>
 
-            <TableHead className='w-[200px]'>
+            <TableHead className='hidden md:table-cell'>
+              <span className='font-semibold text-gray-700 dark:text-gray-200'>
+                {t('brand.description', 'Description')}
+              </span>
+            </TableHead>
+
+            <TableHead className='w-[190px]'>
               <Button
                 variant='ghost'
                 size='sm'
-                onClick={() => onSort('created_at')}
+                onClick={() => onSort('createdAt')}
                 className='-ml-2 h-8 font-semibold text-gray-700 dark:text-gray-200 hover:text-gray-900 dark:hover:text-white'
               >
                 {t('brand.createdAt')}
-                {renderSortIcon('created_at')}
+                {renderSortIcon('createdAt')}
               </Button>
             </TableHead>
 
-            <TableHead className='w-[200px]'>
+            <TableHead className='w-[190px] hidden sm:table-cell'>
               <Button
                 variant='ghost'
                 size='sm'
-                onClick={() => onSort('updated_at')}
+                onClick={() => onSort('updatedAt')}
                 className='-ml-2 h-8 font-semibold text-gray-700 dark:text-gray-200 hover:text-gray-900 dark:hover:text-white'
               >
                 {t('brand.updatedAt')}
-                {renderSortIcon('updated_at')}
+                {renderSortIcon('updatedAt')}
               </Button>
             </TableHead>
 
@@ -134,10 +141,13 @@ export default function BrandTable({
                 <TableCell className='py-4'>
                   <Skeleton className='h-5 w-40' />
                 </TableCell>
+                <TableCell className='py-4 hidden md:table-cell'>
+                  <Skeleton className='h-5 w-48' />
+                </TableCell>
                 <TableCell className='py-4'>
                   <Skeleton className='h-5 w-32' />
                 </TableCell>
-                <TableCell className='py-4'>
+                <TableCell className='py-4 hidden sm:table-cell'>
                   <Skeleton className='h-5 w-32' />
                 </TableCell>
                 <TableCell className='py-4 text-right pr-4'>
@@ -150,7 +160,7 @@ export default function BrandTable({
             ))
           ) : brands.length === 0 ? (
             <TableRow>
-              <TableCell colSpan={5} className='h-48 text-center'>
+              <TableCell colSpan={6} className='h-48 text-center'>
                 <div className='flex flex-col items-center justify-center gap-2 text-muted-foreground'>
                   <div className='w-12 h-12 rounded-full bg-gray-100 dark:bg-zinc-800 flex items-center justify-center'>
                     <Award className='size-6 text-gray-400' />
@@ -164,9 +174,9 @@ export default function BrandTable({
             </TableRow>
           ) : (
             brands.map((brand) => {
-              const created = formatDate(brand.created_at)
-              const updated = formatDate(brand.updated_at)
-              const isImgFailed = failedImages[brand.id]
+              const created = formatDate(brand.createdAt || brand.created_at)
+              const updated = formatDate(brand.updatedAt || brand.updated_at)
+              const isImgFailed = failedImages[String(brand.id)]
 
               return (
                 <TableRow
@@ -185,7 +195,7 @@ export default function BrandTable({
                           className='w-full h-full object-contain rounded-md'
                         />
                       ) : (
-                        <ImageIcon className='size-5 text-gray-400' />
+                        <Award className='size-5 text-amber-500/70' />
                       )}
                     </div>
                   </TableCell>
@@ -199,21 +209,30 @@ export default function BrandTable({
                     </div>
                   </TableCell>
 
+                  {/* Description */}
+                  <TableCell className='py-3.5 hidden md:table-cell text-xs text-gray-600 dark:text-gray-400 max-w-xs truncate'>
+                    {brand.description || '-'}
+                  </TableCell>
+
                   {/* Created At */}
                   <TableCell className='py-3.5 text-xs text-gray-600 dark:text-gray-400'>
                     <div className='flex items-center gap-1.5'>
                       <Calendar className='size-3.5 text-muted-foreground shrink-0' />
                       <span>{created.dateStr}</span>
-                      <span className='text-gray-400 dark:text-gray-500 font-mono'>{created.timeStr}</span>
+                      {created.timeStr && (
+                        <span className='text-gray-400 dark:text-gray-500 font-mono'>{created.timeStr}</span>
+                      )}
                     </div>
                   </TableCell>
 
                   {/* Updated At */}
-                  <TableCell className='py-3.5 text-xs text-gray-600 dark:text-gray-400'>
+                  <TableCell className='py-3.5 text-xs text-gray-600 dark:text-gray-400 hidden sm:table-cell'>
                     <div className='flex items-center gap-1.5'>
                       <Calendar className='size-3.5 text-muted-foreground shrink-0' />
                       <span>{updated.dateStr}</span>
-                      <span className='text-gray-400 dark:text-gray-500 font-mono'>{updated.timeStr}</span>
+                      {updated.timeStr && (
+                        <span className='text-gray-400 dark:text-gray-500 font-mono'>{updated.timeStr}</span>
+                      )}
                     </div>
                   </TableCell>
 

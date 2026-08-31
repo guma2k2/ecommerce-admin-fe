@@ -33,12 +33,16 @@ export default function UpdateProductAttributeTemplatePage() {
   const handleUpdate = async (values: ProductAttributeTemplateFormSchema) => {
     try {
       setIsSubmitting(true)
-      await updateProductAttributeTemplate(template.id, values)
+      await updateProductAttributeTemplate(template.id, {
+        name: values.name,
+        attribute_ids: values.attribute_ids
+      })
       showToast('success', 'toasts.attributeTemplateUpdated')
       navigate('/admin/manage-product-attribute-template')
-    } catch (error) {
+    } catch (error: any) {
       console.error('Update product attribute template error:', error)
-      showToast('error', 'toasts.error')
+      const errorMsg = error?.response?.data?.message || 'toasts.error'
+      showToast('error', errorMsg)
     } finally {
       setIsSubmitting(false)
     }
@@ -70,9 +74,18 @@ export default function UpdateProductAttributeTemplatePage() {
         <ProductAttributeTemplateForm
           defaultValues={{
             name: template.name,
-            attribute_ids: template.attribute_ids || template.attributes?.map((a) => a.id) || []
+            attribute_ids:
+              template.attribute_ids ||
+              template.attributeIds?.map(String) ||
+              template.attributes?.map((a) => String(a.id)) ||
+              []
           }}
-          initialAttributes={template.attributes || []}
+          initialAttributes={
+            template.attributes?.map((a) => ({
+              ...a,
+              id: String(a.id)
+            })) || []
+          }
           onSubmit={handleUpdate}
           isSubmitting={isSubmitting}
           onCancel={() => navigate('/admin/manage-product-attribute-template')}
@@ -82,4 +95,3 @@ export default function UpdateProductAttributeTemplatePage() {
     </div>
   )
 }
-

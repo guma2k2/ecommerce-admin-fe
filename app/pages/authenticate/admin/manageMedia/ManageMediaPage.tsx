@@ -1,15 +1,9 @@
 import { useState } from 'react'
-import { useLoaderData, useSearchParams, useNavigation, useNavigate } from 'react-router'
-import type { ClientLoaderFunctionArgs } from 'react-router'
-import { Image, Plus, Loader2, Trash2, Pencil } from 'lucide-react'
+import { useSearchParams } from 'react-router'
+import { Image, Plus, RefreshCw, AlertCircle } from 'lucide-react'
 
-import {
-  getMediaList,
-  updateMediaItemName,
-  deleteMediaItem
-} from '~/shared/services/api/mediaService'
-import type { MediaItem } from '~/shared/types'
-import { showToast } from '~/shared/utils/toast'
+import { useMediaPage } from '~/shared/hooks/queries/useMediaQuery'
+import type { MediaResponse } from '~/shared/types'
 import MediaFilter from '~/features/authenticate/manageMedia/components/MediaFilter'
 import MediaTable from '~/features/authenticate/manageMedia/components/MediaTable'
 import MediaGridView from '~/features/authenticate/manageMedia/components/MediaGridView'
@@ -18,57 +12,38 @@ import MediaUploadDialog from '~/features/authenticate/manageMedia/components/Me
 import MediaPreviewModal from '~/features/authenticate/manageMedia/components/MediaPreviewModal'
 import { Button } from '~/core/components/shadcn/button'
 import { Badge } from '~/core/components/shadcn/badge'
-import { Input } from '~/core/components/shadcn/input'
-import { Label } from '~/core/components/shadcn/label'
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle
-} from '~/core/components/shadcn/dialog'
-
-export async function clientLoader({ request }: ClientLoaderFunctionArgs) {
-  const url = new URL(request.url)
-  const pageNumber = Number(url.searchParams.get('pageNumber') || url.searchParams.get('page') || '1')
-  const pageSize = Number(url.searchParams.get('pageSize') || url.searchParams.get('limit') || '10')
-  const search = url.searchParams.get('search') || ''
-  const type = url.searchParams.get('type') || 'all'
-  const sortField = url.searchParams.get('sortField') || undefined
-  const sortDir = (url.searchParams.get('sortDir') || undefined) as any
-
-  const response = await getMediaList({ pageNumber, pageSize, search, type, sortField, sortDir })
-  return {
-    ...response,
-    searchParams: { pageNumber, pageSize, search, type, sortField, sortDir }
-  }
-}
-
-clientLoader.hydrate = true as const
 
 export default function ManageMediaPage() {
-  const pageData = useLoaderData<typeof clientLoader>()
-  const { content, pageNumber, pageSize, totalElements, totalPages, searchParams: currentParams } = pageData
-  const [, setSearchParams] = useSearchParams()
-  const navigation = useNavigation()
-  const navigate = useNavigate()
+
+  const [searchParams, setSearchParams] = useSearchParams()
+
+  // Extract query parameters (UI uses 1-based pageNumber)
+  const pageNumberParam = Number(searchParams.get('pageNumber') || searchParams.get('page') || '1')
+  const pageSizeParam = Number(searchParams.get('pageSize') || searchParams.get('limit') || '10')
+  const searchParam = searchParams.get('search') || ''
+  const typeParam = searchParams.get('type') || 'all'
+
+  // Backend API uses zero-based pageNumber index
+  const zeroBasedPageNumber = Math.max(0, pageNumberParam - 1)
+
+  // React Query hook for fetching media
+  const { data, isLoading, isFetching, isError, error, refetch } = useMediaPage({
+    pageNumber: zeroBasedPageNumber,
+    pageSize: pageSizeParam,
+    search: searchParam,
+    type: typeParam !== 'all' ? typeParam : undefined
+  })
+
+  // Extract paginated media data
+  const content = data?.content || []
+  const totalElements = data?.totalElements || 0
+  const totalPages = data?.totalPages || 1
+  const currentPage = (data?.pageNumber !== undefined ? data.pageNumber + 1 : pageNumberParam)
 
   // Local state for UI controls
   const [viewMode, setViewMode] = useState<'table' | 'grid'>('table')
   const [uploadDialogOpen, setUploadDialogOpen] = useState<boolean>(false)
-  const [previewMedia, setPreviewMedia] = useState<MediaItem | null>(null)
-  
-  // State for Edit Name dialog
-  const [editingMedia, setEditingMedia] = useState<MediaItem | null>(null)
-  const [editNameValue, setEditNameValue] = useState<string>('')
-  const [isUpdating, setIsUpdating] = useState<boolean>(false)
-
-  // State for Delete confirmation dialog
-  const [deletingMedia, setDeletingMedia] = useState<MediaItem | null>(null)
-  const [isDeleting, setIsDeleting] = useState<boolean>(false)
-
-  const isLoading = navigation.state === 'loading' || navigation.state === 'submitting'
+  const [previewMedia, setPreviewMedia] = useState<MediaResponse | null>(null)
 
   // Handlers for URL search parameter updates
   const handleSearchChange = (newSearch: string) => {
@@ -124,44 +99,6 @@ export default function ManageMediaPage() {
     })
   }
 
-  // Edit Name Submit
-  const handleConfirmEditName = async () => {
-    if (!editingMedia || !editNameValue.trim()) return
-
-    try {
-      setIsUpdating(true)
-      await updateMediaItemName(editingMedia.id, editNameValue.trim())
-      showToast('success', 'toasts.mediaUpdated')
-      setEditingMedia(null)
-      // Refresh current route data
-      navigate('.', { replace: true })
-    } catch (err) {
-      console.error('Update name error:', err)
-      showToast('error', 'toasts.mediaUpdateFailed')
-    } finally {
-      setIsUpdating(false)
-    }
-  }
-
-  // Delete Confirm Submit
-  const handleConfirmDelete = async () => {
-    if (!deletingMedia) return
-
-    try {
-      setIsDeleting(true)
-      await deleteMediaItem(deletingMedia.id)
-      showToast('success', 'toasts.mediaDeleted')
-      setDeletingMedia(null)
-      // Refresh current route data
-      navigate('.', { replace: true })
-    } catch (err) {
-      console.error('Delete error:', err)
-      showToast('error', 'toasts.mediaDeleteFailed')
-    } finally {
-      setIsDeleting(false)
-    }
-  }
-
   return (
     <div className='w-full min-h-screen bg-gray-50/50 dark:bg-zinc-950 p-6 space-y-6'>
       {/* Top Header section */}
@@ -173,32 +110,65 @@ export default function ManageMediaPage() {
               Media Management
             </h1>
             <Badge variant='secondary' className='ml-1 font-semibold text-xs'>
-              {totalElements} Items
+              {totalElements} Assets
             </Badge>
+            {isFetching && !isLoading && (
+              <RefreshCw className='size-3.5 text-muted-foreground animate-spin' />
+            )}
           </div>
           <p className='text-sm text-muted-foreground'>
-            Upload, organize, inspect specifications (ID, Name, URL, Size, Type, Dates), and manage all your digital media assets.
+            Upload, organize, inspect specifications, and manage digital media assets (images & videos).
           </p>
         </div>
 
-        <Button onClick={() => setUploadDialogOpen(true)} size='default' className='shadow-xs gap-1.5 self-start sm:self-auto'>
-          <Plus className='size-4' />
-          Upload Media
-        </Button>
+        <div className='flex items-center gap-2 self-start sm:self-auto'>
+          <Button
+            variant='outline'
+            size='sm'
+            onClick={() => refetch()}
+            disabled={isFetching}
+            className='gap-1.5 h-9'
+          >
+            <RefreshCw className={`size-3.5 ${isFetching ? 'animate-spin' : ''}`} />
+            Refresh
+          </Button>
+          <Button
+            onClick={() => setUploadDialogOpen(true)}
+            size='default'
+            className='shadow-xs gap-1.5'
+          >
+            <Plus className='size-4' />
+            Upload Media
+          </Button>
+        </div>
       </div>
+
+      {/* Error state alert if request fails */}
+      {isError && (
+        <div className='p-4 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900 rounded-lg text-sm text-red-800 dark:text-red-300 flex items-center justify-between gap-4'>
+          <div className='flex items-center gap-2'>
+            <AlertCircle className='size-4 text-red-600 shrink-0' />
+            <span>{error?.message || 'Could not fetch media list from server.'}</span>
+          </div>
+          <Button variant='outline' size='sm' onClick={() => refetch()} className='h-7 text-xs border-red-300 dark:border-red-800 bg-white dark:bg-zinc-900'>
+            Try Again
+          </Button>
+        </div>
+      )}
+
 
       {/* Main Content Area */}
       <div className='space-y-4'>
         {/* Search, Filter & View Toggle Bar */}
         <MediaFilter
-          searchValue={currentParams.search}
+          searchValue={searchParam}
           onSearchChange={handleSearchChange}
-          typeValue={currentParams.type}
+          typeValue={typeParam}
           onTypeChange={handleTypeChange}
           viewMode={viewMode}
           onViewModeChange={setViewMode}
           onResetFilters={handleResetFilters}
-          isLoading={isLoading}
+          isLoading={isLoading || isFetching}
         />
 
         {/* Media Data Render (Table View vs Grid View) */}
@@ -207,29 +177,19 @@ export default function ManageMediaPage() {
             mediaList={content}
             isLoading={isLoading}
             onPreview={(item) => setPreviewMedia(item)}
-            onEdit={(item) => {
-              setEditingMedia(item)
-              setEditNameValue(item.name)
-            }}
-            onDelete={(item) => setDeletingMedia(item)}
           />
         ) : (
           <MediaGridView
             mediaList={content}
             isLoading={isLoading}
             onPreview={(item) => setPreviewMedia(item)}
-            onEdit={(item) => {
-              setEditingMedia(item)
-              setEditNameValue(item.name)
-            }}
-            onDelete={(item) => setDeletingMedia(item)}
           />
         )}
 
         {/* Pagination Controls */}
         <MediaPagination
-          pageNumber={pageNumber}
-          pageSize={pageSize}
+          pageNumber={currentPage}
+          pageSize={pageSizeParam}
           totalElements={totalElements}
           totalPages={totalPages}
           onPageChange={handlePageChange}
@@ -237,13 +197,10 @@ export default function ManageMediaPage() {
         />
       </div>
 
-      {/* Upload Dialog */}
+      {/* Upload Dialog with Live Progress and Alt Text */}
       <MediaUploadDialog
         open={uploadDialogOpen}
         onOpenChange={setUploadDialogOpen}
-        onSuccess={() => {
-          navigate('.', { replace: true })
-        }}
       />
 
       {/* Lightbox Details Preview Modal */}
@@ -254,73 +211,7 @@ export default function ManageMediaPage() {
           if (!open) setPreviewMedia(null)
         }}
       />
-
-      {/* Edit Name Dialog */}
-      <Dialog open={Boolean(editingMedia)} onOpenChange={(open) => { if (!open) setEditingMedia(null) }}>
-        <DialogContent className='sm:max-w-[420px]'>
-          <DialogHeader>
-            <DialogTitle className='flex items-center gap-2 text-lg font-bold'>
-              <Pencil className='size-5 text-amber-500' />
-              Edit Media Name
-            </DialogTitle>
-            <DialogDescription>
-              Update the display name for media asset <span className='font-mono text-xs font-semibold'>({editingMedia?.id})</span>.
-            </DialogDescription>
-          </DialogHeader>
-
-          <div className='space-y-2 py-3'>
-            <Label htmlFor='edit-name' className='text-xs font-medium'>
-              File Name
-            </Label>
-            <Input
-              id='edit-name'
-              value={editNameValue}
-              onChange={(e) => setEditNameValue(e.target.value)}
-              placeholder='Enter new name'
-              className='h-9'
-            />
-          </div>
-
-          <DialogFooter className='gap-2 sm:gap-0'>
-            <Button variant='outline' onClick={() => setEditingMedia(null)} disabled={isUpdating}>
-              Cancel
-            </Button>
-            <Button onClick={handleConfirmEditName} disabled={!editNameValue.trim() || isUpdating} className='gap-1.5'>
-              {isUpdating ? <Loader2 className='size-4 animate-spin' /> : 'Save Changes'}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      {/* Delete Confirmation Dialog */}
-      <Dialog open={Boolean(deletingMedia)} onOpenChange={(open) => { if (!open) setDeletingMedia(null) }}>
-        <DialogContent className='sm:max-w-[420px]'>
-          <DialogHeader>
-            <DialogTitle className='flex items-center gap-2 text-lg font-bold text-red-600'>
-              <Trash2 className='size-5' />
-              Delete Media Asset?
-            </DialogTitle>
-            <DialogDescription className='space-y-2 pt-2'>
-              <span>Are you sure you want to permanently delete this media item?</span>
-              {deletingMedia && (
-                <div className='p-3 bg-red-50 dark:bg-red-950/30 rounded-lg border border-red-100 dark:border-red-900/40 text-xs space-y-1 font-mono text-red-900 dark:text-red-300'>
-                  <p><strong className='font-sans'>Name:</strong> {deletingMedia.name}</p>
-                  <p><strong className='font-sans'>ID:</strong> {deletingMedia.id}</p>
-                </div>
-              )}
-            </DialogDescription>
-          </DialogHeader>
-
-          <DialogFooter className='gap-2 sm:gap-0 pt-2'>
-            <Button variant='outline' onClick={() => setDeletingMedia(null)} disabled={isDeleting}>
-              Cancel
-            </Button>
-            <Button variant='destructive' onClick={handleConfirmDelete} disabled={isDeleting} className='gap-1.5'>
-              {isDeleting ? <Loader2 className='size-4 animate-spin' /> : 'Delete Media'}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
     </div>
   )
 }
+

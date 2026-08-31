@@ -49,7 +49,7 @@ export default function ProductAttributesCard() {
     if (!tmpl) return
 
     const newAttributes = (tmpl.attributes || []).map((attr, idx) => {
-      const numId = parseInt(attr.id.replace(/\D/g, ""), 10) || idx + 100
+      const numId = typeof attr.id === 'number' ? attr.id : parseInt(String(attr.id).replace(/\D/g, ""), 10) || idx + 100
       return {
         productAttributeId: numId,
         name: attr.name,
@@ -63,7 +63,11 @@ export default function ProductAttributesCard() {
 
   const handleAddAttribute = () => {
     const nextAttr = availableAttributes[attributeFields.length % availableAttributes.length]
-    const numId = nextAttr ? parseInt(nextAttr.id.replace(/\D/g, ""), 10) || 101 : 101
+    const numId = nextAttr
+      ? typeof nextAttr.id === 'number'
+        ? nextAttr.id
+        : parseInt(String(nextAttr.id).replace(/\D/g, ""), 10) || 101
+      : 101
     appendAttribute({
       productAttributeId: numId,
       name: nextAttr?.name || "Material",
