@@ -141,17 +141,6 @@ class AxiosClient {
 
             return this.instance(originalRequest)
           } catch (refreshError: any) {
-            console.group('🔒 [Auth Refresh Error]')
-            console.error('❌ Failed to refresh access token on 401 response')
-            console.error('Request URL:', originalRequest.url)
-            console.error('Refresh Error:', refreshError)
-            if (axios.isAxiosError(refreshError)) {
-              console.error('Refresh Response Status:', refreshError.response?.status)
-              console.error('Refresh Response Data:', refreshError.response?.data)
-              console.error('Refresh Request Headers:', refreshError.config?.headers)
-            }
-            console.groupEnd()
-
             this.processQueue(refreshError as Error, null)
             setAccessToken(null)
 
@@ -182,7 +171,6 @@ class AxiosClient {
       import.meta.env.VITE_DISABLE_AUTH_REDIRECT === 'true'
 
     if (isDebugNoRedirect) {
-      console.warn('⚠️ [Auth Debug] Auto-redirect to /login suppressed because DEBUG_AUTH is enabled.')
       return
     }
 

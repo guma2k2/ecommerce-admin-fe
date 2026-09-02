@@ -149,8 +149,26 @@ export const FormCheckbox: FormControlFunc = (props) => {
   )
 }
 
-export const FormTextarea: FormControlFunc = (props) => {
-  return <FormBase {...props}>{(field) => <Textarea {...field} />}</FormBase>
+export const FormTextarea: FormControlFunc<
+  Omit<React.ComponentProps<typeof Textarea>, "name" | "value" | "defaultValue"> & {
+    onChangeCustom?: (e: React.ChangeEvent<HTMLTextAreaElement>) => void
+  }
+> = ({ onChangeCustom, ...props }) => {
+  const { control, label, name, description, ...textareaProps } = props
+  return (
+    <FormBase control={control} name={name} label={label} description={description}>
+      {(field) => (
+        <Textarea
+          {...field}
+          {...textareaProps}
+          onChange={(e) => {
+            onChangeCustom?.(e)
+            field.onChange(e)
+          }}
+        />
+      )}
+    </FormBase>
+  )
 }
 
 export const FormUpload: FormControlFunc<Omit<FileUploadProps, "value" | "onChange">> = (props) => {
