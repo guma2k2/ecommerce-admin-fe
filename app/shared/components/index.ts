@@ -11,4 +11,7 @@ export { default as PriceInput, PriceInput as PriceInputComponent } from './Pric
 export * from './PriceInput'
 export { default as Sidebar, AppSidebar } from './Sidebar'
 export { default as TextEditor, TextEditor as TextEditorComponent } from './TextEditor'
-
+export { default as Pagination, Pagination as PaginationComponent } from './Pagination'
+export * from './Pagination'
+export { default as Search, Search as SearchComponent } from './Search'
+export * from './Search'
