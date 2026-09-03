@@ -84,7 +84,7 @@ export function useProductTemplateDetailQuery(
  * React Query hook for creating a product template.
  */
 export function useCreateProductTemplateMutation(
-  options?: UseMutationOptions<void, Error, ProductTemplateCreateRequest | { name: string; attribute_ids?: (number | string)[] }>
+  options?: UseMutationOptions<void, Error, ProductTemplateCreateRequest>
 ) {
   const queryClient = useQueryClient()
 
@@ -116,7 +116,7 @@ export function useUpdateProductTemplateMutation(
   options?: UseMutationOptions<
     void,
     Error,
-    { id: number | string; payload: ProductTemplateUpdateRequest | { name: string; attribute_ids?: (number | string)[] } }
+    { id: number | string; payload: ProductTemplateUpdateRequest }
   >
 ) {
   const queryClient = useQueryClient()

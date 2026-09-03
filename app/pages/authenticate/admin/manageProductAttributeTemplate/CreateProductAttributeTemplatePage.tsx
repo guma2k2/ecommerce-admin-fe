@@ -19,7 +19,7 @@ export default function CreateProductAttributeTemplatePage() {
       setIsSubmitting(true)
       await createProductAttributeTemplate({
         name: values.name,
-        attribute_ids: values.attribute_ids
+        attributeIds: values.attributeIds.map(Number).filter((n) => !isNaN(n))
       })
       showToast('success', 'toasts.attributeTemplateCreated')
       navigate('/admin/manage-product-attribute-template')

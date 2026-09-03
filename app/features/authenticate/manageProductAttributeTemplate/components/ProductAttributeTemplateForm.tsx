@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useMemo } from 'react'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm, useWatch } from 'react-hook-form'
 import {
@@ -140,7 +140,7 @@ interface ProductAttributeTemplateFormProps {
 }
 
 export default function ProductAttributeTemplateForm({
-  defaultValues = { name: '', attribute_ids: [] },
+  defaultValues = { name: '', attributeIds: [] },
   initialAttributes = [],
   onSubmit,
   isSubmitting = false,
@@ -153,7 +153,7 @@ export default function ProductAttributeTemplateForm({
   const [attributeDetailsMap, setAttributeDetailsMap] = useState<Record<string, ProductAttributeItem>>(() => {
     const initialMap: Record<string, ProductAttributeItem> = {}
     initialAttributes.forEach((attr) => {
-      initialMap[attr.id] = attr
+      initialMap[String(attr.id)] = attr
     })
     return initialMap
   })
@@ -178,29 +178,31 @@ export default function ProductAttributeTemplateForm({
     resolver: zodResolver(productAttributeTemplateFormSchema),
     defaultValues: {
       name: defaultValues.name || '',
-      attribute_ids: defaultValues.attribute_ids || []
+      attributeIds: defaultValues.attributeIds || []
     }
   })
 
   const { handleSubmit, control, setValue } = form
 
-  const attributeIds = useWatch({
+  const watchedAttributeIds = useWatch({
     control,
-    name: 'attribute_ids'
-  }) || []
+    name: 'attributeIds'
+  })
+  const attributeIds = useMemo(() => watchedAttributeIds || [], [watchedAttributeIds])
 
   // Add selected attribute to the template
   const handleAddAttribute = useCallback(() => {
     if (!selectedAttrId) return
 
-    if (!attributeIds.includes(selectedAttrId)) {
+    const stringIds = attributeIds.map(String)
+    if (!stringIds.includes(String(selectedAttrId))) {
       const nextIds = [...attributeIds, selectedAttrId]
-      setValue('attribute_ids', nextIds, { shouldValidate: true, shouldDirty: true })
+      setValue('attributeIds', nextIds, { shouldValidate: true, shouldDirty: true })
 
       if (selectedAttrItem) {
         setAttributeDetailsMap((prev) => ({
           ...prev,
-          [selectedAttrItem.id]: selectedAttrItem
+          [String(selectedAttrItem.id)]: selectedAttrItem
         }))
       }
     }
@@ -213,15 +215,15 @@ export default function ProductAttributeTemplateForm({
   // Remove attribute from template
   const handleRemoveAttribute = useCallback(
     (idToRemove: string) => {
-      const nextIds = attributeIds.filter((id) => id !== idToRemove)
-      setValue('attribute_ids', nextIds, { shouldValidate: true, shouldDirty: true })
+      const nextIds = attributeIds.filter((id) => String(id) !== String(idToRemove))
+      setValue('attributeIds', nextIds, { shouldValidate: true, shouldDirty: true })
     },
     [attributeIds, setValue]
   )
 
   // Clear all attached attributes
   const handleClearAll = useCallback(() => {
-    setValue('attribute_ids', [], { shouldValidate: true, shouldDirty: true })
+    setValue('attributeIds', [], { shouldValidate: true, shouldDirty: true })
   }, [setValue])
 
   // Drag and Drop reordering handlers
@@ -234,11 +236,12 @@ export default function ProductAttributeTemplateForm({
     setActiveDragId(null)
 
     if (over && active.id !== over.id) {
-      const oldIndex = attributeIds.indexOf(String(active.id))
-      const newIndex = attributeIds.indexOf(String(over.id))
+      const stringIds = attributeIds.map(String)
+      const oldIndex = stringIds.indexOf(String(active.id))
+      const newIndex = stringIds.indexOf(String(over.id))
       if (oldIndex !== -1 && newIndex !== -1) {
         const nextIds = arrayMove(attributeIds, oldIndex, newIndex)
-        setValue('attribute_ids', nextIds, { shouldValidate: true, shouldDirty: true })
+        setValue('attributeIds', nextIds, { shouldValidate: true, shouldDirty: true })
       }
     }
   }
@@ -255,24 +258,18 @@ export default function ProductAttributeTemplateForm({
           disabled={isSubmitting}
         />
 
-        {/* Product Attributes Section */}
-        <div className='space-y-4 pt-2 border-t border-gray-100 dark:border-zinc-800/80'>
-          <div className='flex flex-col sm:flex-row sm:items-center justify-between gap-2'>
-            <div className='space-y-0.5'>
-              <div className='flex items-center gap-2'>
+        {/* Attribute Selection Section */}
+        <div className='space-y-4 pt-4 border-t border-gray-100 dark:border-zinc-800'>
+          <div className='flex items-center justify-between'>
+            <div>
+              <h3 className='text-sm font-semibold text-gray-900 dark:text-gray-100 flex items-center gap-2'>
                 <SlidersHorizontal className='size-4 text-indigo-500' />
-                <h3 className='text-sm font-semibold text-gray-900 dark:text-gray-100'>
-                  {t('productAttributeTemplate.attributesSection')}
-                </h3>
-                <Badge variant='secondary' className='text-xs font-semibold px-2 py-0.5'>
-                  {t('productAttributeTemplate.attributesCount', { count: attributeIds.length })}
-                </Badge>
-              </div>
-              <p className='text-xs text-muted-foreground'>
-                {t('productAttributeTemplate.attributesSubtitle')}
+                {t('productAttributeTemplate.attributesTitle')}
+              </h3>
+              <p className='text-xs text-muted-foreground mt-0.5'>
+                {t('productAttributeTemplate.attributesDesc')}
               </p>
             </div>
-
             {attributeIds.length > 0 && (
               <Button
                 type='button'
@@ -280,17 +277,17 @@ export default function ProductAttributeTemplateForm({
                 size='sm'
                 onClick={handleClearAll}
                 disabled={isSubmitting}
-                className='text-xs text-muted-foreground hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30 self-start sm:self-auto h-7 px-2'
+                className='text-xs text-muted-foreground hover:text-destructive gap-1'
               >
-                <XCircle className='size-3.5 mr-1' />
+                <XCircle className='size-3.5' />
                 {t('productAttributeTemplate.clearAll')}
               </Button>
             )}
           </div>
 
-          {/* Select and Add Control Bar */}
-          <div className='flex items-center gap-2 bg-gray-50/80 dark:bg-zinc-800/40 p-3 rounded-lg border border-gray-200/80 dark:border-zinc-800'>
-            <div className='flex-1 min-w-0'>
+          {/* Infinite Selector for Product Attributes */}
+          <div className='flex items-center gap-3'>
+            <div className='flex-1'>
               <InfiniteSelect<ProductAttributeItem>
                 fetchData={getProductAttributes}
                 value={selectedAttrId}
@@ -299,7 +296,7 @@ export default function ProductAttributeTemplateForm({
                   if (item) setSelectedAttrItem(item)
                 }}
                 disabled={isSubmitting}
-                disabledOptionIds={attributeIds}
+                disabledOptionIds={attributeIds.map(String)}
                 disabledOptionBadge={t('productAttributeTemplate.alreadyAdded')}
                 placeholder={t('productAttributeTemplate.selectAttributePlaceholder')}
                 searchPlaceholder={t('productAttributeTemplate.searchAttributePlaceholder')}
@@ -350,16 +347,16 @@ export default function ProductAttributeTemplateForm({
                 onDragStart={handleDragStart}
                 onDragEnd={handleDragEnd}
               >
-                <SortableContext items={attributeIds} strategy={verticalListSortingStrategy}>
+                <SortableContext items={attributeIds.map(String)} strategy={verticalListSortingStrategy}>
                   <div className='space-y-1.5'>
                     {attributeIds.map((attrId, index) => {
-                      const details = attributeDetailsMap[attrId]
-                      const displayName = details?.name || attrId
+                      const details = attributeDetailsMap[String(attrId)]
+                      const displayName = details?.name || String(attrId)
 
                       return (
                         <SortableAttributeItem
-                          key={attrId}
-                          id={attrId}
+                          key={String(attrId)}
+                          id={String(attrId)}
                           index={index}
                           displayName={displayName}
                           isSubmitting={isSubmitting}

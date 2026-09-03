@@ -1,8 +1,11 @@
 import { useState, useRef, type DragEvent } from 'react'
-import { Upload, X, File, Image as ImageIcon, Video, Loader2, Sparkles } from 'lucide-react'
-import { useUploadMedia } from '~/shared/hooks/queries/useMediaQuery'
-import { formatFileSize } from '~/shared/services/api/mediaService'
+import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { Upload, X, File, Loader2 } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
+import type { AxiosProgressEvent } from 'axios'
 import type { MediaResponse } from '~/shared/types'
+import { formatFileSize } from '~/shared/utils'
 import { showToast } from '~/shared/utils/toast'
 import {
   Dialog,
@@ -16,34 +19,46 @@ import { Button } from '~/core/components/shadcn/button'
 import { Input } from '~/core/components/shadcn/input'
 import { Label } from '~/core/components/shadcn/label'
 import { Progress } from '~/core/components/shadcn/progress'
+import { mediaUploadSchema, type MediaUploadSchema } from '../validator'
 
 interface MediaUploadDialogProps {
   open: boolean
   onOpenChange: (open: boolean) => void
+  onUpload?: (payload: {
+    file: File
+    altText?: string
+    onUploadProgress?: (progressEvent: AxiosProgressEvent) => void
+  }) => Promise<void> | void
+  isUploading?: boolean
   onSuccess?: (newItem: MediaResponse) => void
 }
 
-export default function MediaUploadDialog({ open, onOpenChange, onSuccess }: MediaUploadDialogProps) {
+export default function MediaUploadDialog({
+  open,
+  onOpenChange,
+  onUpload,
+  isUploading = false,
+  onSuccess
+}: MediaUploadDialogProps) {
+  const { t } = useTranslation()
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
-  const [altText, setAltText] = useState<string>('')
   const [previewUrl, setPreviewUrl] = useState<string | null>(null)
   const [isVideo, setIsVideo] = useState<boolean>(false)
   const [uploadProgress, setUploadProgress] = useState<number>(0)
   const [isDragging, setIsDragging] = useState<boolean>(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
-  const uploadMutation = useUploadMedia({
-    onSuccess: (newItem) => {
-      onSuccess?.(newItem)
-      onOpenChange(false)
-      resetForm()
+  const { register, handleSubmit, reset, setValue } = useForm<MediaUploadSchema>({
+    resolver: zodResolver(mediaUploadSchema),
+    defaultValues: {
+      altText: ''
     }
   })
 
   const resetForm = () => {
     setSelectedFile(null)
-    setAltText('')
     setUploadProgress(0)
+    reset()
     if (previewUrl) {
       URL.revokeObjectURL(previewUrl)
       setPreviewUrl(null)
@@ -54,12 +69,9 @@ export default function MediaUploadDialog({ open, onOpenChange, onSuccess }: Med
   const handleFileSelect = (file: File) => {
     setSelectedFile(file)
     setUploadProgress(0)
-    
-    // Auto-populate altText with clean file name if empty
-    if (!altText) {
-      const baseName = file.name.replace(/\.[^/.]+$/, '').replace(/[-_]/g, ' ')
-      setAltText(baseName)
-    }
+
+    const baseName = file.name.replace(/\.[^/.]+$/, '').replace(/[-_]/g, ' ')
+    setValue('altText', baseName)
 
     if (file.type.startsWith('image/')) {
       setIsVideo(false)
@@ -93,26 +105,27 @@ export default function MediaUploadDialog({ open, onOpenChange, onSuccess }: Med
     }
   }
 
-  const handleUpload = () => {
+  const onFormSubmit = async (data: MediaUploadSchema) => {
     if (!selectedFile) {
       showToast('error', 'toasts.selectFileToUpload')
       return
     }
 
-    setUploadProgress(0)
-    uploadMutation.mutate({
-      file: selectedFile,
-      altText: altText.trim() || undefined,
-      onUploadProgress: (progressEvent) => {
-        if (progressEvent.total) {
-          const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total)
-          setUploadProgress(percentCompleted)
+    if (onUpload) {
+      setUploadProgress(0)
+      await onUpload({
+        file: selectedFile,
+        altText: data.altText?.trim() || undefined,
+        onUploadProgress: (progressEvent) => {
+          if (progressEvent.total) {
+            const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total)
+            setUploadProgress(percentCompleted)
+          }
         }
-      }
-    })
+      })
+      resetForm()
+    }
   }
-
-  const isUploading = uploadMutation.isPending
 
   return (
     <Dialog
@@ -126,14 +139,17 @@ export default function MediaUploadDialog({ open, onOpenChange, onSuccess }: Med
         <DialogHeader>
           <DialogTitle className='flex items-center gap-2 text-xl font-bold'>
             <Upload className='size-5 text-primary' />
-            Upload New Media
+            {t('media.uploadNewMedia', 'Upload New Media')}
           </DialogTitle>
           <DialogDescription>
-            Upload images (PNG, JPG, WEBP, SVG) or videos (MP4, WEBM). File format is auto-detected.
+            {t(
+              'media.uploadDescription',
+              'Upload images (PNG, JPG, WEBP, SVG) or videos (MP4, WEBM). File format is auto-detected.'
+            )}
           </DialogDescription>
         </DialogHeader>
 
-        <div className='space-y-4 py-2'>
+        <form onSubmit={handleSubmit(onFormSubmit)} className='space-y-4 py-2'>
           {/* Dropzone area */}
           {!selectedFile ? (
             <div
@@ -152,10 +168,10 @@ export default function MediaUploadDialog({ open, onOpenChange, onSuccess }: Med
               </div>
               <div className='space-y-1'>
                 <p className='text-sm font-semibold text-gray-900 dark:text-gray-100'>
-                  Click to select file or drag & drop here
+                  {t('media.clickToSelectFile', 'Click to select file or drag & drop here')}
                 </p>
                 <p className='text-xs text-muted-foreground'>
-                  Supports PNG, JPG, WEBP, SVG, MP4, MOV, WEBM
+                  {t('media.supportedFormats', 'Supports PNG, JPG, WEBP, SVG, MP4, MOV, WEBM')}
                 </p>
               </div>
               <input
@@ -187,7 +203,10 @@ export default function MediaUploadDialog({ open, onOpenChange, onSuccess }: Med
                     )}
                   </div>
                   <div className='min-w-0 space-y-0.5'>
-                    <p className='text-sm font-semibold text-gray-900 dark:text-gray-100 truncate' title={selectedFile.name}>
+                    <p
+                      className='text-sm font-semibold text-gray-900 dark:text-gray-100 truncate'
+                      title={selectedFile.name}
+                    >
                       {selectedFile.name}
                     </p>
                     <p className='text-xs font-mono text-muted-foreground'>
@@ -197,6 +216,7 @@ export default function MediaUploadDialog({ open, onOpenChange, onSuccess }: Med
                 </div>
                 {!isUploading && (
                   <Button
+                    type='button'
                     variant='ghost'
                     size='icon'
                     className='size-8 text-gray-500 hover:text-red-600'
@@ -211,15 +231,16 @@ export default function MediaUploadDialog({ open, onOpenChange, onSuccess }: Med
               <div className='space-y-1.5'>
                 <div className='flex items-center justify-between'>
                   <Label htmlFor='media-alt-text' className='text-xs font-medium'>
-                    Alt Text / Description (Optional)
+                    {t('media.altTextLabel', 'Alt Text / Description (Optional)')}
                   </Label>
-                  <span className='text-[10px] text-muted-foreground'>Recommended for SEO</span>
+                  <span className='text-[10px] text-muted-foreground'>
+                    {t('media.recommendedForSeo', 'Recommended for SEO')}
+                  </span>
                 </div>
                 <Input
                   id='media-alt-text'
-                  value={altText}
-                  onChange={(e) => setAltText(e.target.value)}
-                  placeholder='e.g. Summer sale promo banner'
+                  {...register('altText')}
+                  placeholder={t('media.altTextPlaceholder', 'e.g. Summer sale promo banner')}
                   disabled={isUploading}
                   className='h-9 bg-white dark:bg-zinc-800'
                 />
@@ -230,7 +251,8 @@ export default function MediaUploadDialog({ open, onOpenChange, onSuccess }: Med
                 <div className='space-y-1.5 pt-1'>
                   <div className='flex justify-between text-xs font-medium'>
                     <span className='text-primary flex items-center gap-1.5'>
-                      <Loader2 className='size-3.5 animate-spin' /> Uploading to server...
+                      <Loader2 className='size-3.5 animate-spin' />{' '}
+                      {t('media.uploadingToServer', 'Uploading to server...')}
                     </span>
                     <span className='font-mono'>{uploadProgress}%</span>
                   </div>
@@ -239,26 +261,30 @@ export default function MediaUploadDialog({ open, onOpenChange, onSuccess }: Med
               )}
             </div>
           )}
-        </div>
 
-        <DialogFooter className='gap-2 sm:gap-0'>
-          <Button variant='outline' onClick={() => onOpenChange(false)} disabled={isUploading}>
-            Cancel
-          </Button>
-          <Button onClick={handleUpload} disabled={!selectedFile || isUploading} className='gap-2'>
-            {isUploading ? (
-              <>
-                <Loader2 className='size-4 animate-spin' /> Uploading...
-              </>
-            ) : (
-              <>
-                <Upload className='size-4' /> Confirm Upload
-              </>
-            )}
-          </Button>
-        </DialogFooter>
+          <DialogFooter className='gap-2 sm:gap-0 pt-2'>
+            <Button
+              type='button'
+              variant='outline'
+              onClick={() => onOpenChange(false)}
+              disabled={isUploading}
+            >
+              {t('button.cancel', 'Cancel')}
+            </Button>
+            <Button type='submit' disabled={!selectedFile || isUploading} className='gap-2'>
+              {isUploading ? (
+                <>
+                  <Loader2 className='size-4 animate-spin' /> {t('media.uploading', 'Uploading...')}
+                </>
+              ) : (
+                <>
+                  <Upload className='size-4' /> {t('media.confirmUpload', 'Confirm Upload')}
+                </>
+              )}
+            </Button>
+          </DialogFooter>
+        </form>
       </DialogContent>
     </Dialog>
   )
 }
-

@@ -35,7 +35,7 @@ export default function UpdateProductAttributeTemplatePage() {
       setIsSubmitting(true)
       await updateProductAttributeTemplate(template.id, {
         name: values.name,
-        attribute_ids: values.attribute_ids
+        attributeIds: values.attributeIds.map(Number).filter((n) => !isNaN(n))
       })
       showToast('success', 'toasts.attributeTemplateUpdated')
       navigate('/admin/manage-product-attribute-template')
@@ -74,8 +74,7 @@ export default function UpdateProductAttributeTemplatePage() {
         <ProductAttributeTemplateForm
           defaultValues={{
             name: template.name,
-            attribute_ids:
-              template.attribute_ids ||
+            attributeIds:
               template.attributeIds?.map(String) ||
               template.attributes?.map((a) => String(a.id)) ||
               []

@@ -36,10 +36,10 @@ export function populateTemplateAttributes(
 
   return {
     ...template,
-    attribute_ids: template.attributeIds ? template.attributeIds.map(String) : [],
+    attributeIds: template.attributeIds ? template.attributeIds.map(Number) : [],
     attributes,
-    created_at: template.createdAt,
-    updated_at: template.updatedAt
+    createdAt: template.createdAt,
+    updatedAt: template.updatedAt
   }
 }
 

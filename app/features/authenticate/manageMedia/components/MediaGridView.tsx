@@ -3,7 +3,7 @@ import { Copy, Eye, MoreHorizontal, Video, FileImage, File, ExternalLink } from 
 import { showToast } from '~/shared/utils/toast'
 
 import type { MediaResponse } from '~/shared/types'
-import { formatFileSize, formatDateTime, isImageMedia, isVideoMedia } from '~/shared/services/api/mediaService'
+import { formatFileSize, formatDateTime, isImageMedia, isVideoMedia } from '~/shared/utils'
 import { Badge } from '~/core/components/shadcn/badge'
 import { Button } from '~/core/components/shadcn/button'
 import {

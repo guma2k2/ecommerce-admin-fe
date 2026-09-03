@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useSearchParams } from 'react-router'
 import { Image, Plus, RefreshCw, AlertCircle } from 'lucide-react'
 
-import { useMediaPage } from '~/shared/hooks/queries/useMediaQuery'
+import { useMediaPage, useUploadMedia } from '~/shared/hooks/queries/useMediaQuery'
 import type { MediaResponse } from '~/shared/types'
 import MediaFilter from '~/features/authenticate/manageMedia/components/MediaFilter'
 import MediaTable from '~/features/authenticate/manageMedia/components/MediaTable'
@@ -32,6 +32,14 @@ export default function ManageMediaPage() {
     pageSize: pageSizeParam,
     search: searchParam,
     type: typeParam !== 'all' ? typeParam : undefined
+  })
+
+  // React Query mutation for uploading media
+  const uploadMutation = useUploadMedia({
+    onSuccess: () => {
+      setUploadDialogOpen(false)
+      refetch()
+    }
   })
 
   // Extract paginated media data
@@ -201,6 +209,10 @@ export default function ManageMediaPage() {
       <MediaUploadDialog
         open={uploadDialogOpen}
         onOpenChange={setUploadDialogOpen}
+        onUpload={async (payload) => {
+          await uploadMutation.mutateAsync(payload)
+        }}
+        isUploading={uploadMutation.isPending}
       />
 
       {/* Lightbox Details Preview Modal */}
