@@ -273,8 +273,15 @@ export default function ProductVariantCard() {
   }
 
   // Variant Matrix Field Changes
-  const handleUpdateVariantField = (index: number, field: string, value: any) => {
-    setValue(`variants.${index}.${field}` as any, value, { shouldDirty: true })
+  const handleUpdateVariantField = (index: number, field: string, value: string | number | null) => {
+    const currentVariants = [...(getValues("variants") || [])]
+    if (currentVariants[index]) {
+      currentVariants[index] = {
+        ...currentVariants[index],
+        [field]: value
+      }
+      setValue("variants", currentVariants, { shouldDirty: true })
+    }
   }
 
   // Variant-level attribute handlers
@@ -307,7 +314,7 @@ export default function ProductVariantCard() {
     variantIndex: number,
     attrIndex: number,
     field: "productAttributeId" | "name" | "value",
-    val: any
+    val: string | number
   ) => {
     const currentVariants = [...(getValues("variants") || [])]
     const target = currentVariants[variantIndex]

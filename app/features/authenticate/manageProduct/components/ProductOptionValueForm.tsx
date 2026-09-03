@@ -105,7 +105,7 @@ export default function ProductOptionValueForm({ optionIndex }: ProductOptionVal
               <div className='flex items-center gap-2 w-full p-2 bg-white dark:bg-zinc-900 border border-primary/40 rounded-lg shadow-lg'>
                 <GripVertical className='size-4 text-primary shrink-0 ml-1' />
                 <span className='text-sm font-medium text-gray-900 dark:text-gray-100 px-2'>
-                  {(activeField as any).value || 'Value'}
+                  {activeField.value || 'Value'}
                 </span>
               </div>
             ) : null}

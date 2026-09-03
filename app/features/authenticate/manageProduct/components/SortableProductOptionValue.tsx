@@ -1,7 +1,7 @@
 import React, { useRef } from 'react'
 import { useSortable } from '@dnd-kit/sortable'
 import { GripVertical, Trash } from 'lucide-react'
-import { useWatch, type FieldArrayWithId } from 'react-hook-form'
+import { useWatch, type FieldArrayWithId, type UseFieldArrayAppend } from 'react-hook-form'
 import FormBase from '~/shared/components/Form'
 import { InputGroup, InputGroupAddon, InputGroupButton, InputGroupInput } from '~/core/components/shadcn/input-group'
 import { CSS } from '@dnd-kit/utilities'
@@ -15,8 +15,8 @@ type SortableProductOptionValueProps = {
   index: number
   optionIndex: number
   fields: OptionValueField[]
-  append: any
-  remove: any
+  append: UseFieldArrayAppend<ProductVariantFormSchema, `options.${number}.values`>
+  remove: (index: number) => void
 }
 
 function SortableProductOptionValueComponent({
@@ -31,7 +31,7 @@ function SortableProductOptionValueComponent({
   const lastKeywordRef = useRef('')
   const keyword = useWatch({ control: control, name: `options.${optionIndex}.values.${index}.value` })
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: field.id })
-  const isHasTwoValidValues = fields.filter((f: any) => f.value && f.value.trim() !== '').length >= 2
+  const isHasTwoValidValues = fields.filter((f) => f.value && f.value.trim() !== '').length >= 2
   const optionValueLength = fields.length
   const style: React.CSSProperties = {
     transform: CSS.Translate.toString(transform),

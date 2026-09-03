@@ -4,6 +4,7 @@ import {
   DndContext,
   DragOverlay,
   type DragEndEvent,
+  type DragStartEvent,
   KeyboardSensor,
   PointerSensor,
   useSensor,
@@ -128,7 +129,7 @@ function SortableOptionAxisCardComponent({
     id: v._key || (v.id != null ? `val-id-${v.id}` : `opt-${optIdx}-val-${valIdx}`)
   }))
 
-  const handleValueDragStart = (e: any) => {
+  const handleValueDragStart = (e: DragStartEvent) => {
     setActiveValueId(e.active.id as string)
   }
 

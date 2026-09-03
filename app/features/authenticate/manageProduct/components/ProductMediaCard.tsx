@@ -5,6 +5,7 @@ import {
   DndContext,
   DragOverlay,
   type DragEndEvent,
+  type DragStartEvent,
   KeyboardSensor,
   PointerSensor,
   useSensor,
@@ -58,7 +59,7 @@ export default function ProductMediaCard() {
 
   const checkedCount = medias.filter((m) => m.isChecked).length
 
-  const handleDragStart = (e: any) => {
+  const handleDragStart = (e: DragStartEvent) => {
     setActiveDragId(e.active.id as string)
   }
 

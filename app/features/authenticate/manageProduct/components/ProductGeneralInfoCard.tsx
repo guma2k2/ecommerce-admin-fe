@@ -5,18 +5,8 @@ import { FormInput } from "~/shared/components/Form"
 import { TextEditor } from "~/shared/components/TextEditor"
 import { Button } from "~/core/components/shadcn/button"
 import { Badge } from "~/core/components/shadcn/badge"
+import { generateSlug } from "~/shared/utils"
 import type { ProductFormSchema } from "~/features/authenticate/manageProduct/validator"
-
-function generateSlug(text: string): string {
-  return text
-    .toLowerCase()
-    .trim()
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .replace(/[^a-z0-9\s-]/g, "")
-    .replace(/\s+/g, "-")
-    .replace(/-+/g, "-")
-}
 
 export default function ProductGeneralInfoCard() {
   const { control, setValue, getValues } = useFormContext<ProductFormSchema>()

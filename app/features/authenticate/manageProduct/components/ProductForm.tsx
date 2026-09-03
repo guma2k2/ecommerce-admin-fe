@@ -17,10 +17,6 @@ import ProductVariantCard from "./ProductVariantCard"
 import ProductClassificationCard from "./ProductClassificationCard"
 import ProductAttributesCard from "./ProductAttributesCard"
 import ProductSeoCard from "./ProductSeoCard"
-import {
-  createProduct,
-  updateProduct
-} from "~/shared/services/api/productService"
 import type {
   ProductResponse,
   CategoryItem,
@@ -34,17 +30,22 @@ interface ProductFormProps {
   initialData?: ProductResponse | null
   categories?: CategoryItem[]
   brands?: BrandItem[]
+  onSubmit?: (values: ProductCreateRequest | ProductUpdateRequest) => Promise<void> | void
+  isSubmitting?: boolean
 }
 
 export default function ProductForm({
   mode,
   initialData,
   categories,
-  brands
+  brands,
+  onSubmit: externalOnSubmit,
+  isSubmitting: externalIsSubmitting
 }: ProductFormProps) {
   const { t } = useTranslation()
   const navigate = useNavigate()
-  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [internalIsSubmitting, setInternalIsSubmitting] = useState(false)
+  const isSubmitting = externalIsSubmitting !== undefined ? externalIsSubmitting : internalIsSubmitting
 
   // Map initialData from API to Form State if in edit mode
   const defaultValues: ProductFormSchema = React.useMemo(() => {
@@ -144,7 +145,7 @@ export default function ProductForm({
 
   const onSubmit = async (values: ProductFormSchema) => {
     try {
-      setIsSubmitting(true)
+      setInternalIsSubmitting(true)
 
       // 1. Prepare options payload
       const optionsPayload = values.hasOptions
@@ -210,8 +211,9 @@ export default function ProductForm({
           variants: variantsPayload
         }
 
-        await createProduct(createPayload)
-        showToast("success", "toasts.productCreated")
+        if (externalOnSubmit) {
+          await externalOnSubmit(createPayload)
+        }
       } else {
         const updatePayload: ProductUpdateRequest = {
           name: values.name.trim(),
@@ -228,18 +230,16 @@ export default function ProductForm({
           variants: variantsPayload
         }
 
-        const targetId = initialData?.id || values.id || 1
-        await updateProduct(targetId, updatePayload)
-        showToast("success", "toasts.productUpdated")
+        if (externalOnSubmit) {
+          await externalOnSubmit(updatePayload)
+        }
       }
-
-      navigate("/admin/manage-product")
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Failed to save product:", error)
-      const errorMsg = error?.message || t("product.saveError")
+      const errorMsg = (error as { message?: string })?.message || t("product.saveError")
       showToast("error", errorMsg)
     } finally {
-      setIsSubmitting(false)
+      setInternalIsSubmitting(false)
     }
   }
 

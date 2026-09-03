@@ -23,12 +23,9 @@ export interface ProductAttributeTemplateItem {
   id: number | string
   name: string
   attributeIds?: number[]
-  attribute_ids?: (number | string)[]
   attributes?: (ProductAttributeItem | ProductAttributeResponse)[]
   createdAt?: string | null
   updatedAt?: string | null
-  created_at?: string | null
-  updated_at?: string | null
 }
 
 export interface GetProductAttributeTemplatesParams {

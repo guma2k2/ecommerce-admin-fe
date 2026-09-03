@@ -25,9 +25,9 @@ export default function ProductOptionDragPreview({ optionId }: ProductOptionDrag
         {option.values &&
           option.values.length > 0 &&
           option.values
-            .filter((item: any) => item.value.trim() !== '')
-            .map((val: any, index: any) => (
-              <Badge key={`${index}-${val}`} variant={'secondary'}>
+            .filter((item) => item.value && item.value.trim() !== '')
+            .map((val, valIndex) => (
+              <Badge key={`${valIndex}-${val.value}`} variant={'secondary'}>
                 {val.value}
               </Badge>
             ))}

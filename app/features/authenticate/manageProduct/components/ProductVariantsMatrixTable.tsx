@@ -15,13 +15,13 @@ export interface ProductVariantsMatrixTableProps {
   onToggleExpand: (index: number) => void
   onApplyBulkPrice: (price: number) => void
   onApplyBulkStock: (stock: number) => void
-  onUpdateVariantField: (index: number, field: string, value: any) => void
+  onUpdateVariantField: (index: number, field: string, value: string | number | null) => void
   onAddVariantAttribute: (index: number) => void
   onUpdateVariantAttribute: (
     variantIndex: number,
     attrIndex: number,
     field: "productAttributeId" | "name" | "value",
-    val: any
+    val: string | number
   ) => void
   onRemoveVariantAttribute: (variantIndex: number, attrIndex: number) => void
   onCopyAttributesToSelected: (sourceVariantIndex: number) => void

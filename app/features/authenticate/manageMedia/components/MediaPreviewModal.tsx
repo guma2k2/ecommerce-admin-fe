@@ -16,7 +16,7 @@ import {
 import { showToast } from '~/shared/utils/toast'
 
 import type { MediaResponse } from '~/shared/types'
-import { formatFileSize, formatDateTime, isImageMedia, isVideoMedia } from '~/shared/services/api/mediaService'
+import { formatFileSize, formatDateTime, isImageMedia, isVideoMedia } from '~/shared/utils'
 import {
   Dialog,
   DialogContent,

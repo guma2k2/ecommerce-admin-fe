@@ -99,7 +99,7 @@ export default function ProductAttributesCard() {
                   Choose Template
                 </SelectItem>
                 {templates.map((tmpl) => (
-                  <SelectItem key={tmpl.id} value={tmpl.id} className="text-xs">
+                  <SelectItem key={String(tmpl.id)} value={String(tmpl.id)} className="text-xs">
                     {tmpl.name}
                   </SelectItem>
                 ))}
@@ -139,7 +139,7 @@ export default function ProductAttributesCard() {
                     value={String(currentItem?.productAttributeId || "")}
                     onValueChange={(val) => {
                       const selected = availableAttributes.find(
-                        (a) => String(parseInt(a.id.replace(/\D/g, ""), 10) || a.id) === val || a.id === val
+                        (a) => String(parseInt(String(a.id).replace(/\D/g, ""), 10) || a.id) === val || String(a.id) === val
                       )
                       const numVal = parseInt(val, 10) || index + 101
                       setValue(`attributes.${index}.productAttributeId`, numVal)
@@ -153,9 +153,9 @@ export default function ProductAttributesCard() {
                     </SelectTrigger>
                     <SelectContent>
                       {availableAttributes.map((attr) => {
-                        const numId = parseInt(attr.id.replace(/\D/g, ""), 10) || attr.id
+                        const numId = parseInt(String(attr.id).replace(/\D/g, ""), 10) || attr.id
                         return (
-                          <SelectItem key={attr.id} value={String(numId)} className="text-xs">
+                          <SelectItem key={String(attr.id)} value={String(numId)} className="text-xs">
                             {attr.name}
                           </SelectItem>
                         )

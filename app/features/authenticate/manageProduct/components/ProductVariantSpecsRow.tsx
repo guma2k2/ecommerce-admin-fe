@@ -21,7 +21,7 @@ export interface ProductVariantSpecsRowProps {
     variantIndex: number,
     attrIndex: number,
     field: "productAttributeId" | "name" | "value",
-    val: any
+    val: string | number
   ) => void
   onRemoveAttribute: (variantIndex: number, attrIndex: number) => void
   onCopyAttributesToSelected: (sourceVariantIndex: number) => void

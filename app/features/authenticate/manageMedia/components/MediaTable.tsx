@@ -12,7 +12,7 @@ import {
 import { showToast } from '~/shared/utils/toast'
 
 import type { MediaResponse } from '~/shared/types'
-import { formatFileSize, formatDateTime, isImageMedia, isVideoMedia } from '~/shared/services/api/mediaService'
+import { formatFileSize, formatDateTime, isImageMedia, isVideoMedia } from '~/shared/utils'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '~/core/components/shadcn/table'
 import { Button } from '~/core/components/shadcn/button'
 import { Badge } from '~/core/components/shadcn/badge'

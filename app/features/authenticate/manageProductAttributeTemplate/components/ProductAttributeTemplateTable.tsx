@@ -172,8 +172,8 @@ export default function ProductAttributeTemplateTable({
             </TableRow>
           ) : (
             templates.map((template) => {
-              const created = formatDate(template.createdAt || template.created_at)
-              const updated = formatDate(template.updatedAt || template.updated_at)
+              const created = formatDate(template.createdAt)
+              const updated = formatDate(template.updatedAt)
 
               return (
                 <TableRow

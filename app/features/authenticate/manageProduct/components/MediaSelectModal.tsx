@@ -32,7 +32,7 @@ import {
 } from "~/core/components/shadcn/dropdown-menu"
 import { getMediaPage, uploadMedia } from "~/shared/services/api/mediaService"
 import type { MediaResponse } from "~/shared/types"
-import { cn } from "~/shared/utils/appUtils"
+import { cn, getFileExtension } from "~/shared/utils"
 
 interface MediaSelectModalProps {
   open: boolean
@@ -169,16 +169,6 @@ export default function MediaSelectModal({
     
     onSelectMedia(selectedItems)
     onOpenChange(false)
-  }
-
-  const getExtension = (name: string, type: string) => {
-    if (type.startsWith("image/jpeg")) return "JPG"
-    if (type.startsWith("image/png")) return "PNG"
-    if (type.startsWith("image/webp")) return "WEBP"
-    if (type.startsWith("video/")) return "MP4"
-    if (type.includes("pdf")) return "PDF"
-    const parts = name.split(".")
-    return parts.length > 1 ? parts[parts.length - 1].toUpperCase() : "FILE"
   }
 
   return (
@@ -388,7 +378,7 @@ export default function MediaSelectModal({
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
               {filteredMedia.map((item) => {
                 const isSelected = selectedIds.has(item.id)
-                const ext = getExtension(item.name, item.type)
+                const ext = getFileExtension(item.name, item.type)
 
                 return (
                   <div
