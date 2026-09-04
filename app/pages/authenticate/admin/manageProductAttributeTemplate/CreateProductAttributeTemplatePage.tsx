@@ -21,7 +21,6 @@ export default function CreateProductAttributeTemplatePage() {
         name: values.name,
         attributeIds: values.attributeIds.map(Number).filter((n) => !isNaN(n))
       })
-      showToast('success', 'toasts.attributeTemplateCreated')
       navigate('/admin/manage-product-attribute-template')
     } catch (error: any) {
       console.error('Create product attribute template error:', error)

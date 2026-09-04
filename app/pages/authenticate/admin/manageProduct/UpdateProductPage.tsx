@@ -29,7 +29,7 @@ export default function UpdateProductPage() {
       setIsSubmitting(true)
       const targetId = product?.id || productId || 1
       await updateProduct(targetId, values as ProductUpdateRequest)
-      showToast("success", "toasts.productUpdated")
+      showToast("success", "toasts.updatedSuccess")
       navigate("/admin/manage-product")
     } catch (error: unknown) {
       console.error("Failed to update product:", error)

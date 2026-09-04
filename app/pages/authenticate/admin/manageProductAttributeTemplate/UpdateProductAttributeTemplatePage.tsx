@@ -37,7 +37,6 @@ export default function UpdateProductAttributeTemplatePage() {
         name: values.name,
         attributeIds: values.attributeIds.map(Number).filter((n) => !isNaN(n))
       })
-      showToast('success', 'toasts.attributeTemplateUpdated')
       navigate('/admin/manage-product-attribute-template')
     } catch (error: any) {
       console.error('Update product attribute template error:', error)

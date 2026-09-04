@@ -98,7 +98,6 @@ export default function ManageProductAttributeTemplatePage() {
     if (!templateToDelete) return
     try {
       await deleteProductAttributeTemplate(templateToDelete.id)
-      showToast('success', 'toasts.attributeTemplateDeleted')
       updateQueryParams({ _t: String(Date.now()) })
     } catch (error: any) {
       console.error('Delete template error:', error)

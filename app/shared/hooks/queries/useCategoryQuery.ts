@@ -94,7 +94,6 @@ export function useCreateCategoryMutation(
     mutationFn: (payload: CategoryCreateRequest) => createCategory(payload),
     onSuccess: (data, variables, context, ...rest) => {
       queryClient.invalidateQueries({ queryKey: categoryKeys.all })
-      showToast('success', 'toasts.categoryCreated')
       if (options?.onSuccess) {
         ;(options.onSuccess as any)(data, variables, context, ...rest)
       }
@@ -124,7 +123,6 @@ export function useUpdateCategoryMutation(
       updateCategory(id, payload),
     onSuccess: (data, variables, context, ...rest) => {
       queryClient.invalidateQueries({ queryKey: categoryKeys.all })
-      showToast('success', 'toasts.categoryUpdated')
       if (options?.onSuccess) {
         ;(options.onSuccess as any)(data, variables, context, ...rest)
       }
@@ -153,7 +151,6 @@ export function useDeleteCategoryMutation(
     mutationFn: (categoryId: number | string) => deleteCategory(categoryId),
     onSuccess: (data, variables, context, ...rest) => {
       queryClient.invalidateQueries({ queryKey: categoryKeys.all })
-      showToast('success', 'toasts.categoryDeleted')
       if (options?.onSuccess) {
         ;(options.onSuccess as any)(data, variables, context, ...rest)
       }

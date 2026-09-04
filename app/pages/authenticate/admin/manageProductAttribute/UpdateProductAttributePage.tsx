@@ -34,7 +34,6 @@ export default function UpdateProductAttributePage() {
     try {
       setIsSubmitting(true)
       await updateProductAttribute(attribute.id, { name: values.name })
-      showToast('success', 'toasts.attributeUpdated')
       navigate('/admin/manage-product-attribute')
     } catch (error: any) {
       console.error('Update product attribute error:', error)

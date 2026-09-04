@@ -91,7 +91,6 @@ export default function ManageAccountPage() {
         avatar: avatar.trim() || undefined
       })
       setUser(updated)
-      showToast('success', 'Profile updated successfully')
     } catch (error: any) {
       const msg = error?.response?.data?.message || 'Failed to update profile'
       showToast('error', msg)

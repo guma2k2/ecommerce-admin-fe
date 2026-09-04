@@ -77,7 +77,6 @@ export function useUploadMedia(
     onSuccess: (data, variables, context, ...rest) => {
       // Invalidate media lists cache so views update immediately
       queryClient.invalidateQueries({ queryKey: mediaKeys.lists() })
-      showToast('success', 'toasts.uploadSuccess')
       if (options?.onSuccess) {
         ;(options.onSuccess as any)(data, variables, context, ...rest)
       }

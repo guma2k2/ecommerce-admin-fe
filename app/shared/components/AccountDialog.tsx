@@ -53,7 +53,6 @@ export function AccountDialog({ open, onOpenChange }: AccountDialogProps) {
         avatar: avatar.trim() || undefined
       })
       setUser(updated)
-      showToast('success', 'Profile updated successfully')
       setIsEditing(false)
     } catch (error: any) {
       const msg = error?.response?.data?.message || 'Failed to update profile'

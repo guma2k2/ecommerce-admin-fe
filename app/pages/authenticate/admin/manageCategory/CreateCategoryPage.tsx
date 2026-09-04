@@ -25,7 +25,6 @@ export default function CreateCategoryPage() {
     try {
       setIsSubmitting(true)
       await createCategory(values)
-      showToast('success', 'toasts.categoryCreated')
       navigate('/admin/manage-category')
     } catch (error: any) {
       console.error('Create category error:', error)

@@ -34,7 +34,6 @@ export default function UpdateBrandPage() {
         name: values.name,
         description: values.description || null
       })
-      showToast('success', 'toasts.brandUpdated')
       navigate('/admin/manage-brand')
     } catch (error: any) {
       console.error('Update brand error:', error)

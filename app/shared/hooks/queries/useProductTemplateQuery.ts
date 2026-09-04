@@ -93,7 +93,6 @@ export function useCreateProductTemplateMutation(
     mutationFn: (payload) => createProductAttributeTemplate(payload),
     onSuccess: (data, variables, context, ...rest) => {
       queryClient.invalidateQueries({ queryKey: templateKeys.all })
-      showToast('success', 'toasts.attributeTemplateCreated')
       if (options?.onSuccess) {
         ;(options.onSuccess as any)(data, variables, context, ...rest)
       }
@@ -126,7 +125,6 @@ export function useUpdateProductTemplateMutation(
     mutationFn: ({ id, payload }) => updateProductAttributeTemplate(id, payload),
     onSuccess: (data, variables, context, ...rest) => {
       queryClient.invalidateQueries({ queryKey: templateKeys.all })
-      showToast('success', 'toasts.attributeTemplateUpdated')
       if (options?.onSuccess) {
         ;(options.onSuccess as any)(data, variables, context, ...rest)
       }
@@ -155,7 +153,6 @@ export function useDeleteProductTemplateMutation(
     mutationFn: (id: number | string) => deleteProductAttributeTemplate(id),
     onSuccess: (data, variables, context, ...rest) => {
       queryClient.invalidateQueries({ queryKey: templateKeys.all })
-      showToast('success', 'toasts.attributeTemplateDeleted')
       if (options?.onSuccess) {
         ;(options.onSuccess as any)(data, variables, context, ...rest)
       }
