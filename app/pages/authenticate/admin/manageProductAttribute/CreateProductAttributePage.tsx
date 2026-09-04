@@ -18,7 +18,6 @@ export default function CreateProductAttributePage() {
     try {
       setIsSubmitting(true)
       await createProductAttribute({ name: values.name })
-      showToast('success', 'toasts.attributeCreated')
       navigate('/admin/manage-product-attribute')
     } catch (error: any) {
       console.error('Create product attribute error:', error)

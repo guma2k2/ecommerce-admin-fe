@@ -21,7 +21,6 @@ export default function CreateBrandPage() {
         name: values.name,
         description: values.description || null
       })
-      showToast('success', 'toasts.brandCreated')
       navigate('/admin/manage-brand')
     } catch (error: any) {
       console.error('Create brand error:', error)

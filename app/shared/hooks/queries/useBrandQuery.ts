@@ -78,7 +78,6 @@ export function useCreateBrandMutation(
     mutationFn: (payload: BrandCreateRequest) => createBrand(payload),
     onSuccess: (data, variables, context, ...rest) => {
       queryClient.invalidateQueries({ queryKey: brandKeys.lists() })
-      showToast('success', 'toasts.brandCreated')
       if (options?.onSuccess) {
         ;(options.onSuccess as any)(data, variables, context, ...rest)
       }
@@ -108,7 +107,6 @@ export function useUpdateBrandMutation(
       updateBrand(id, payload),
     onSuccess: (data, variables, context, ...rest) => {
       queryClient.invalidateQueries({ queryKey: brandKeys.all })
-      showToast('success', 'toasts.brandUpdated')
       if (options?.onSuccess) {
         ;(options.onSuccess as any)(data, variables, context, ...rest)
       }
@@ -137,7 +135,6 @@ export function useDeleteBrandMutation(
     mutationFn: (brandId: number | string) => deleteBrand(brandId),
     onSuccess: (data, variables, context, ...rest) => {
       queryClient.invalidateQueries({ queryKey: brandKeys.all })
-      showToast('success', 'toasts.brandDeleted')
       if (options?.onSuccess) {
         ;(options.onSuccess as any)(data, variables, context, ...rest)
       }

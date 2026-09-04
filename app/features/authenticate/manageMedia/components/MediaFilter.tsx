@@ -1,4 +1,3 @@
-import * as React from 'react'
 import { Search, LayoutGrid, LayoutList, RefreshCw } from 'lucide-react'
 
 import { Input } from '~/core/components/shadcn/input'

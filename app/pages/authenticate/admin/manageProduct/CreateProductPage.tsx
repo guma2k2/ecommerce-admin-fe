@@ -26,7 +26,7 @@ export default function CreateProductPage() {
     try {
       setIsSubmitting(true)
       await createProduct(values as ProductCreateRequest)
-      showToast("success", "toasts.productCreated")
+      showToast("success", "toasts.createdSuccess")
       navigate("/admin/manage-product")
     } catch (error: unknown) {
       console.error("Failed to create product:", error)

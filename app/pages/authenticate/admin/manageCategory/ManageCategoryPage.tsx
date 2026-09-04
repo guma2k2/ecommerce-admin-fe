@@ -91,7 +91,6 @@ export default function ManageCategoryPage() {
     if (!categoryToDelete) return
     try {
       await deleteCategory(categoryToDelete.id)
-      showToast('success', 'toasts.categoryDeleted')
       updateQueryParams({ _t: String(Date.now()) })
     } catch (error: any) {
       console.error('Delete category error:', error)

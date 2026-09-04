@@ -34,7 +34,6 @@ export default function UpdateCategoryPage() {
     try {
       setIsSubmitting(true)
       await updateCategory(category.id, values)
-      showToast('success', 'toasts.categoryUpdated')
       navigate('/admin/manage-category')
     } catch (error: any) {
       console.error('Update category error:', error)

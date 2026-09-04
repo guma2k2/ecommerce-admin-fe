@@ -92,7 +92,6 @@ export function useCreateProductOptionMutation(
     mutationFn: (payload: ProductOptionCreateRequest) => createOption(payload),
     onSuccess: (data, variables, context, ...rest) => {
       queryClient.invalidateQueries({ queryKey: optionKeys.all })
-      showToast('success', 'toasts.optionCreated')
       if (options?.onSuccess) {
         ;(options.onSuccess as any)(data, variables, context, ...rest)
       }
@@ -122,7 +121,6 @@ export function useUpdateProductOptionMutation(
       updateOption(id, payload),
     onSuccess: (data, variables, context, ...rest) => {
       queryClient.invalidateQueries({ queryKey: optionKeys.all })
-      showToast('success', 'toasts.optionUpdated')
       if (options?.onSuccess) {
         ;(options.onSuccess as any)(data, variables, context, ...rest)
       }
@@ -151,7 +149,6 @@ export function useDeleteProductOptionMutation(
     mutationFn: (id: number | string) => deleteOption(id),
     onSuccess: (data, variables, context, ...rest) => {
       queryClient.invalidateQueries({ queryKey: optionKeys.all })
-      showToast('success', 'toasts.optionDeleted')
       if (options?.onSuccess) {
         ;(options.onSuccess as any)(data, variables, context, ...rest)
       }

@@ -98,7 +98,6 @@ export default function ManageProductAttributePage() {
     if (!attributeToDelete) return
     try {
       await deleteProductAttribute(attributeToDelete.id)
-      showToast('success', 'toasts.attributeDeleted')
       updateQueryParams({ _t: String(Date.now()) })
     } catch (error: any) {
       console.error('Delete attribute error:', error)

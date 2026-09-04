@@ -92,7 +92,6 @@ export function useCreateProductAttributeMutation(
     mutationFn: (payload: ProductAttributeCreateRequest) => createProductAttribute(payload),
     onSuccess: (data, variables, context, ...rest) => {
       queryClient.invalidateQueries({ queryKey: attributeKeys.all })
-      showToast('success', 'toasts.attributeCreated')
       if (options?.onSuccess) {
         ;(options.onSuccess as any)(data, variables, context, ...rest)
       }
@@ -122,7 +121,6 @@ export function useUpdateProductAttributeMutation(
       updateProductAttribute(id, payload),
     onSuccess: (data, variables, context, ...rest) => {
       queryClient.invalidateQueries({ queryKey: attributeKeys.all })
-      showToast('success', 'toasts.attributeUpdated')
       if (options?.onSuccess) {
         ;(options.onSuccess as any)(data, variables, context, ...rest)
       }
@@ -151,7 +149,6 @@ export function useDeleteProductAttributeMutation(
     mutationFn: (id: number | string) => deleteProductAttribute(id),
     onSuccess: (data, variables, context, ...rest) => {
       queryClient.invalidateQueries({ queryKey: attributeKeys.all })
-      showToast('success', 'toasts.attributeDeleted')
       if (options?.onSuccess) {
         ;(options.onSuccess as any)(data, variables, context, ...rest)
       }

@@ -14,12 +14,12 @@ class HttpRequest {
   async post<T = any>(
     url: string,
     data?: any,
-    successMessage?: string,
+    isShowToast: boolean = true,
     config?: AxiosRequestConfig
   ): Promise<AxiosResponse<T>> {
     const response = await axiosClient.post<T>(url, data, config)
-    if (successMessage) {
-      showToast('success', successMessage)
+    if (isShowToast) {
+      showToast('success', "toasts.createdSuccess")
     }
     return response
   }
@@ -28,26 +28,35 @@ class HttpRequest {
   async put<T = any>(
     url: string,
     data?: any,
-    successMessage?: string,
+    isShowToast: boolean = true,
     config?: AxiosRequestConfig
   ): Promise<AxiosResponse<T>> {
     const response = await axiosClient.put<T>(url, data, config)
-    if (successMessage) {
-      showToast('success', successMessage)
+    if (isShowToast) {
+      showToast('success', "toasts.updatedSuccess")
     }
     return response
   }
 
   // PATCH method
-  async patch<T = any>(url: string, data?: any, config?: AxiosRequestConfig): Promise<AxiosResponse<T>> {
-    return await axiosClient.patch<T>(url, data, config)
+  async patch<T = any>(
+    url: string,
+    data?: any,
+    isShowToast: boolean = true,
+    config?: AxiosRequestConfig
+  ): Promise<AxiosResponse<T>> {
+    const response = await axiosClient.patch<T>(url, data, config)
+    if (isShowToast) {
+      showToast('success', "toasts.updatedSuccess")
+    }
+    return response
   }
 
   // DELETE method
   async delete<T = any>(
     url: string,
     data?: any,
-    successMessage?: string,
+    isShowToast: boolean = true,
     config?: AxiosRequestConfig
   ): Promise<AxiosResponse<T>> {
     const mergedConfig: AxiosRequestConfig = {
@@ -55,8 +64,8 @@ class HttpRequest {
       data
     }
     const response = await axiosClient.delete<T>(url, mergedConfig)
-    if (successMessage) {
-      showToast('success', successMessage)
+    if (isShowToast) {
+      showToast('success', "toasts.deletedSuccess")
     }
     return response
   }

@@ -94,7 +94,6 @@ export default function ManageBrandPage() {
     if (!brandToDelete) return
     try {
       await deleteBrand(brandToDelete.id)
-      showToast('success', 'toasts.brandDeleted')
       updateQueryParams({ _t: String(Date.now()) })
     } catch (error: any) {
       console.error('Delete brand error:', error)
