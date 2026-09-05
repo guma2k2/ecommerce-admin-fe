@@ -1,6 +1,7 @@
 import {
   Award,
   ChevronRight,
+  Component,
   Image,
   FileText,
   FolderKanban,
@@ -77,6 +78,11 @@ export function AppSidebar() {
           title: t('label.productAttributeTemplate'),
           url: '/admin/manage-product-attribute-template',
           icon: SlidersHorizontal
+        },
+        {
+          title: t('label.productOption'),
+          url: '/admin/manage-product-option',
+          icon: Component
         },
         {
           title: t('label.product'),

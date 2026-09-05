@@ -6,14 +6,14 @@ import type { ApiResponse } from '~/shared/types'
 class HttpRequest {
   // GET method
   // config: params, headers, responseType etc.
-  async get<T = any>(url: string, config?: AxiosRequestConfig): Promise<AxiosResponse<T>> {
+  async get<T = unknown>(url: string, config?: AxiosRequestConfig): Promise<AxiosResponse<T>> {
     return await axiosClient.get<T>(url, config)
   }
 
   // POST method
-  async post<T = any>(
+  async post<T = unknown>(
     url: string,
-    data?: any,
+    data?: unknown,
     isShowToast: boolean = true,
     config?: AxiosRequestConfig
   ): Promise<AxiosResponse<T>> {
@@ -25,9 +25,9 @@ class HttpRequest {
   }
 
   // PUT method
-  async put<T = any>(
+  async put<T = unknown>(
     url: string,
-    data?: any,
+    data?: unknown,
     isShowToast: boolean = true,
     config?: AxiosRequestConfig
   ): Promise<AxiosResponse<T>> {
@@ -39,9 +39,9 @@ class HttpRequest {
   }
 
   // PATCH method
-  async patch<T = any>(
+  async patch<T = unknown>(
     url: string,
-    data?: any,
+    data?: unknown,
     isShowToast: boolean = true,
     config?: AxiosRequestConfig
   ): Promise<AxiosResponse<T>> {
@@ -53,9 +53,9 @@ class HttpRequest {
   }
 
   // DELETE method
-  async delete<T = any>(
+  async delete<T = unknown>(
     url: string,
-    data?: any,
+    data?: unknown,
     isShowToast: boolean = true,
     config?: AxiosRequestConfig
   ): Promise<AxiosResponse<T>> {
@@ -71,7 +71,7 @@ class HttpRequest {
   }
 
   // UPLOAD method
-  async upload<T = any>(
+  async upload<T = unknown>(
     url: string,
     data: FormData,
     successMessage?: string,

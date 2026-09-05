@@ -6,7 +6,8 @@ export interface ProductTemplateResponse {
   name: string
   createdAt: string | null
   updatedAt: string | null
-  attributeIds: number[]
+  attributes: ProductAttributeResponse[]
+  attributeIds?: number[]
 }
 
 export interface ProductTemplateCreateRequest {
@@ -34,6 +35,7 @@ export interface GetProductAttributeTemplatesParams {
   sortField?: string
   sortDir?: SortDirection
   search?: string
+  isIncludeAttributes?: boolean
 }
 
 export type PaginatedProductAttributeTemplatesResponse = PageResponse<ProductTemplateResponse>

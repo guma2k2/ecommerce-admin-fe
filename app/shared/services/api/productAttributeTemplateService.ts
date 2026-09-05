@@ -27,16 +27,19 @@ export type {
  */
 export function populateTemplateAttributes(
   template: ProductTemplateResponse,
-  allAttributes: ProductAttributeResponse[]
+  allAttributes?: ProductAttributeResponse[]
 ): ProductAttributeTemplateItem {
-  const attrMap = new Map(allAttributes.map((a) => [Number(a.id), a]))
-  const attributes = (template.attributeIds || [])
-    .map((id) => attrMap.get(Number(id)))
-    .filter(Boolean) as ProductAttributeResponse[]
+  let attributes: ProductAttributeResponse[] = template.attributes || []
+  if ((!attributes || attributes.length === 0) && allAttributes && template.attributeIds) {
+    const attrMap = new Map(allAttributes.map((a) => [Number(a.id), a]))
+    attributes = template.attributeIds
+      .map((id) => attrMap.get(Number(id)))
+      .filter(Boolean) as ProductAttributeResponse[]
+  }
 
   return {
     ...template,
-    attributeIds: template.attributeIds ? template.attributeIds.map(Number) : [],
+    attributeIds: attributes.map((a) => Number(a.id)),
     attributes,
     createdAt: template.createdAt,
     updatedAt: template.updatedAt
@@ -47,7 +50,7 @@ export function populateTemplateAttributes(
  * Fetches a paginated list of product templates (0-based pageNumber).
  */
 export async function getTemplatesPage(
-  params: PaginationParams & { search?: string } = {}
+  params: PaginationParams & { search?: string; isIncludeAttributes?: boolean } = {}
 ): Promise<PageResponse<ProductTemplateResponse>> {
   const pageNumber = params.pageNumber !== undefined ? Math.max(0, params.pageNumber) : 0
   const pageSize = params.pageSize ?? 10
@@ -58,6 +61,7 @@ export async function getTemplatesPage(
       params: {
         pageNumber,
         pageSize,
+        ...(params.isIncludeAttributes !== undefined ? { isIncludeAttributes: params.isIncludeAttributes } : {}),
         ...(params.search?.trim() ? { search: params.search.trim() } : {})
       }
     }
@@ -76,20 +80,22 @@ export async function getProductAttributeTemplates(
   const zeroBasedPage = Math.max(0, uiPageNumber - 1)
   const pageSize = params.pageSize ?? 10
 
-  const [response, allAttributes] = await Promise.all([
-    apiClient.get<ApiResponse<PageResponse<ProductTemplateResponse>>>('/product-templates/page', {
-      params: {
-        pageNumber: zeroBasedPage,
-        pageSize,
-        ...(params.search?.trim() ? { search: params.search.trim() } : {})
-      }
-    }),
-    getAllProductAttributes()
-  ])
+  const response = await apiClient.get<ApiResponse<PageResponse<ProductTemplateResponse>>>('/product-templates/page', {
+    params: {
+      pageNumber: zeroBasedPage,
+      pageSize,
+      ...(params.isIncludeAttributes !== undefined ? { isIncludeAttributes: params.isIncludeAttributes } : {}),
+      ...(params.search?.trim() ? { search: params.search.trim() } : {})
+    }
+  })
 
   const data = response.data.data
   const rawContent = data.content || []
-  let content = rawContent.map((t) => populateTemplateAttributes(t, allAttributes))
+  let content: ProductAttributeTemplateItem[] = rawContent.map((t) => ({
+    ...t,
+    attributes: t.attributes || [],
+    attributeIds: (t.attributes || []).map((a) => Number(a.id))
+  }))
 
   if (params.search?.trim()) {
     const term = params.search.trim().toLowerCase()
@@ -129,12 +135,12 @@ export async function getTemplateById(
 export async function getProductAttributeTemplateById(
   id: number | string
 ): Promise<ProductAttributeTemplateItem> {
-  const [template, allAttributes] = await Promise.all([
-    getTemplateById(id),
-    getAllProductAttributes()
-  ])
-
-  return populateTemplateAttributes(template, allAttributes)
+  const template = await getTemplateById(id)
+  return {
+    ...template,
+    attributes: template.attributes || [],
+    attributeIds: (template.attributes || []).map((a) => Number(a.id))
+  }
 }
 
 /**
@@ -196,15 +202,20 @@ export async function deleteProductAttributeTemplate(id: number | string): Promi
 export const deleteTemplate = deleteProductAttributeTemplate
 
 /**
- * Fetches all product templates for product form selection.
+ * Fetches all product templates for product form selection with pre-populated attributes.
  */
 export async function getAllProductAttributeTemplates(): Promise<ProductAttributeTemplateItem[]> {
   try {
-    const [res, allAttributes] = await Promise.all([
-      getTemplatesPage({ pageNumber: 0, pageSize: 1000 }),
-      getAllProductAttributes()
-    ])
-    return (res.content || []).map((t) => populateTemplateAttributes(t, allAttributes))
+    const res = await getTemplatesPage({
+      pageNumber: 0,
+      pageSize: 1000,
+      isIncludeAttributes: true
+    })
+    return (res.content || []).map((t) => ({
+      ...t,
+      attributes: t.attributes || [],
+      attributeIds: (t.attributes || []).map((a) => Number(a.id))
+    }))
   } catch (err) {
     console.error('Failed to load all product templates:', err)
     return []
