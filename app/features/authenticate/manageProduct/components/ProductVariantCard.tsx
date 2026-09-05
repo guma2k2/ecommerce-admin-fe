@@ -18,7 +18,6 @@ export default function ProductVariantCard() {
   const productSlug = useWatch({ control, name: "slug" }) || "PROD"
 
   const [selectedVariantIndices, setSelectedVariantIndices] = useState<number[]>([])
-  const [expandedVariantIndices, setExpandedVariantIndices] = useState<number[]>([])
 
   const {
     fields: optionFields,
@@ -284,80 +283,105 @@ export default function ProductVariantCard() {
     }
   }
 
-  // Variant-level attribute handlers
-  const toggleExpandVariant = (index: number) => {
-    setExpandedVariantIndices((prev) =>
-      prev.includes(index) ? prev.filter((i) => i !== index) : [...prev, index]
-    )
-  }
-
-  const handleAddVariantAttribute = (variantIndex: number) => {
+  // Variant-level attribute handler for template attributes with applyTo === 'variant'
+  const handleUpdateVariantAttribute = (
+    variantIndex: number,
+    productAttributeId: number,
+    name: string,
+    val: string
+  ) => {
     const currentVariants = [...(getValues("variants") || [])]
     const target = currentVariants[variantIndex]
     if (target) {
       const existingAttrs = target.attributes || []
-      currentVariants[variantIndex] = {
-        ...target,
-        attributes: [
+      const existingIndex = existingAttrs.findIndex(
+        (a) => Number(a.productAttributeId) === Number(productAttributeId)
+      )
+      let updatedAttrs: typeof existingAttrs
+      if (existingIndex >= 0) {
+        updatedAttrs = existingAttrs.map((a, i) =>
+          i === existingIndex ? { ...a, value: val } : a
+        )
+      } else {
+        updatedAttrs = [
           ...existingAttrs,
-          { productAttributeId: 101, name: "", value: "" }
+          { productAttributeId, name, value: val, applyTo: "variant" as const }
         ]
       }
-      setValue("variants", currentVariants, { shouldDirty: true })
-      if (!expandedVariantIndices.includes(variantIndex)) {
-        setExpandedVariantIndices((prev) => [...prev, variantIndex])
+      currentVariants[variantIndex] = {
+        ...target,
+        attributes: updatedAttrs
       }
+      setValue("variants", currentVariants, { shouldDirty: true })
     }
   }
 
-  const handleUpdateVariantAttribute = (
-    variantIndex: number,
-    attrIndex: number,
-    field: "productAttributeId" | "name" | "value",
-    val: string | number
+  // Bulk set an attribute value across selected variants
+  const handleApplyBulkAttribute = (
+    productAttributeId: number,
+    name: string,
+    val: string
   ) => {
     const currentVariants = [...(getValues("variants") || [])]
-    const target = currentVariants[variantIndex]
-    if (target && target.attributes && target.attributes[attrIndex]) {
-      target.attributes[attrIndex] = {
-        ...target.attributes[attrIndex],
-        [field]: val
-      }
-      setValue("variants", currentVariants, { shouldDirty: true })
-    }
-  }
-
-  const handleRemoveVariantAttribute = (variantIndex: number, attrIndex: number) => {
-    const currentVariants = [...(getValues("variants") || [])]
-    const target = currentVariants[variantIndex]
-    if (target && target.attributes) {
-      target.attributes = target.attributes.filter((_, idx) => idx !== attrIndex)
-      setValue("variants", currentVariants, { shouldDirty: true })
-    }
-  }
-
-  const handleCopyAttributesToSelected = (sourceVariantIndex: number) => {
-    const currentVariants = [...(getValues("variants") || [])]
-    const source = currentVariants[sourceVariantIndex]
-    if (!source || !source.attributes) return
-
-    const sourceAttrs = [...source.attributes]
-    const targets =
+    const targetIndices =
       selectedVariantIndices.length > 0
-        ? selectedVariantIndices.filter((i) => i !== sourceVariantIndex)
-        : currentVariants.map((_, i) => i).filter((i) => i !== sourceVariantIndex)
+        ? selectedVariantIndices
+        : currentVariants.map((_, i) => i)
 
-    targets.forEach((i) => {
-      if (currentVariants[i]) {
-        currentVariants[i] = {
-          ...currentVariants[i],
-          attributes: sourceAttrs.map((a) => ({ ...a }))
+    targetIndices.forEach((idx) => {
+      const v = currentVariants[idx]
+      if (v) {
+        const existingAttrs = v.attributes || []
+        const existingIndex = existingAttrs.findIndex(
+          (a) => Number(a.productAttributeId) === Number(productAttributeId)
+        )
+        let updatedAttrs: typeof existingAttrs
+        if (existingIndex >= 0) {
+          updatedAttrs = existingAttrs.map((a, i) =>
+            i === existingIndex ? { ...a, value: val } : a
+          )
+        } else {
+          updatedAttrs = [
+            ...existingAttrs,
+            { productAttributeId, name, value: val, applyTo: "variant" as const }
+          ]
+        }
+        currentVariants[idx] = {
+          ...v,
+          attributes: updatedAttrs
         }
       }
     })
 
     setValue("variants", currentVariants, { shouldDirty: true })
   }
+
+  // Copy specifications from one variant to other selected (or all) variants
+  const handleCopyAttributesToSelected = (sourceVariantIndex: number) => {
+    const currentVariants = [...(getValues("variants") || [])]
+    const source = currentVariants[sourceVariantIndex]
+    if (!source || !source.attributes) return
+
+    const targetIndices =
+      selectedVariantIndices.length > 0
+        ? selectedVariantIndices.filter((i) => i !== sourceVariantIndex)
+        : currentVariants.map((_, i) => i).filter((i) => i !== sourceVariantIndex)
+
+    targetIndices.forEach((idx) => {
+      const v = currentVariants[idx]
+      if (v) {
+        currentVariants[idx] = {
+          ...v,
+          attributes: source.attributes?.map((a) => ({ ...a })) || []
+        }
+      }
+    })
+
+    setValue("variants", currentVariants, { shouldDirty: true })
+  }
+
+  const formAttributes = useWatch({ control, name: "attributes" }) || []
+  const variantAttributes = formAttributes.filter((a) => a.applyTo === "variant")
 
   return (
     <div className="bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 p-6 space-y-6 shadow-xs">
@@ -411,22 +435,20 @@ export default function ProductVariantCard() {
             onDragEndOption={handleDragEndOption}
           />
 
-          {/* 2.2 Product variants (Variants Matrix Table & Expandable Specs) */}
+          {/* 2.2 Product variants (Variants Matrix Table) */}
           {variants.length > 0 && (
             <ProductVariantsMatrixTable
               variants={variants}
               selectedIndices={selectedVariantIndices}
-              expandedIndices={expandedVariantIndices}
+              variantAttributes={variantAttributes}
               onSelectAll={handleSelectAllVariants}
               onSelectVariant={handleSelectVariant}
-              onToggleExpand={toggleExpandVariant}
               onApplyBulkPrice={handleApplyBulkPrice}
               onApplyBulkStock={handleApplyBulkStock}
-              onUpdateVariantField={handleUpdateVariantField}
-              onAddVariantAttribute={handleAddVariantAttribute}
-              onUpdateVariantAttribute={handleUpdateVariantAttribute}
-              onRemoveVariantAttribute={handleRemoveVariantAttribute}
+              onApplyBulkAttribute={handleApplyBulkAttribute}
               onCopyAttributesToSelected={handleCopyAttributesToSelected}
+              onUpdateVariantField={handleUpdateVariantField}
+              onUpdateVariantAttribute={handleUpdateVariantAttribute}
             />
           )}
         </div>

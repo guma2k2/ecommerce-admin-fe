@@ -9,7 +9,8 @@ import { Badge } from "~/core/components/shadcn/badge"
 import { showToast } from "~/shared/utils/toast"
 import {
   productFormSchema,
-  type ProductFormSchema
+  type ProductFormSchema,
+  type ProductAttributeItemForm
 } from "~/features/authenticate/manageProduct/validator"
 import ProductGeneralInfoCard from "./ProductGeneralInfoCard"
 import ProductMediaCard from "./ProductMediaCard"
@@ -93,17 +94,47 @@ export default function ProductForm({
       categoryId: null,
       brandId: initialData.brand?.id || null,
       status: "ACTIVE",
+      attributeTemplateId: null,
       medias: (initialData.medias || []).map((m) => ({
         mediaId: m.mediaId,
         position: m.position,
         url: m.url || "",
         isChecked: false
       })),
-      attributes: (initialData.attributes || []).map((a) => ({
-        productAttributeId: a.productAttributeId,
-        name: a.name,
-        value: a.value
-      })),
+      attributes: (() => {
+        const baseAttrs: ProductAttributeItemForm[] = (initialData.attributes || []).map((a) => ({
+          productAttributeId: a.productAttributeId,
+          name: a.name || "",
+          value: a.value || "",
+          applyTo: "base"
+        }))
+
+        const variantAttrMap = new Map<number, { productAttributeId: number; name?: string }>()
+        ;(initialData.variants || []).forEach((v) => {
+          ;(v.attributes || []).forEach((a) => {
+            if (!variantAttrMap.has(a.productAttributeId)) {
+              variantAttrMap.set(a.productAttributeId, {
+                productAttributeId: a.productAttributeId,
+                name: a.name
+              })
+            }
+          })
+        })
+
+        const existingBaseIds = new Set(baseAttrs.map((a) => a.productAttributeId))
+        const combined: ProductAttributeItemForm[] = [...baseAttrs]
+        variantAttrMap.forEach((va, id) => {
+          if (!existingBaseIds.has(id)) {
+            combined.push({
+              productAttributeId: id,
+              name: va.name || "",
+              value: "",
+              applyTo: "variant"
+            })
+          }
+        })
+        return combined
+      })(),
       hasOptions: hasOptions,
       simplePrice: firstVariant?.price || 0,
       simpleQuantity: firstVariant?.quantity || 0,
@@ -128,8 +159,9 @@ export default function ProductForm({
         productOptionValueIds: v.productOptionValueIds,
         attributes: (v.attributes || []).map((a) => ({
           productAttributeId: a.productAttributeId,
-          name: a.name,
-          value: a.value
+          name: a.name || "",
+          value: a.value || "",
+          applyTo: "variant" as const
         }))
       }))
     }
@@ -166,20 +198,25 @@ export default function ProductForm({
         : []
 
       // 2. Prepare variants payload
-      const variantsPayload = values.variants.map((v, idx) => ({
-        id: mode === "edit" ? v.id || null : undefined,
-        title: v.title || `Variant ${idx + 1}`,
-        sku: (v.sku || "").trim() || `${values.slug.toUpperCase()}-${idx + 1}`,
-        price: Number(v.price) || 0,
-        quantity: Number(v.quantity) || 0,
-        mediaId: v.mediaId,
-        attributes: (v.attributes || [])
+      const variantsPayload = values.variants.map((v, idx) => {
+        const variantAttrs = (v.attributes || [])
           .filter((a) => a.value?.trim())
           .map((a) => ({
             productAttributeId: Number(a.productAttributeId),
             value: a.value.trim()
           }))
-      }))
+
+        return {
+          id: mode === "edit" ? v.id || null : undefined,
+          title: v.title || `Variant ${idx + 1}`,
+          sku: (v.sku || "").trim() || `${values.slug.toUpperCase()}-${idx + 1}`,
+          price: Number(v.price) || 0,
+          quantity: Number(v.quantity) || 0,
+          mediaId: v.mediaId,
+          attributes: variantAttrs,
+          attributeValues: variantAttrs
+        }
+      })
 
       // 3. Prepare medias payload
       const mediasPayload = values.medias.map((m, pos) => ({
@@ -187,9 +224,9 @@ export default function ProductForm({
         position: pos
       }))
 
-      // 4. Prepare attributes payload
+      // 4. Prepare attributes payload for base product
       const attributesPayload = values.attributes
-        .filter((a) => a.value.trim())
+        .filter((a) => a.applyTo !== "variant" && a.value?.trim())
         .map((a) => ({
           productAttributeId: Number(a.productAttributeId),
           value: a.value.trim()
@@ -333,8 +370,8 @@ export default function ProductForm({
           <div className="lg:col-span-8 space-y-6">
             <ProductGeneralInfoCard />
             <ProductMediaCard />
-            <ProductVariantCard />
             <ProductAttributesCard />
+            <ProductVariantCard />
             <ProductSeoCard />
           </div>
 

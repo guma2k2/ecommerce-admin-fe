@@ -1,7 +1,7 @@
 import { create } from 'zustand'
 import { devtools, persist } from 'zustand/middleware'
 import type { AdminProfile, AuthState } from '~/shared/types'
-import { setAccessToken } from '~/shared/services/axiosClient'
+import { setAccessToken, registerAuthCallbacks } from '~/shared/services/axiosClient'
 
 export type { AdminProfile, AuthState }
 
@@ -72,4 +72,15 @@ export const useAuthStore = create<AuthState>()(
     { name: 'AuthStore' }
   )
 )
+
+// Register auth lifecycle callbacks with Axios client
+registerAuthCallbacks({
+  onUnauthorized: () => {
+    useAuthStore.getState().logout()
+  },
+  onTokenRefresh: (token: string) => {
+    useAuthStore.getState().setToken(token)
+  }
+})
+
 

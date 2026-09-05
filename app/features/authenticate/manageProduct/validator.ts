@@ -19,7 +19,8 @@ export const productOptionSchema = z.object({
 export const productAttributeItemSchema = z.object({
   productAttributeId: z.number(),
   name: z.string().optional(),
-  value: z.string().trim().min(1, 'Attribute value is required')
+  value: z.string(),
+  applyTo: z.enum(['base', 'variant'])
 })
 
 export const productVariantSchema = z.object({
@@ -57,6 +58,7 @@ export const productFormSchema = z.object({
   metaDescription: z.string().optional(),
   categoryId: z.union([z.number(), z.string()]).nullable().optional(),
   brandId: z.union([z.number(), z.string()]).nullable().optional(),
+  attributeTemplateId: z.union([z.number(), z.string()]).nullable().optional(),
   status: z.enum(['ACTIVE', 'DRAFT']),
   medias: z.array(productMediaItemSchema),
   attributes: z.array(productAttributeItemSchema),

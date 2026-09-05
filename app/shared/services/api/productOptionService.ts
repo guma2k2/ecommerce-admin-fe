@@ -40,6 +40,63 @@ export async function getOptionsPage(
 }
 
 /**
+ * Helper for React Router clientLoader & UI components using 1-based page numbers.
+ */
+export async function getProductOptions(
+  params: {
+    pageNumber?: number
+    pageSize?: number
+    search?: string
+    sortField?: string
+    sortDir?: 'asc' | 'desc'
+  } = {}
+): Promise<PageResponse<ProductOptionResponse>> {
+  const uiPageNumber = params.pageNumber ?? 1
+  const zeroBasedPage = Math.max(0, uiPageNumber - 1)
+  const pageSize = params.pageSize ?? 10
+
+  const response = await apiClient.get<ApiResponse<PageResponse<ProductOptionResponse>>>(
+    '/product-options/page',
+    {
+      params: {
+        pageNumber: zeroBasedPage,
+        pageSize,
+        ...(params.search?.trim() ? { search: params.search.trim() } : {})
+      }
+    }
+  )
+
+  const data = response.data.data
+  let content = data.content || []
+
+  if (params.search?.trim()) {
+    const term = params.search.trim().toLowerCase()
+    content = content.filter((a) => a.name.toLowerCase().includes(term))
+  }
+
+  if (params.sortField) {
+    content = [...content].sort((a, b) => {
+      const field = params.sortField as keyof ProductOptionResponse
+      if (field === 'id') {
+        const idA = Number(a.id) || 0
+        const idB = Number(b.id) || 0
+        return params.sortDir === 'desc' ? idB - idA : idA - idB
+      }
+      const valA = String(a[field] ?? '')
+      const valB = String(b[field] ?? '')
+      const comp = valA.localeCompare(valB)
+      return params.sortDir === 'desc' ? -comp : comp
+    })
+  }
+
+  return {
+    ...data,
+    content,
+    pageNumber: uiPageNumber
+  }
+}
+
+/**
  * Fetches a single product option by ID.
  */
 export async function getOptionById(id: number | string): Promise<ProductOptionResponse> {
@@ -90,6 +147,7 @@ export async function getAllOptions(): Promise<ProductOptionResponse[]> {
 
 export const productOptionService = {
   getOptionsPage,
+  getProductOptions,
   getOptionById,
   createOption,
   updateOption,

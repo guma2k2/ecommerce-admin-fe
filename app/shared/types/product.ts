@@ -99,6 +99,7 @@ export interface ProductVariantCreateRequest {
   quantity: number
   mediaId?: string
   attributes?: ProductAttributeValueRequest[]
+  attributeValues?: ProductAttributeValueRequest[]
 }
 
 export interface ProductVariantUpdateRequest {
@@ -109,6 +110,7 @@ export interface ProductVariantUpdateRequest {
   quantity: number
   mediaId?: string
   attributes?: ProductAttributeValueRequest[]
+  attributeValues?: ProductAttributeValueRequest[]
 }
 
 export interface ProductVariantResponse {
