@@ -119,7 +119,6 @@ export default function ProductVariantCard() {
     })
 
     setValue("variants", newVariants, { shouldValidate: true })
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [hasOptions, optionsJson])
 
   // Single Product Mode Handlers
