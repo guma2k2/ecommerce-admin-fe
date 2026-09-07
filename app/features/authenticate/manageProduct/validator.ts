@@ -44,11 +44,6 @@ export const productMediaItemSchema = z.object({
   isChecked: z.boolean().optional()
 })
 
-export const productVariantFormSchema = z.object({
-  options: z.array(productOptionSchema),
-  variants: z.array(productVariantSchema).min(1, 'At least 1 variant is required')
-})
-
 export const productFormSchema = z.object({
   id: z.union([z.number(), z.string()]).optional(),
   name: z.string().trim().min(1, 'Product name is required').max(255, 'Name too long'),
@@ -76,6 +71,5 @@ export type ProductOptionForm = z.infer<typeof productOptionSchema>
 export type ProductVariantFormItem = z.infer<typeof productVariantSchema>
 export type ProductMediaItemForm = z.infer<typeof productMediaItemSchema>
 export type ProductAttributeItemForm = z.infer<typeof productAttributeItemSchema>
-export type ProductVariantFormSchema = z.infer<typeof productVariantFormSchema>
 export type ProductFormSchema = z.infer<typeof productFormSchema>
 

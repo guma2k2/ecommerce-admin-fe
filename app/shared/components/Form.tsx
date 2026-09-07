@@ -8,6 +8,7 @@ import { Textarea } from "~/core/components/shadcn/textarea"
 import FileUpload, { type FileUploadProps } from "~/shared/components/FileUpload"
 import InfiniteSelect, { type InfiniteSelectProps } from "~/shared/components/InfiniteSelect"
 import PriceInput, { type PriceInputProps } from "~/shared/components/PriceInput"
+import TextEditor, { type TextEditorProps } from "~/shared/components/TextEditor"
 
 type FormControlProps<
   TFieldValues extends FieldValues = FieldValues,
@@ -222,6 +223,31 @@ export const FormPriceInput: FormControlFunc<
           onChange={(num) => {
             onChange(num)
             onChangeCustom?.(num)
+          }}
+        />
+      )}
+    </FormBase>
+  )
+}
+
+export const FormTextEditor: FormControlFunc<
+  Omit<TextEditorProps, "value" | "onChange" | "onBlur"> & {
+    onChangeCustom?: (val: string) => void
+  }
+> = ({ onChangeCustom, placeholder, className, ...props }) => {
+  return (
+    <FormBase {...props}>
+      {({ onChange, onBlur, value, id }) => (
+        <TextEditor
+          {...props}
+          id={id}
+          value={value ?? ""}
+          placeholder={placeholder}
+          className={className}
+          onBlur={onBlur}
+          onChange={(val) => {
+            onChange(val)
+            onChangeCustom?.(val)
           }}
         />
       )}

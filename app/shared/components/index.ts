@@ -1,7 +1,18 @@
 export { default as AccountDialog } from './AccountDialog'
 export { default as FileUpload } from './FileUpload'
 export * from './FileUpload'
-export { default as Form, FormInput, FormSelect, FormCheckbox, FormTextarea, FormUpload, FormInfiniteSelect } from './Form'
+export {
+  default as Form,
+  FormInput,
+  FormSelect,
+  FormCheckbox,
+  FormTextarea,
+  FormUpload,
+  FormInfiniteSelect,
+  FormPriceInput,
+  FormTextEditor
+} from './Form'
+export * from './Form'
 export { default as Header } from './Header'
 export { default as InfiniteSelect } from './InfiniteSelect'
 export * from './InfiniteSelect'
@@ -11,6 +22,7 @@ export { default as PriceInput, PriceInput as PriceInputComponent } from './Pric
 export * from './PriceInput'
 export { default as Sidebar, AppSidebar } from './Sidebar'
 export { default as TextEditor, TextEditor as TextEditorComponent } from './TextEditor'
+export * from './TextEditor'
 export { default as Pagination, Pagination as PaginationComponent } from './Pagination'
 export * from './Pagination'
 export { default as Search, Search as SearchComponent } from './Search'

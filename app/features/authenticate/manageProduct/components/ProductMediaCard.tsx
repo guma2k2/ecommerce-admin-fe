@@ -16,7 +16,7 @@ import {
   rectSortingStrategy,
   sortableKeyboardCoordinates
 } from "@dnd-kit/sortable"
-import { ImagePlus, Trash2, FolderOpen, UploadCloud, Star } from "lucide-react"
+import { ImagePlus, Trash2, FolderOpen, Star } from "lucide-react"
 import { Button } from "~/core/components/shadcn/button"
 import { MediaSelectModal } from "~/shared/components"
 import SortableImage from "./SortableImage"

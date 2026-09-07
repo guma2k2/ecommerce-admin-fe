@@ -1,10 +1,8 @@
 import React, { useState, useEffect } from "react"
 import { useFormContext, useWatch } from "react-hook-form"
 import { Lock, Unlock, Sparkles } from "lucide-react"
-import { FormInput } from "~/shared/components/Form"
-import { TextEditor } from "~/shared/components/TextEditor"
+import { FormInput, FormTextEditor } from "~/shared/components/Form"
 import { Button } from "~/core/components/shadcn/button"
-import { Badge } from "~/core/components/shadcn/badge"
 import { generateSlug } from "~/shared/utils"
 import type { ProductFormSchema } from "~/features/authenticate/manageProduct/validator"
 
@@ -39,9 +37,6 @@ export default function ProductGeneralInfoCard() {
             Core product details, URL handle, and marketing description.
           </p>
         </div>
-        <Badge variant="outline" className="text-xs font-normal bg-gray-50 dark:bg-zinc-800">
-          Required Fields *
-        </Badge>
       </div>
 
       <div className="space-y-4">
@@ -122,14 +117,12 @@ export default function ProductGeneralInfoCard() {
         </div>
 
         {/* Product Description */}
-        <div className="space-y-1.5">
-          <label className="text-xs font-medium text-gray-700 dark:text-gray-300">
-            Description
-          </label>
-          <div className="rounded-lg overflow-hidden border border-gray-200 dark:border-zinc-700">
-            <TextEditor />
-          </div>
-        </div>
+        <FormTextEditor
+          control={control}
+          name="description"
+          label="Description"
+          placeholder="Detailed product description, key features, and specifications..."
+        />
       </div>
     </div>
   )
