@@ -174,8 +174,8 @@ export default function BrandTable({
             </TableRow>
           ) : (
             brands.map((brand) => {
-              const created = formatDate(brand.createdAt || brand.created_at)
-              const updated = formatDate(brand.updatedAt || brand.updated_at)
+              const created = formatDate(brand.createdAt)
+              const updated = formatDate(brand.updatedAt)
               const isImgFailed = failedImages[String(brand.id)]
 
               return (

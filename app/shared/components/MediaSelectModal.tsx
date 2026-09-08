@@ -181,8 +181,8 @@ export default function MediaSelectModal({
     .sort((a, b) => {
       if (sortOrder === "name") return a.name.localeCompare(b.name)
       if (sortOrder === "size") return b.size - a.size
-      const timeStrA = a.createdAt || a.created_at
-      const timeStrB = b.createdAt || b.created_at
+      const timeStrA = a.createdAt
+      const timeStrB = b.createdAt
       const dateA = timeStrA ? new Date(timeStrA).getTime() : 0
       const dateB = timeStrB ? new Date(timeStrB).getTime() : 0
       return dateB - dateA

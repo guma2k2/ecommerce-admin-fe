@@ -17,8 +17,8 @@ export interface ProductOptionUpdateRequest {
 export interface ProductOptionItem {
   id: number | string
   name: string
-  created_at?: string | null
-  updated_at?: string | null
+  createdAt?: string | null
+  updatedAt?: string | null
 }
 
 export interface GetProductOptionsParams {

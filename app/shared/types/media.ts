@@ -15,8 +15,6 @@ export interface MediaResponse {
   duration?: string | null
   createdAt?: string
   updatedAt?: string
-  created_at?: string
-  updated_at?: string
 }
 
 export type MediaItem = MediaResponse

@@ -39,9 +39,7 @@ export function flattenCategoryTree(
       parent: parent ? { id: parent.id, name: parent.name } : null,
       children: node.children || [],
       createdAt: node.createdAt || null,
-      updatedAt: node.updatedAt || null,
-      created_at: node.createdAt || null,
-      updated_at: node.updatedAt || null
+      updatedAt: node.updatedAt || null
     }
     result.push(item)
 

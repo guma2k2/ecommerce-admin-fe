@@ -25,8 +25,6 @@ export interface BrandItem {
   image?: string | null
   createdAt?: string | null
   updatedAt?: string | null
-  created_at?: string | null
-  updated_at?: string | null
 }
 
 export interface GetBrandsParams {
@@ -39,4 +37,4 @@ export interface GetBrandsParams {
 
 export type PaginatedBrandsResponse = PageResponse<BrandResponse>
 
-export type BrandSortField = 'name' | 'created_at' | 'updated_at' | 'createdAt' | 'updatedAt' | 'id'
+export type BrandSortField = 'name' | 'createdAt' | 'updatedAt' | 'id'

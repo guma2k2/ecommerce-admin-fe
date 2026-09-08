@@ -166,8 +166,8 @@ export default function CategoryTable({
             </TableRow>
           ) : (
             categories.map((category) => {
-              const created = formatDate(category.createdAt || category.created_at)
-              const updated = formatDate(category.updatedAt || category.updated_at)
+              const created = formatDate(category.createdAt)
+              const updated = formatDate(category.updatedAt)
 
               return (
                 <TableRow

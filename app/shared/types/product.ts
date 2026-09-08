@@ -1,12 +1,10 @@
 import type { PageResponse, SortDirection } from './pagination'
-import type { ProductVariant } from './ProductVariant'
+import type { ProductVariant } from './productVariant'
 
 export interface ProductItem {
   id: string
   name: string
   image: string
-  created_at: string
-  updated_at: string
   createdAt?: string
   updatedAt?: string
 }
@@ -133,7 +131,8 @@ export interface ProductBrandResponse {
 export interface ProductCategoryResponse {
   id: number
   name: string
-  description?: string | null
+  createdAt?: string | null
+  updatedAt?: string | null
 }
 
 // Product Create Request
@@ -178,8 +177,7 @@ export interface ProductResponse {
   metaKeyword: string | null
   metaDescription: string | null
   brand: ProductBrandResponse | null
-  categoryId?: number | null
-  category?: ProductCategoryResponse | null
+  category: ProductCategoryResponse | null
   medias: ProductMediaResponse[]
   attributes: ProductAttributeValueResponse[]
   options: ProductOptionCombinationResponse[]

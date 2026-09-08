@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react"
 import { useFormContext, useWatch } from "react-hook-form"
 import { FolderTree, Tag, Eye } from "lucide-react"
+import { Button } from "~/core/components/shadcn/button"
 import {
   Select,
   SelectContent,
@@ -58,33 +59,35 @@ export default function ProductClassificationCard({
         </h4>
 
         <div className="grid grid-cols-2 gap-2">
-          <button
+          <Button
             type="button"
+            variant="outline"
             onClick={() => setValue("status", "ACTIVE", { shouldDirty: true })}
             className={cn(
-              "p-2.5 rounded-lg border text-xs font-medium flex items-center justify-center gap-2 transition-all",
+              "h-auto p-2.5 rounded-lg text-xs font-medium justify-center gap-2 transition-all",
               status === "ACTIVE"
-                ? "border-emerald-500 bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300 ring-1 ring-emerald-500/30"
-                : "border-gray-200 dark:border-zinc-700 text-gray-600 dark:text-gray-400 hover:bg-gray-50"
+                ? "border-emerald-500 bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300 ring-1 ring-emerald-500/30 hover:bg-emerald-50 dark:hover:bg-emerald-950/40"
+                : "border-gray-200 dark:border-zinc-700 text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-zinc-800"
             )}
           >
             <span className="w-2 h-2 rounded-full bg-emerald-500" />
             Active
-          </button>
+          </Button>
 
-          <button
+          <Button
             type="button"
+            variant="outline"
             onClick={() => setValue("status", "DRAFT", { shouldDirty: true })}
             className={cn(
-              "p-2.5 rounded-lg border text-xs font-medium flex items-center justify-center gap-2 transition-all",
+              "h-auto p-2.5 rounded-lg text-xs font-medium justify-center gap-2 transition-all",
               status === "DRAFT"
-                ? "border-amber-500 bg-amber-50 text-amber-700 dark:bg-amber-950/40 dark:text-amber-300 ring-1 ring-amber-500/30"
-                : "border-gray-200 dark:border-zinc-700 text-gray-600 dark:text-gray-400 hover:bg-gray-50"
+                ? "border-amber-500 bg-amber-50 text-amber-700 dark:bg-amber-950/40 dark:text-amber-300 ring-1 ring-amber-500/30 hover:bg-amber-50 dark:hover:bg-amber-950/40"
+                : "border-gray-200 dark:border-zinc-700 text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-zinc-800"
             )}
           >
             <span className="w-2 h-2 rounded-full bg-amber-500" />
             Draft
-          </button>
+          </Button>
         </div>
       </div>
 

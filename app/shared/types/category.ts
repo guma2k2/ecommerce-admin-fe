@@ -29,8 +29,6 @@ export interface CategoryItem {
   children?: CategoryResponse[]
   createdAt?: string | null
   updatedAt?: string | null
-  created_at?: string | null
-  updated_at?: string | null
 }
 
 export interface CategoryInput {
@@ -48,5 +46,5 @@ export interface GetCategoriesParams {
 
 export type PaginatedCategoriesResponse = PageResponse<CategoryResponse>
 
-export type CategorySortField = 'id' | 'name' | 'parent' | 'created_at' | 'updated_at' | 'createdAt' | 'updatedAt'
+export type CategorySortField = 'id' | 'name' | 'parent' | 'createdAt' | 'updatedAt'
 export type SortField = CategorySortField

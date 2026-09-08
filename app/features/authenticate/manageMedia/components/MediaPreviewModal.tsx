@@ -175,7 +175,7 @@ export default function MediaPreviewModal({ media, open, onOpenChange }: MediaPr
                   <Calendar className='size-3.5 text-amber-500' /> Created At
                 </div>
                 <p className='font-mono text-xs text-gray-900 dark:text-gray-100'>
-                  {formatDateTime(media.created_at)}
+                  {formatDateTime(media.createdAt)}
                 </p>
               </div>
             )}
