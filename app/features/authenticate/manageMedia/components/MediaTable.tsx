@@ -238,7 +238,7 @@ export default function MediaTable({ mediaList, isLoading, onPreview }: MediaTab
 
                 {/* Created At */}
                 <TableCell className='text-xs text-gray-600 dark:text-zinc-400 whitespace-nowrap font-mono'>
-                  {formatDateTime(item.created_at)}
+                  {formatDateTime(item.createdAt)}
                 </TableCell>
 
                 {/* Actions */}

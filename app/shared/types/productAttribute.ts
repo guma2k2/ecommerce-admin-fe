@@ -20,8 +20,6 @@ export interface ProductAttributeItem {
   name: string
   createdAt?: string | null
   updatedAt?: string | null
-  created_at?: string | null
-  updated_at?: string | null
 }
 
 export interface GetProductAttributesParams {
@@ -34,4 +32,4 @@ export interface GetProductAttributesParams {
 
 export type PaginatedProductAttributesResponse = PageResponse<ProductAttributeResponse>
 
-export type ProductAttributeSortField = 'id' | 'name' | 'created_at' | 'updated_at' | 'createdAt' | 'updatedAt'
+export type ProductAttributeSortField = 'id' | 'name' | 'createdAt' | 'updatedAt'

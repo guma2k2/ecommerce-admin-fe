@@ -165,7 +165,7 @@ export default function MediaGridView({ mediaList, isLoading, onPreview }: Media
                 </div>
                 <div className='flex justify-between'>
                   <span>Created:</span>
-                  <span>{formatDateTime(item.created_at)}</span>
+                  <span>{formatDateTime(item.createdAt)}</span>
                 </div>
               </div>
             </div>

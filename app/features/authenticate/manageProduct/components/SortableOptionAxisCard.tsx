@@ -53,6 +53,7 @@ export interface SortableOptionAxisCardProps {
   onReorderValues: (oldIndex: number, newIndex: number) => void
   onRemoveOption: () => void
   onToggleShowing: (showing: boolean) => void
+  onDone?: (pendingValue?: string) => void
   disabledOptionNames?: string[]
 }
 
@@ -91,6 +92,7 @@ function SortableOptionAxisCardComponent({
   onReorderValues,
   onRemoveOption,
   onToggleShowing,
+  onDone,
   disabledOptionNames
 }: SortableOptionAxisCardProps) {
   const [newValInput, setNewValInput] = useState("")
@@ -120,7 +122,7 @@ function SortableOptionAxisCardComponent({
     zIndex: isDragging ? 50 : 1
   }
 
-  const isShowing = option.showing !== false
+  const isShowing = Boolean(option.showing)
   const isColorOption =
     option.name?.toLowerCase().includes("color") || option.name?.toLowerCase().includes("colour")
 
@@ -154,6 +156,19 @@ function SortableOptionAxisCardComponent({
     setNewValInput("")
   }
 
+  const handleDone = () => {
+    const trimmed = newValInput.trim()
+    if (onDone) {
+      onDone(trimmed)
+    } else {
+      if (trimmed) {
+        onAddValue(trimmed)
+      }
+      onToggleShowing(false)
+    }
+    setNewValInput("")
+  }
+
   const activeValueItem = valueItems.find((v) => v.id === activeValueId)
 
   // COLLAPSED VIEW (Image 1 Style List Row)
@@ -169,16 +184,18 @@ function SortableOptionAxisCardComponent({
         )}
       >
         <div className="flex items-start sm:items-center gap-3 flex-1 min-w-0">
-          <button
+          <Button
             type="button"
+            variant="ghost"
+            size="icon-xs"
             {...attributes}
             {...listeners}
             onClick={(e) => e.stopPropagation()}
-            className="text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300 cursor-grab active:cursor-grabbing p-1 -ml-1 rounded focus:outline-none transition-colors shrink-0 touch-none select-none"
+            className="text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300 cursor-grab active:cursor-grabbing hover:bg-transparent -ml-1 shrink-0 touch-none select-none"
             title="Drag to reorder option"
           >
             <GripVertical className="size-4" />
-          </button>
+          </Button>
 
           <div className="space-y-1.5 min-w-0 flex-1">
             <div className="text-sm font-semibold text-gray-900 dark:text-gray-100 truncate group-hover:text-primary transition-colors">
@@ -248,15 +265,17 @@ function SortableOptionAxisCardComponent({
         </div>
 
         <div className="flex items-center gap-2">
-          <button
+          <Button
             type="button"
+            variant="ghost"
+            size="icon-xs"
             {...attributes}
             {...listeners}
-            className="text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300 cursor-grab active:cursor-grabbing p-1 -ml-1 rounded focus:outline-none transition-colors shrink-0 touch-none select-none"
+            className="text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300 cursor-grab active:cursor-grabbing hover:bg-transparent -ml-1 shrink-0 touch-none select-none"
             title="Drag to reorder option"
           >
             <GripVertical className="size-4" />
-          </button>
+          </Button>
 
           <div className="flex-1 min-w-0">
             <InfiniteSelect<ProductOptionResponse>
@@ -347,7 +366,7 @@ function SortableOptionAxisCardComponent({
               }
             }}
             onBlur={handleAddNewValue}
-            placeholder="Add another value"
+            placeholder={valueItems.length === 0 ? "Add value (e.g. S, Red)" : "Add another value"}
             className="h-9 w-full bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-700 rounded-lg text-sm text-gray-900 dark:text-gray-100 placeholder:text-gray-400 shadow-2xs focus-visible:ring-1"
           />
         </div>
@@ -359,6 +378,10 @@ function SortableOptionAxisCardComponent({
           type="button"
           variant="outline"
           size="sm"
+          onMouseDown={(e) => {
+            // Prevent input blur before click handler fires
+            e.preventDefault()
+          }}
           onClick={onRemoveOption}
           className="text-red-600 dark:text-red-400 border-gray-200 dark:border-zinc-700 hover:bg-red-50 dark:hover:bg-red-950/30 hover:border-red-200 dark:hover:border-red-900 rounded-lg px-4 h-8 text-xs font-semibold"
         >
@@ -368,7 +391,11 @@ function SortableOptionAxisCardComponent({
         <Button
           type="button"
           size="sm"
-          onClick={() => onToggleShowing(false)}
+          onMouseDown={(e) => {
+            // Prevent input blur from swallowing the click event on Done
+            e.preventDefault()
+          }}
+          onClick={handleDone}
           className="bg-zinc-900 hover:bg-black text-white dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-200 rounded-lg px-5 h-8 text-xs font-semibold shadow-xs"
         >
           Done

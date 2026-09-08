@@ -56,8 +56,8 @@ export function getInitialProductFormValues(
     metaTitle: initialData.metaTitle || "",
     metaKeyword: initialData.metaKeyword || "",
     metaDescription: initialData.metaDescription || "",
-    categoryId: initialData.categoryId ?? initialData.category?.id ?? null,
-    brandId: initialData.brand?.id || null,
+    categoryId: initialData.category?.id ?? null,
+    brandId: initialData.brand?.id ?? null,
     status: "ACTIVE",
     attributeTemplateId: null,
     medias: (initialData.medias || []).map((m) => ({
@@ -112,7 +112,7 @@ export function getInitialProductFormValues(
       productOptionId: opt.productOptionId,
       name: opt.name,
       position: opt.position,
-      showing: true,
+      showing: false,
       values: opt.values.map((v) => ({
         id: v.id,
         value: v.value,
@@ -153,12 +153,13 @@ export function transformProductFormToPayload(
         .map((opt, optIndex) => ({
           ...(mode === "edit" && typeof opt.id === "number" ? { id: opt.id } : {}),
           productOptionId: opt.productOptionId || optIndex + 1,
-          position: optIndex,
+          position: typeof opt.position === "number" ? opt.position : optIndex,
           values: opt.values
             .filter((v) => v.value.trim())
-            .map((v) => ({
+            .map((v, valIndex) => ({
               ...(mode === "edit" && typeof v.id === "number" ? { id: v.id } : {}),
-              value: v.value.trim()
+              value: v.value.trim(),
+              position: typeof v.position === "number" ? v.position : valIndex
             }))
         }))
     : []

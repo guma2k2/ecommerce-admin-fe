@@ -222,32 +222,26 @@ export default function ProductAttributesCard() {
 
                   {/* Middle: Target Selector (Base Product vs Variant) */}
                   <div className="flex items-center gap-1 bg-gray-100 dark:bg-zinc-800/90 p-0.5 rounded-lg shrink-0 border border-gray-200 dark:border-zinc-700/60">
-                    <button
+                    <Button
                       type="button"
+                      variant="segmented"
+                      size="xs"
+                      data-state={!isVariant ? "active" : "inactive"}
                       onClick={() => handleToggleApplyTo(index, "base")}
-                      className={cn(
-                        "flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium transition-all select-none",
-                        !isVariant
-                          ? "bg-white dark:bg-zinc-900 text-gray-900 dark:text-gray-100 shadow-2xs font-semibold"
-                          : "text-gray-500 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200"
-                      )}
                     >
                       <Box className="size-3 text-emerald-600 dark:text-emerald-400" />
                       <span>Base Product</span>
-                    </button>
-                    <button
+                    </Button>
+                    <Button
                       type="button"
+                      variant="segmented"
+                      size="xs"
+                      data-state={isVariant ? "active" : "inactive"}
                       onClick={() => handleToggleApplyTo(index, "variant")}
-                      className={cn(
-                        "flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium transition-all select-none",
-                        isVariant
-                          ? "bg-white dark:bg-zinc-900 text-gray-900 dark:text-gray-100 shadow-2xs font-semibold"
-                          : "text-gray-500 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200"
-                      )}
                     >
                       <Layers className="size-3 text-indigo-600 dark:text-indigo-400" />
                       <span>Variant</span>
-                    </button>
+                    </Button>
                   </div>
 
                   {/* Right: Value input or Variant status badge */}

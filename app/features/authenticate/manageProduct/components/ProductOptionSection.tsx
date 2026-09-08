@@ -16,6 +16,7 @@ import {
 } from "@dnd-kit/sortable"
 import { GripVertical, Plus } from "lucide-react"
 import { Badge } from "~/core/components/shadcn/badge"
+import { Button } from "~/core/components/shadcn/button"
 import type { OptionAxisItem } from "./SortableOptionAxisCard"
 import SortableOptionAxisCard from "./SortableOptionAxisCard"
 
@@ -30,6 +31,7 @@ export interface ProductOptionSectionProps {
   onRemoveValue: (optionIndex: number, valueIndex: number) => void
   onReorderValues: (optionIndex: number, oldIndex: number, newIndex: number) => void
   onToggleShowing: (optionIndex: number, showing: boolean) => void
+  onDoneOption?: (optionIndex: number, pendingValue?: string) => void
   onDragEndOption: (event: DragEndEvent) => void
 }
 
@@ -44,6 +46,7 @@ export default function ProductOptionSection({
   onRemoveValue,
   onReorderValues,
   onToggleShowing,
+  onDoneOption,
   onDragEndOption
 }: ProductOptionSectionProps) {
   const [activeOptionId, setActiveOptionId] = useState<string | null>(null)
@@ -100,6 +103,7 @@ export default function ProductOptionSection({
                       onReorderValues={(oldIdx, newIdx) => onReorderValues(optIdx, oldIdx, newIdx)}
                       onRemoveOption={() => onRemoveOption(optIdx)}
                       onToggleShowing={(showing) => onToggleShowing(optIdx, showing)}
+                      onDone={(pendingVal) => onDoneOption?.(optIdx, pendingVal)}
                     />
                   )
                 })}
@@ -139,14 +143,15 @@ export default function ProductOptionSection({
         )}
 
         {/* Bottom "+ Add another option" Action Row */}
-        <button
+        <Button
           type="button"
+          variant="ghost"
           onClick={onAddOption}
-          className="w-full flex items-center gap-2 p-3.5 px-5 text-xs font-semibold text-gray-700 hover:text-gray-900 dark:text-gray-300 dark:hover:text-gray-100 hover:bg-gray-50/80 dark:hover:bg-zinc-800/50 transition-colors select-none text-left"
+          className="w-full justify-start h-auto p-3.5 px-5 text-xs font-semibold text-gray-700 hover:text-gray-900 dark:text-gray-300 dark:hover:text-gray-100 hover:bg-gray-50/80 dark:hover:bg-zinc-800/50 rounded-none rounded-b-xl border-t border-gray-100 dark:border-zinc-800 select-none"
         >
           <Plus className="size-4 text-gray-500 shrink-0" />
           <span>Add another option</span>
-        </button>
+        </Button>
       </div>
     </div>
   )

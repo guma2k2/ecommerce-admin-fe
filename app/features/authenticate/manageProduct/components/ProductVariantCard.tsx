@@ -167,69 +167,60 @@ export default function ProductVariantCard() {
     const trimmed = valueText.trim()
     if (!trimmed) return
 
-    const currentOptions = [...(getValues("options") || [])]
-    const target = currentOptions[optionIndex]
-    if (target) {
-      const existingValues = target.values || []
-      if (!existingValues.some((v) => v.value.toLowerCase() === trimmed.toLowerCase())) {
-        const nextPos = existingValues.length
-        currentOptions[optionIndex] = {
-          ...target,
-          values: [
-            ...existingValues.filter((v) => v.value.trim()),
-            { id: null, value: trimmed, position: nextPos }
-          ]
-        }
-        setValue("options", currentOptions, { shouldDirty: true })
-      }
+    const currentValues = getValues(`options.${optionIndex}.values`) || []
+    if (!currentValues.some((v) => v.value.toLowerCase() === trimmed.toLowerCase())) {
+      const nextPos = currentValues.length
+      const updated = [
+        ...currentValues.filter((v) => v.value.trim()),
+        { id: null, value: trimmed, position: nextPos }
+      ]
+      setValue(`options.${optionIndex}.values`, updated, { shouldDirty: true })
     }
   }
 
   const handleUpdateValue = (optionIndex: number, valueIndex: number, newValue: string) => {
-    const currentOptions = [...(getValues("options") || [])]
-    const target = currentOptions[optionIndex]
-    if (target && target.values && target.values[valueIndex]) {
-      target.values[valueIndex] = {
-        ...target.values[valueIndex],
-        value: newValue
-      }
-      setValue("options", currentOptions, { shouldDirty: true })
-    }
+    setValue(`options.${optionIndex}.values.${valueIndex}.value`, newValue, { shouldDirty: true })
   }
 
   const handleRemoveValue = (optionIndex: number, valueIndex: number) => {
-    const currentOptions = [...(getValues("options") || [])]
-    const target = currentOptions[optionIndex]
-    if (target && target.values) {
-      const remaining = target.values
-        .filter((_, idx) => idx !== valueIndex)
-        .map((v, i) => ({ ...v, position: i }))
-      currentOptions[optionIndex] = {
-        ...target,
-        values: remaining
-      }
-      setValue("options", currentOptions, { shouldDirty: true })
-    }
+    const currentValues = getValues(`options.${optionIndex}.values`) || []
+    const remaining = currentValues
+      .filter((_, idx) => idx !== valueIndex)
+      .map((v, i) => ({ ...v, position: i }))
+    setValue(`options.${optionIndex}.values`, remaining, { shouldDirty: true })
   }
 
   const handleReorderValues = (optionIndex: number, oldIndex: number, newIndex: number) => {
-    const currentOptions = [...(getValues("options") || [])]
-    const target = currentOptions[optionIndex]
-    if (target && target.values) {
-      const reordered = arrayMove(target.values, oldIndex, newIndex).map((v, i) => ({
-        ...v,
-        position: i
-      }))
-      currentOptions[optionIndex] = {
-        ...target,
-        values: reordered
-      }
-      setValue("options", currentOptions, { shouldDirty: true })
-    }
+    const currentValues = getValues(`options.${optionIndex}.values`) || []
+    const reordered = arrayMove(currentValues, oldIndex, newIndex).map((v, i) => ({
+      ...v,
+      position: i
+    }))
+    setValue(`options.${optionIndex}.values`, reordered, { shouldDirty: true })
   }
 
   const handleToggleShowing = (optionIndex: number, showing: boolean) => {
     setValue(`options.${optionIndex}.showing`, showing, { shouldDirty: true })
+  }
+
+  const handleDoneOption = (optionIndex: number, pendingValue?: string) => {
+    const trimmed = (pendingValue || "").trim()
+    const currentValues = getValues(`options.${optionIndex}.values`) || []
+    let updatedValues = currentValues.filter((v) => v.value?.trim())
+
+    if (trimmed && !updatedValues.some((v) => v.value.toLowerCase() === trimmed.toLowerCase())) {
+      updatedValues = [
+        ...updatedValues,
+        {
+          id: null,
+          value: trimmed,
+          position: updatedValues.length
+        }
+      ]
+    }
+
+    setValue(`options.${optionIndex}.values`, updatedValues, { shouldDirty: true })
+    setValue(`options.${optionIndex}.showing`, false, { shouldDirty: true })
   }
 
   const handleDragEndOption = (event: DragEndEvent) => {
@@ -438,6 +429,7 @@ export default function ProductVariantCard() {
             onRemoveValue={handleRemoveValue}
             onReorderValues={handleReorderValues}
             onToggleShowing={handleToggleShowing}
+            onDoneOption={handleDoneOption}
             onDragEndOption={handleDragEndOption}
           />
 

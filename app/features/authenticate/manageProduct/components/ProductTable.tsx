@@ -132,10 +132,10 @@ export default function ProductTable({
                 {product.name}
               </TableCell>
               <TableCell className="text-xs text-gray-500 dark:text-gray-400 whitespace-nowrap">
-                {formatDateTime(product.createdAt || product.created_at)}
+                {formatDateTime(product.createdAt)}
               </TableCell>
               <TableCell className="text-xs text-gray-500 dark:text-gray-400 whitespace-nowrap">
-                {formatDateTime(product.updatedAt || product.updated_at)}
+                {formatDateTime(product.updatedAt)}
               </TableCell>
               <TableCell className="text-right">
                 <DropdownMenu>
