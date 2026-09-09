@@ -6,7 +6,6 @@ import { useTranslation } from 'react-i18next'
 import ProductAttributeForm from '~/features/authenticate/manageProductAttribute/components/ProductAttributeForm'
 import type { ProductAttributeFormSchema } from '~/features/authenticate/manageProductAttribute/validator'
 import { createProductAttribute } from '~/shared/services/api/productAttributeService'
-import { showToast } from '~/shared/utils/toast'
 import { Button } from '~/core/components/shadcn/button'
 
 export default function CreateProductAttributePage() {
@@ -19,10 +18,8 @@ export default function CreateProductAttributePage() {
       setIsSubmitting(true)
       await createProductAttribute({ name: values.name })
       navigate('/admin/manage-product-attribute')
-    } catch (error: any) {
+    } catch (error) {
       console.error('Create product attribute error:', error)
-      const errorMsg = error?.response?.data?.message || 'toasts.error'
-      showToast('error', errorMsg)
     } finally {
       setIsSubmitting(false)
     }

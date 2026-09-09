@@ -8,7 +8,6 @@ import {
 import { getProductById, updateProduct } from "~/shared/services/api/productService"
 import { getAllCategories } from "~/shared/services/api/categoryService"
 import { getAllBrands } from "~/shared/services/api/brandService"
-import { showToast } from "~/shared/utils/toast"
 import type { ProductUpdateRequest } from "~/shared/types"
 
 export async function clientLoader({ params }: LoaderFunctionArgs) {
@@ -45,8 +44,6 @@ export default function UpdateProductPage() {
       navigate("/admin/manage-product")
     } catch (error: unknown) {
       console.error("Failed to update product:", error)
-      const errorMsg = (error as { message?: string })?.message || "toasts.error"
-      showToast("error", errorMsg)
     } finally {
       setIsSubmitting(false)
     }

@@ -1,4 +1,4 @@
-import apiClient from '~/shared/services/axiosClient'
+import { httpRequest } from '~/shared/services/httpRequest'
 import type {
   ApiResponse,
   BrandCreateRequest,
@@ -23,7 +23,7 @@ export async function getBrandsPage(
   const pageNumber = params.pageNumber !== undefined ? Math.max(0, params.pageNumber) : 0
   const pageSize = params.pageSize ?? 10
 
-  const response = await apiClient.get<ApiResponse<PageResponse<BrandResponse>>>('/brands/page', {
+  const response = await httpRequest.get<ApiResponse<PageResponse<BrandResponse>>>('/brands/page', {
     params: {
       pageNumber,
       pageSize,
@@ -44,7 +44,7 @@ export async function getBrands(
   const zeroBasedPage = Math.max(0, uiPageNumber - 1)
   const pageSize = params.pageSize ?? 10
 
-  const response = await apiClient.get<ApiResponse<PageResponse<BrandResponse>>>('/brands/page', {
+  const response = await httpRequest.get<ApiResponse<PageResponse<BrandResponse>>>('/brands/page', {
     params: {
       pageNumber: zeroBasedPage,
       pageSize,
@@ -81,7 +81,7 @@ export async function getBrands(
  * Fetches a single brand by ID.
  */
 export async function getBrandById(brandId: number | string): Promise<BrandResponse> {
-  const response = await apiClient.get<ApiResponse<BrandResponse>>(`/brands/${brandId}`)
+  const response = await httpRequest.get<ApiResponse<BrandResponse>>(`/brands/${brandId}`)
   return response.data.data
 }
 
@@ -89,7 +89,7 @@ export async function getBrandById(brandId: number | string): Promise<BrandRespo
  * Creates a new brand entity.
  */
 export async function createBrand(payload: BrandCreateRequest): Promise<void> {
-  await apiClient.post<ApiResponse<void>>('/brands', {
+  await httpRequest.post<ApiResponse<void>>('/brands', {
     name: payload.name.trim(),
     description: payload.description?.trim() || null
   })
@@ -102,7 +102,7 @@ export async function updateBrand(
   brandId: number | string,
   payload: BrandUpdateRequest
 ): Promise<void> {
-  await apiClient.put<ApiResponse<void>>(`/brands/${brandId}`, {
+  await httpRequest.put<ApiResponse<void>>(`/brands/${brandId}`, {
     name: payload.name.trim(),
     description: payload.description?.trim() || null
   })
@@ -112,7 +112,7 @@ export async function updateBrand(
  * Deletes a brand by ID.
  */
 export async function deleteBrand(brandId: number | string): Promise<void> {
-  await apiClient.delete<ApiResponse<void>>(`/brands/${brandId}`)
+  await httpRequest.delete<ApiResponse<void>>(`/brands/${brandId}`)
 }
 
 /**

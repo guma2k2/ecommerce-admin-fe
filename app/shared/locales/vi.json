@@ -301,6 +301,7 @@
   },
   "errors": {
     "unauthorized": "Truy cập không hợp lệ. Vui lòng đăng nhập lại.",
+    "unauthenticated": "Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.",
     "notFound": "Không tìm thấy tài nguyên yêu cầu.",
     "serverError": "Lỗi máy chủ nội bộ. Vui lòng thử lại sau.",
     "networkError": "Lỗi kết nối mạng. Vui lòng kiểm tra lại đường truyền."

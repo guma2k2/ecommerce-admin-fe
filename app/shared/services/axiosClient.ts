@@ -1,8 +1,10 @@
 import type { AxiosError, AxiosInstance, AxiosResponse, InternalAxiosRequestConfig } from 'axios'
 import axios from 'axios'
+import i18next from '~/shared/i18n'
 import { ApplicationError, type ErrorResponse } from '~/shared/types'
 import { toCamelCase, toSnakeCase } from '~/shared/utils/appUtils'
 import StorageHelper from '~/shared/utils/storageHelper'
+import { showToast } from '~/shared/utils/toast'
 
 let accessToken: string | null = null
 
@@ -137,6 +139,7 @@ class AxiosClient {
             // Overwrite message so callers accessing error?.response?.data?.message receive the snake_case key
             response.data.message = toastKey
 
+            this.showError(errorCode)
             return Promise.reject(new ApplicationError(toastKey, errorCode, '400', response))
           }
 
@@ -145,8 +148,10 @@ class AxiosClient {
             const toastKey =
               typeof resData.data === 'string' && resData.data.trim()
                 ? resData.data.trim()
-                : (resData.message || 'toasts.error')
+                : (statusStr === '500' ? 'serverError' : statusStr === '404' ? 'notFound' : (resData.message || 'serverError'))
             response.data.message = toastKey
+
+            this.showError(toastKey)
             return Promise.reject(new ApplicationError(toastKey, toastKey, statusStr, response))
           }
 
@@ -166,24 +171,22 @@ class AxiosClient {
         // Network-level failures (e.g. 502 Bad Gateway, Network Offline, or 500 status code)
         const toastKey =
           (typeof error.response?.data?.data === 'string' && error.response.data.data.trim()) ||
-          error.message ||
-          'toasts.error'
+          (error.response?.status === 404 ? 'notFound' : error.response?.status && error.response.status >= 500 ? 'serverError' : 'networkError')
         const status = String(error.response?.status || '500')
 
+        this.showError(toastKey)
         return Promise.reject(new ApplicationError(toastKey, toastKey, status, error.response))
       }
     )
   }
 
-  private createApplicationError(response?: AxiosResponse): ApplicationError {
-    const data = response?.data as Record<string, unknown> | undefined
-    const toastKey =
-      (typeof data?.data === 'string' && data.data.trim()) ||
-      (typeof data?.message === 'string' && data.message.trim()) ||
-      'toasts.error'
-    const status = String(data?.status || response?.status || '400')
+  private showError(errorKey: string): void {
+    console.log("Show error for key:", errorKey);
 
-    return new ApplicationError(toastKey, toastKey, status, response)
+    // Translate the error message using i18next
+    const translatedMessage = i18next.t(`errors.${errorKey}`);
+
+    showToast("error", translatedMessage);
   }
 
   private async handleUnauthenticatedRefresh(
@@ -203,11 +206,23 @@ class AxiosClient {
         setAccessToken(null)
         authCallbacks.onUnauthorized?.()
       }
-      return Promise.reject(this.createApplicationError(triggerResponse))
+      const data = triggerResponse?.data as Record<string, unknown> | undefined
+      const errorKey =
+        (typeof data?.data === 'string' && data.data.trim()) ||
+        (typeof data?.status === 'string' && String(data.status).trim()) ||
+        'unauthorized'
+      this.showError(errorKey)
+      return Promise.reject(triggerResponse)
     }
 
     if (originalRequest._retry) {
-      return Promise.reject(this.createApplicationError(triggerResponse))
+      const data = triggerResponse?.data as Record<string, unknown> | undefined
+      const errorKey =
+        (typeof data?.data === 'string' && data.data.trim()) ||
+        (typeof data?.status === 'string' && String(data.status).trim()) ||
+        'unauthorized'
+      this.showError(errorKey)
+      return Promise.reject(triggerResponse)
     }
 
     if (this.isRefreshing) {
@@ -263,6 +278,7 @@ class AxiosClient {
       setAccessToken(null)
       authCallbacks.onUnauthorized?.()
 
+      this.showError('unauthorized')
       this.handleUnauthorized(err)
       return Promise.reject(err)
     } finally {

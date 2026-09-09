@@ -20,7 +20,6 @@ import type {
   ProductAttributeResponse,
   ProductAttributeUpdateRequest
 } from '~/shared/types'
-import { showToast } from '~/shared/utils/toast'
 
 /**
  * Query key factory for product attributes.
@@ -96,10 +95,8 @@ export function useCreateProductAttributeMutation(
         ;(options.onSuccess as any)(data, variables, context, ...rest)
       }
     },
-    onError: (error: any, variables, context, ...rest) => {
+    onError: (error, variables, context, ...rest) => {
       console.error('Create attribute error:', error)
-      const errorMsg = error?.response?.data?.message || error?.message || 'toasts.error'
-      showToast('error', errorMsg)
       if (options?.onError) {
         ;(options.onError as any)(error, variables, context, ...rest)
       }
@@ -125,10 +122,8 @@ export function useUpdateProductAttributeMutation(
         ;(options.onSuccess as any)(data, variables, context, ...rest)
       }
     },
-    onError: (error: any, variables, context, ...rest) => {
+    onError: (error, variables, context, ...rest) => {
       console.error('Update attribute error:', error)
-      const errorMsg = error?.response?.data?.message || error?.message || 'toasts.error'
-      showToast('error', errorMsg)
       if (options?.onError) {
         ;(options.onError as any)(error, variables, context, ...rest)
       }
@@ -153,10 +148,8 @@ export function useDeleteProductAttributeMutation(
         ;(options.onSuccess as any)(data, variables, context, ...rest)
       }
     },
-    onError: (error: any, variables, context, ...rest) => {
+    onError: (error, variables, context, ...rest) => {
       console.error('Delete attribute error:', error)
-      const errorMsg = error?.response?.data?.message || error?.message || 'toasts.error'
-      showToast('error', errorMsg)
       if (options?.onError) {
         ;(options.onError as any)(error, variables, context, ...rest)
       }

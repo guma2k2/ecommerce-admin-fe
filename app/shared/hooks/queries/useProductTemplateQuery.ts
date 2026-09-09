@@ -21,7 +21,6 @@ import type {
   ProductTemplateResponse,
   ProductTemplateUpdateRequest
 } from '~/shared/types'
-import { showToast } from '~/shared/utils/toast'
 
 /**
  * Query key factory for product templates (attribute templates).
@@ -97,10 +96,8 @@ export function useCreateProductTemplateMutation(
         ;(options.onSuccess as any)(data, variables, context, ...rest)
       }
     },
-    onError: (error: any, variables, context, ...rest) => {
+    onError: (error, variables, context, ...rest) => {
       console.error('Create template error:', error)
-      const errorMsg = error?.response?.data?.message || error?.message || 'toasts.error'
-      showToast('error', errorMsg)
       if (options?.onError) {
         ;(options.onError as any)(error, variables, context, ...rest)
       }
@@ -129,10 +126,8 @@ export function useUpdateProductTemplateMutation(
         ;(options.onSuccess as any)(data, variables, context, ...rest)
       }
     },
-    onError: (error: any, variables, context, ...rest) => {
+    onError: (error, variables, context, ...rest) => {
       console.error('Update template error:', error)
-      const errorMsg = error?.response?.data?.message || error?.message || 'toasts.error'
-      showToast('error', errorMsg)
       if (options?.onError) {
         ;(options.onError as any)(error, variables, context, ...rest)
       }
@@ -157,10 +152,8 @@ export function useDeleteProductTemplateMutation(
         ;(options.onSuccess as any)(data, variables, context, ...rest)
       }
     },
-    onError: (error: any, variables, context, ...rest) => {
+    onError: (error, variables, context, ...rest) => {
       console.error('Delete template error:', error)
-      const errorMsg = error?.response?.data?.message || error?.message || 'toasts.error'
-      showToast('error', errorMsg)
       if (options?.onError) {
         ;(options.onError as any)(error, variables, context, ...rest)
       }

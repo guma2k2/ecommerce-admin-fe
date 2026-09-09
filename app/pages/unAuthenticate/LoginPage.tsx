@@ -36,13 +36,8 @@ export default function LoginPage() {
       login(adminProfile, accessToken)
       showToast('success', 'toasts.loginSuccess')
       navigate('/admin', { replace: true })
-    } catch (error: any) {
-      const serverMessage = error?.response?.data?.message
-      if (serverMessage) {
-        showToast('error', serverMessage)
-      } else {
-        showToast('error', 'toasts.loginError')
-      }
+    } catch (error) {
+      console.error('Login error:', error)
     } finally {
       setIsLoading(false)
     }

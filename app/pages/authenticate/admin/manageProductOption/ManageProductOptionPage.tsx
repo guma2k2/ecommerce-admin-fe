@@ -120,12 +120,10 @@ export default function ManageProductOptionPage() {
         id: optionToEdit.id,
         payload: { name: values.name }
       })
-      showToast('success', 'toasts.updatedSuccess')
     } else {
       await createMutation.mutateAsync({
         name: values.name
       })
-      showToast('success', 'toasts.createdSuccess')
     }
     updateQueryParams({ _t: String(Date.now()) })
   }
@@ -133,7 +131,6 @@ export default function ManageProductOptionPage() {
   const handleDeleteConfirm = async () => {
     if (!optionToDelete) return
     await deleteMutation.mutateAsync(optionToDelete.id)
-    showToast('success', 'toasts.deletedSuccess')
     updateQueryParams({ _t: String(Date.now()) })
   }
 

@@ -1,4 +1,4 @@
-import apiClient from '~/shared/services/axiosClient'
+import { httpRequest } from '~/shared/services/httpRequest'
 import type {
   ApiResponse,
   CategoryCreateRequest,
@@ -61,7 +61,7 @@ export async function getCategoriesPage(
   const pageNumber = params.pageNumber !== undefined ? Math.max(0, params.pageNumber) : 0
   const pageSize = params.pageSize ?? 10
 
-  const response = await apiClient.get<ApiResponse<PageResponse<CategoryResponse>>>('/categories/page', {
+  const response = await httpRequest.get<ApiResponse<PageResponse<CategoryResponse>>>('/categories/page', {
     params: {
       pageNumber,
       pageSize,
@@ -82,7 +82,7 @@ export async function getCategories(
   const zeroBasedPage = Math.max(0, uiPageNumber - 1)
   const pageSize = params.pageSize ?? 10
 
-  const response = await apiClient.get<ApiResponse<PageResponse<CategoryResponse>>>('/categories/page', {
+  const response = await httpRequest.get<ApiResponse<PageResponse<CategoryResponse>>>('/categories/page', {
     params: {
       pageNumber: zeroBasedPage,
       pageSize,
@@ -131,7 +131,7 @@ export async function getCategories(
  * Fetches a single category with its nested children hierarchy tree.
  */
 export async function getCategoryById(categoryId: number | string): Promise<CategoryResponse> {
-  const response = await apiClient.get<ApiResponse<CategoryResponse>>(`/categories/${categoryId}`)
+  const response = await httpRequest.get<ApiResponse<CategoryResponse>>(`/categories/${categoryId}`)
   return response.data.data
 }
 
@@ -152,7 +152,7 @@ export async function createCategory(payload: CategoryCreateRequest | CategoryIn
     }
   }
 
-  await apiClient.post<ApiResponse<void>>('/categories', {
+  await httpRequest.post<ApiResponse<void>>('/categories', {
     name,
     parentId
   })
@@ -178,7 +178,7 @@ export async function updateCategory(
     }
   }
 
-  await apiClient.put<ApiResponse<void>>(`/categories/${categoryId}`, {
+  await httpRequest.put<ApiResponse<void>>(`/categories/${categoryId}`, {
     name,
     parentId
   })
@@ -188,7 +188,7 @@ export async function updateCategory(
  * Deletes a category by ID.
  */
 export async function deleteCategory(categoryId: number | string): Promise<void> {
-  await apiClient.delete<ApiResponse<void>>(`/categories/${categoryId}`)
+  await httpRequest.delete<ApiResponse<void>>(`/categories/${categoryId}`)
 }
 
 /**

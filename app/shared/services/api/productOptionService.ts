@@ -1,4 +1,4 @@
-import apiClient from '~/shared/services/axiosClient'
+import { httpRequest } from '~/shared/services/httpRequest'
 import type {
   ApiResponse,
   PageResponse,
@@ -25,7 +25,7 @@ export async function getOptionsPage(
   const pageNumber = params.pageNumber !== undefined ? Math.max(0, params.pageNumber) : 0
   const pageSize = params.pageSize ?? 10
 
-  const response = await apiClient.get<ApiResponse<PageResponse<ProductOptionResponse>>>(
+  const response = await httpRequest.get<ApiResponse<PageResponse<ProductOptionResponse>>>(
     '/product-options/page',
     {
       params: {
@@ -55,7 +55,7 @@ export async function getProductOptions(
   const zeroBasedPage = Math.max(0, uiPageNumber - 1)
   const pageSize = params.pageSize ?? 10
 
-  const response = await apiClient.get<ApiResponse<PageResponse<ProductOptionResponse>>>(
+  const response = await httpRequest.get<ApiResponse<PageResponse<ProductOptionResponse>>>(
     '/product-options/page',
     {
       params: {
@@ -100,7 +100,7 @@ export async function getProductOptions(
  * Fetches a single product option by ID.
  */
 export async function getOptionById(id: number | string): Promise<ProductOptionResponse> {
-  const response = await apiClient.get<ApiResponse<ProductOptionResponse>>(`/product-options/${id}`)
+  const response = await httpRequest.get<ApiResponse<ProductOptionResponse>>(`/product-options/${id}`)
   return response.data.data
 }
 
@@ -108,7 +108,7 @@ export async function getOptionById(id: number | string): Promise<ProductOptionR
  * Creates a new product option (e.g. Color, Size).
  */
 export async function createOption(payload: ProductOptionCreateRequest): Promise<void> {
-  await apiClient.post<ApiResponse<void>>('/product-options', {
+  await httpRequest.post<ApiResponse<void>>('/product-options', {
     name: payload.name.trim()
   })
 }
@@ -120,7 +120,7 @@ export async function updateOption(
   id: number | string,
   payload: ProductOptionUpdateRequest
 ): Promise<void> {
-  await apiClient.put<ApiResponse<void>>(`/product-options/${id}`, {
+  await httpRequest.put<ApiResponse<void>>(`/product-options/${id}`, {
     name: payload.name.trim()
   })
 }
@@ -129,7 +129,7 @@ export async function updateOption(
  * Deletes a product option by ID.
  */
 export async function deleteOption(id: number | string): Promise<void> {
-  await apiClient.delete<ApiResponse<void>>(`/product-options/${id}`)
+  await httpRequest.delete<ApiResponse<void>>(`/product-options/${id}`)
 }
 
 /**

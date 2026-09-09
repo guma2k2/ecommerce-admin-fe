@@ -1,4 +1,4 @@
-import apiClient from '~/shared/services/axiosClient'
+import { httpRequest } from '~/shared/services/httpRequest'
 import type {
   ApiResponse,
   GetProductAttributeTemplatesParams,
@@ -55,7 +55,7 @@ export async function getTemplatesPage(
   const pageNumber = params.pageNumber !== undefined ? Math.max(0, params.pageNumber) : 0
   const pageSize = params.pageSize ?? 10
 
-  const response = await apiClient.get<ApiResponse<PageResponse<ProductTemplateResponse>>>(
+  const response = await httpRequest.get<ApiResponse<PageResponse<ProductTemplateResponse>>>(
     '/product-templates/page',
     {
       params: {
@@ -80,7 +80,7 @@ export async function getProductAttributeTemplates(
   const zeroBasedPage = Math.max(0, uiPageNumber - 1)
   const pageSize = params.pageSize ?? 10
 
-  const response = await apiClient.get<ApiResponse<PageResponse<ProductTemplateResponse>>>('/product-templates/page', {
+  const response = await httpRequest.get<ApiResponse<PageResponse<ProductTemplateResponse>>>('/product-templates/page', {
     params: {
       pageNumber: zeroBasedPage,
       pageSize,
@@ -125,7 +125,7 @@ export async function getProductAttributeTemplates(
 export async function getTemplateById(
   id: number | string
 ): Promise<ProductTemplateResponse> {
-  const response = await apiClient.get<ApiResponse<ProductTemplateResponse>>(`/product-templates/${id}`)
+  const response = await httpRequest.get<ApiResponse<ProductTemplateResponse>>(`/product-templates/${id}`)
   return response.data.data
 }
 
@@ -159,7 +159,7 @@ export async function createProductAttributeTemplate(
     attributeIds = payload.attribute_ids.map(Number).filter((n) => !isNaN(n))
   }
 
-  await apiClient.post<ApiResponse<void>>('/product-templates', {
+  await httpRequest.post<ApiResponse<void>>('/product-templates', {
     name: payload.name.trim(),
     attributeIds
   })
@@ -184,7 +184,7 @@ export async function updateProductAttributeTemplate(
     attributeIds = payload.attribute_ids.map(Number).filter((n) => !isNaN(n))
   }
 
-  await apiClient.put<ApiResponse<void>>(`/product-templates/${id}`, {
+  await httpRequest.put<ApiResponse<void>>(`/product-templates/${id}`, {
     name: payload.name.trim(),
     attributeIds
   })
@@ -196,7 +196,7 @@ export const updateTemplate = updateProductAttributeTemplate
  * Deletes a product template by ID.
  */
 export async function deleteProductAttributeTemplate(id: number | string): Promise<void> {
-  await apiClient.delete<ApiResponse<void>>(`/product-templates/${id}`)
+  await httpRequest.delete<ApiResponse<void>>(`/product-templates/${id}`)
 }
 
 export const deleteTemplate = deleteProductAttributeTemplate

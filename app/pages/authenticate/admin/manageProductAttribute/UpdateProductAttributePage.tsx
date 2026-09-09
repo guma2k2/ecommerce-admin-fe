@@ -10,7 +10,6 @@ import {
   getProductAttributeById,
   updateProductAttribute
 } from '~/shared/services/api/productAttributeService'
-import { showToast } from '~/shared/utils/toast'
 import { Button } from '~/core/components/shadcn/button'
 
 export async function clientLoader({ params }: ClientLoaderFunctionArgs) {
@@ -35,10 +34,8 @@ export default function UpdateProductAttributePage() {
       setIsSubmitting(true)
       await updateProductAttribute(attribute.id, { name: values.name })
       navigate('/admin/manage-product-attribute')
-    } catch (error: any) {
+    } catch (error) {
       console.error('Update product attribute error:', error)
-      const errorMsg = error?.response?.data?.message || 'toasts.error'
-      showToast('error', errorMsg)
     } finally {
       setIsSubmitting(false)
     }

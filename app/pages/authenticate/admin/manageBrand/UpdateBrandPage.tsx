@@ -7,7 +7,6 @@ import { useTranslation } from 'react-i18next'
 import BrandForm from '~/features/authenticate/manageBrand/components/BrandForm'
 import type { BrandFormSchema } from '~/features/authenticate/manageBrand/validator'
 import { getBrandById, updateBrand } from '~/shared/services/api/brandService'
-import { showToast } from '~/shared/utils/toast'
 import { Button } from '~/core/components/shadcn/button'
 
 export async function clientLoader({ params }: ClientLoaderFunctionArgs) {
@@ -37,8 +36,6 @@ export default function UpdateBrandPage() {
       navigate('/admin/manage-brand')
     } catch (error: any) {
       console.error('Update brand error:', error)
-      const errorMsg = error?.response?.data?.message || 'toasts.error'
-      showToast('error', errorMsg)
     } finally {
       setIsSubmitting(false)
     }

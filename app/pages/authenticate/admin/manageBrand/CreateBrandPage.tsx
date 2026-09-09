@@ -6,7 +6,6 @@ import { useTranslation } from 'react-i18next'
 import BrandForm from '~/features/authenticate/manageBrand/components/BrandForm'
 import type { BrandFormSchema } from '~/features/authenticate/manageBrand/validator'
 import { createBrand } from '~/shared/services/api/brandService'
-import { showToast } from '~/shared/utils/toast'
 import { Button } from '~/core/components/shadcn/button'
 
 export default function CreateBrandPage() {
@@ -24,8 +23,6 @@ export default function CreateBrandPage() {
       navigate('/admin/manage-brand')
     } catch (error: any) {
       console.error('Create brand error:', error)
-      const errorMsg = error?.response?.data?.message || 'toasts.error'
-      showToast('error', errorMsg)
     } finally {
       setIsSubmitting(false)
     }

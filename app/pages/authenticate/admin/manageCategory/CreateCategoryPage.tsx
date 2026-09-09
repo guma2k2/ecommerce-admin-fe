@@ -5,7 +5,6 @@ import { useTranslation } from 'react-i18next'
 
 import CategoryForm from '~/features/authenticate/manageCategory/components/CategoryForm'
 import { createCategory, getAllCategories } from '~/shared/services/api/categoryService'
-import { showToast } from '~/shared/utils/toast'
 import { Button } from '~/core/components/shadcn/button'
 
 export async function clientLoader() {
@@ -28,8 +27,6 @@ export default function CreateCategoryPage() {
       navigate('/admin/manage-category')
     } catch (error: any) {
       console.error('Create category error:', error)
-      const errorMsg = error?.response?.data?.message || 'toasts.error'
-      showToast('error', errorMsg)
     } finally {
       setIsSubmitting(false)
     }
