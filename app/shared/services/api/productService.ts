@@ -1,4 +1,4 @@
-import apiClient from '~/shared/services/axiosClient'
+import { httpRequest } from '~/shared/services/httpRequest'
 import type {
   ApiResponse,
   ProductItem,
@@ -17,7 +17,7 @@ export type { ProductItem, GetProductsParams, PaginatedProductsResponse }
  * Endpoint: GET /api/v1/products/{productId}
  */
 export async function getProductById(id: string | number): Promise<ProductResponse> {
-  const response = await apiClient.get<ApiResponse<ProductResponse>>(`/products/${id}`)
+  const response = await httpRequest.get<ApiResponse<ProductResponse>>(`/products/${id}`)
   return response.data.data
 }
 
@@ -26,7 +26,7 @@ export async function getProductById(id: string | number): Promise<ProductRespon
  * Endpoint: POST /api/v1/products
  */
 export async function createProduct(payload: ProductCreateRequest): Promise<ProductResponse> {
-  const response = await apiClient.post<ApiResponse<ProductResponse>>('/products', payload)
+  const response = await httpRequest.post<ApiResponse<ProductResponse>>('/products', payload)
   return response.data.data
 }
 
@@ -38,7 +38,7 @@ export async function updateProduct(
   id: string | number,
   payload: ProductUpdateRequest
 ): Promise<ProductResponse> {
-  const response = await apiClient.put<ApiResponse<ProductResponse>>(`/products/${id}`, payload)
+  const response = await httpRequest.put<ApiResponse<ProductResponse>>(`/products/${id}`, payload)
   return response.data.data
 }
 
@@ -47,7 +47,7 @@ export async function updateProduct(
  * Endpoint: DELETE /api/v1/products/{productId}
  */
 export async function deleteProduct(id: string | number): Promise<void> {
-  await apiClient.delete<ApiResponse<void>>(`/products/${id}`)
+  await httpRequest.delete<ApiResponse<void>>(`/products/${id}`)
 }
 
 /**
@@ -60,7 +60,7 @@ export async function getProductsPage(
   const pageNumber = params.pageNumber !== undefined ? Math.max(0, params.pageNumber) : 0
   const pageSize = params.pageSize ?? 10
 
-  const response = await apiClient.get<ApiResponse<PageResponse<ProductItem>>>('/products/page', {
+  const response = await httpRequest.get<ApiResponse<PageResponse<ProductItem>>>('/products/page', {
     params: {
       pageNumber,
       pageSize,
@@ -82,7 +82,7 @@ export async function getProducts(
   const pageSize = params.pageSize ?? 10
 
   try {
-    const response = await apiClient.get<ApiResponse<PageResponse<ProductItem>>>('/products/page', {
+    const response = await httpRequest.get<ApiResponse<PageResponse<ProductItem>>>('/products/page', {
       params: {
         pageNumber: zeroBasedPage,
         pageSize,

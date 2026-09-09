@@ -97,8 +97,6 @@ export default function ManageBrandPage() {
       updateQueryParams({ _t: String(Date.now()) })
     } catch (error: any) {
       console.error('Delete brand error:', error)
-      const errorMsg = error?.response?.data?.message || 'toasts.error'
-      showToast('error', errorMsg)
     }
   }
 

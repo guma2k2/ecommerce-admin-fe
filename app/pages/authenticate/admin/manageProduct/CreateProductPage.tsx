@@ -8,7 +8,6 @@ import {
 import { getAllCategories } from "~/shared/services/api/categoryService"
 import { getAllBrands } from "~/shared/services/api/brandService"
 import { createProduct } from "~/shared/services/api/productService"
-import { showToast } from "~/shared/utils/toast"
 import type { ProductCreateRequest } from "~/shared/types"
 
 export async function clientLoader() {
@@ -38,8 +37,6 @@ export default function CreateProductPage() {
       navigate("/admin/manage-product")
     } catch (error: unknown) {
       console.error("Failed to create product:", error)
-      const errorMsg = (error as { message?: string })?.message || "toasts.error"
-      showToast("error", errorMsg)
     } finally {
       setIsSubmitting(false)
     }

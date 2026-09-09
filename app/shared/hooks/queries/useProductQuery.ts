@@ -20,7 +20,6 @@ import type {
   ProductResponse,
   ProductUpdateRequest
 } from '~/shared/types'
-import { showToast } from '~/shared/utils/toast'
 
 /**
  * Query key factory for product cache management.
@@ -83,10 +82,8 @@ export function useCreateProductMutation(
         ;(options.onSuccess as any)(data, variables, context, ...rest)
       }
     },
-    onError: (error: any, variables, context, ...rest) => {
+    onError: (error, variables, context, ...rest) => {
       console.error('Create product error:', error)
-      const errorMsg = error?.response?.data?.message || error?.message || 'toasts.error'
-      showToast('error', errorMsg)
       if (options?.onError) {
         ;(options.onError as any)(error, variables, context, ...rest)
       }
@@ -116,10 +113,8 @@ export function useUpdateProductMutation(
         ;(options.onSuccess as any)(data, variables, context, ...rest)
       }
     },
-    onError: (error: any, variables, context, ...rest) => {
+    onError: (error, variables, context, ...rest) => {
       console.error('Update product error:', error)
-      const errorMsg = error?.response?.data?.message || error?.message || 'toasts.error'
-      showToast('error', errorMsg)
       if (options?.onError) {
         ;(options.onError as any)(error, variables, context, ...rest)
       }
@@ -144,10 +139,8 @@ export function useDeleteProductMutation(
         ;(options.onSuccess as any)(data, variables, context, ...rest)
       }
     },
-    onError: (error: any, variables, context, ...rest) => {
+    onError: (error, variables, context, ...rest) => {
       console.error('Delete product error:', error)
-      const errorMsg = error?.response?.data?.message || error?.message || 'toasts.error'
-      showToast('error', errorMsg)
       if (options?.onError) {
         ;(options.onError as any)(error, variables, context, ...rest)
       }

@@ -99,10 +99,8 @@ export default function ManageProductAttributeTemplatePage() {
     try {
       await deleteProductAttributeTemplate(templateToDelete.id)
       updateQueryParams({ _t: String(Date.now()) })
-    } catch (error: any) {
+    } catch (error) {
       console.error('Delete template error:', error)
-      const errorMsg = error?.response?.data?.message || 'toasts.error'
-      showToast('error', errorMsg)
     }
   }
 

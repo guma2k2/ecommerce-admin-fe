@@ -16,7 +16,6 @@ import type {
   PageResponse,
   UploadMediaPayload
 } from '~/shared/types'
-import { showToast } from '~/shared/utils/toast'
 
 /**
  * Query key factory for media cache management.
@@ -83,7 +82,6 @@ export function useUploadMedia(
     },
     onError: (error, variables, context, ...rest) => {
       console.error('Upload media error:', error)
-      showToast('error', error.message || 'toasts.uploadFailed')
       if (options?.onError) {
         ;(options.onError as any)(error, variables, context, ...rest)
       }

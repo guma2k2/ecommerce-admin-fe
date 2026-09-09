@@ -1,5 +1,5 @@
 import type { AxiosProgressEvent } from 'axios'
-import apiClient from '~/shared/services/axiosClient'
+import { httpRequest } from '~/shared/services/httpRequest'
 import type {
   ApiResponse,
   GetMediaParams,
@@ -42,12 +42,14 @@ export async function uploadMedia(
     formData.append('altText', altText.trim())
   }
 
-  const response = await apiClient.post<ApiResponse<MediaResponse>>('/medias', formData, {
-    headers: {
-      'Content-Type': 'multipart/form-data'
-    },
-    onUploadProgress
-  })
+  const response = await httpRequest.upload<ApiResponse<MediaResponse>>(
+    '/medias',
+    formData,
+    'toasts.uploadSuccess',
+    {
+      onUploadProgress
+    }
+  )
 
   return response.data.data
 }
@@ -61,7 +63,7 @@ export async function getMediaPage(
 ): Promise<PageResponse<MediaResponse>> {
   const { pageNumber = 0, pageSize = 10 } = params
 
-  const response = await apiClient.get<ApiResponse<PageResponse<MediaResponse>>>('/medias/page', {
+  const response = await httpRequest.get<ApiResponse<PageResponse<MediaResponse>>>('/medias/page', {
     params: {
       pageNumber,
       pageSize
@@ -75,7 +77,7 @@ export async function getMediaPage(
  * Fetches a single media record by UUID.
  */
 export async function getMediaById(mediaId: string): Promise<MediaResponse> {
-  const response = await apiClient.get<ApiResponse<MediaResponse>>(`/medias/${mediaId}`)
+  const response = await httpRequest.get<ApiResponse<MediaResponse>>(`/medias/${mediaId}`)
   return response.data.data
 }
 

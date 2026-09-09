@@ -54,9 +54,8 @@ export function AccountDialog({ open, onOpenChange }: AccountDialogProps) {
       })
       setUser(updated)
       setIsEditing(false)
-    } catch (error: any) {
-      const msg = error?.response?.data?.message || 'Failed to update profile'
-      showToast('error', msg)
+    } catch (error) {
+      console.error('Update profile error:', error)
     } finally {
       setIsSaving(false)
     }

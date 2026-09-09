@@ -301,6 +301,7 @@
   },
   "errors": {
     "unauthorized": "Unauthorized access. Please log in again.",
+    "unauthenticated": "Session expired. Please log in again.",
     "notFound": "The requested resource was not found.",
     "serverError": "Internal server error. Please try again later.",
     "networkError": "Network error. Please check your connection."

@@ -6,7 +6,6 @@ import { useTranslation } from 'react-i18next'
 
 import CategoryForm from '~/features/authenticate/manageCategory/components/CategoryForm'
 import { getCategoryById, getAllCategories, updateCategory } from '~/shared/services/api/categoryService'
-import { showToast } from '~/shared/utils/toast'
 import { Button } from '~/core/components/shadcn/button'
 
 export async function clientLoader({ params }: ClientLoaderFunctionArgs) {
@@ -37,8 +36,6 @@ export default function UpdateCategoryPage() {
       navigate('/admin/manage-category')
     } catch (error: any) {
       console.error('Update category error:', error)
-      const errorMsg = error?.response?.data?.message || 'toasts.error'
-      showToast('error', errorMsg)
     } finally {
       setIsSubmitting(false)
     }

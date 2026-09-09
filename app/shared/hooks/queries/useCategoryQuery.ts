@@ -21,7 +21,6 @@ import type {
   PageResponse,
   PaginationParams
 } from '~/shared/types'
-import { showToast } from '~/shared/utils/toast'
 
 /**
  * Query key factory for category cache management.
@@ -98,10 +97,8 @@ export function useCreateCategoryMutation(
         ;(options.onSuccess as any)(data, variables, context, ...rest)
       }
     },
-    onError: (error: any, variables, context, ...rest) => {
+    onError: (error, variables, context, ...rest) => {
       console.error('Create category error:', error)
-      const errorMsg = error?.response?.data?.message || error?.message || 'toasts.error'
-      showToast('error', errorMsg)
       if (options?.onError) {
         ;(options.onError as any)(error, variables, context, ...rest)
       }
@@ -127,10 +124,8 @@ export function useUpdateCategoryMutation(
         ;(options.onSuccess as any)(data, variables, context, ...rest)
       }
     },
-    onError: (error: any, variables, context, ...rest) => {
+    onError: (error, variables, context, ...rest) => {
       console.error('Update category error:', error)
-      const errorMsg = error?.response?.data?.message || error?.message || 'toasts.error'
-      showToast('error', errorMsg)
       if (options?.onError) {
         ;(options.onError as any)(error, variables, context, ...rest)
       }
@@ -155,10 +150,8 @@ export function useDeleteCategoryMutation(
         ;(options.onSuccess as any)(data, variables, context, ...rest)
       }
     },
-    onError: (error: any, variables, context, ...rest) => {
+    onError: (error, variables, context, ...rest) => {
       console.error('Delete category error:', error)
-      const errorMsg = error?.response?.data?.message || error?.message || 'toasts.error'
-      showToast('error', errorMsg)
       if (options?.onError) {
         ;(options.onError as any)(error, variables, context, ...rest)
       }

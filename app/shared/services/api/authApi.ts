@@ -1,4 +1,5 @@
-import apiClient, { setAccessToken } from '~/shared/services/axiosClient'
+import { httpRequest } from '~/shared/services/httpRequest'
+import { setAccessToken } from '~/shared/services/axiosClient'
 import type {
   AdminProfile,
   ApiResponse,
@@ -14,9 +15,10 @@ export type { AdminProfile, SignInPayload, UpdateProfilePayload }
  * Refresh Token cookie is automatically set by the server.
  */
 export async function signIn(payload: SignInPayload): Promise<string> {
-  const response = await apiClient.post<ApiResponse<SignInResponseData>>(
+  const response = await httpRequest.post<ApiResponse<SignInResponseData>>(
     '/auth/public/sign-in',
-    payload
+    payload,
+    false
   )
   const token = response.data.data.accessToken
   setAccessToken(token)
@@ -27,8 +29,10 @@ export async function signIn(payload: SignInPayload): Promise<string> {
  * Exchanges valid HttpOnly refresh token cookie for a new Access Token.
  */
 export async function refreshToken(): Promise<string> {
-  const response = await apiClient.post<ApiResponse<string | SignInResponseData>>(
-    '/auth/public/refresh'
+  const response = await httpRequest.post<ApiResponse<string | SignInResponseData>>(
+    '/auth/public/refresh',
+    undefined,
+    false
   )
   const data = response.data.data
   const token = typeof data === 'string' ? data : data.accessToken
@@ -42,7 +46,7 @@ export async function refreshToken(): Promise<string> {
  */
 export async function signOut(): Promise<void> {
   try {
-    await apiClient.post('/auth/sign-out')
+    await httpRequest.post('/auth/sign-out', undefined, false)
   } finally {
     setAccessToken(null)
   }
@@ -52,7 +56,7 @@ export async function signOut(): Promise<void> {
  * Retrieves profile details of the authenticated administrator.
  */
 export async function getAdminProfile(): Promise<AdminProfile> {
-  const response = await apiClient.get<ApiResponse<AdminProfile>>(
+  const response = await httpRequest.get<ApiResponse<AdminProfile>>(
     '/admin-profile/my-profile'
   )
   return response.data.data
@@ -64,7 +68,7 @@ export async function getAdminProfile(): Promise<AdminProfile> {
 export async function updateAdminProfile(
   payload: UpdateProfilePayload
 ): Promise<AdminProfile> {
-  const response = await apiClient.put<ApiResponse<AdminProfile>>(
+  const response = await httpRequest.put<ApiResponse<AdminProfile>>(
     '/admin-profile/my-profile',
     payload
   )

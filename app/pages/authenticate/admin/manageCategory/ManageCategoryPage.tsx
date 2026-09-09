@@ -92,10 +92,8 @@ export default function ManageCategoryPage() {
     try {
       await deleteCategory(categoryToDelete.id)
       updateQueryParams({ _t: String(Date.now()) })
-    } catch (error: any) {
+    } catch (error) {
       console.error('Delete category error:', error)
-      const errorMsg = error?.response?.data?.message || 'toasts.error'
-      showToast('error', errorMsg)
     }
   }
 

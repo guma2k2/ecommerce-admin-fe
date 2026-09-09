@@ -10,7 +10,6 @@ import {
   getProductAttributeTemplateById,
   updateProductAttributeTemplate
 } from '~/shared/services/api/productAttributeTemplateService'
-import { showToast } from '~/shared/utils/toast'
 import { Button } from '~/core/components/shadcn/button'
 
 export async function clientLoader({ params }: ClientLoaderFunctionArgs) {
@@ -38,10 +37,8 @@ export default function UpdateProductAttributeTemplatePage() {
         attributeIds: values.attributeIds.map(Number).filter((n) => !isNaN(n))
       })
       navigate('/admin/manage-product-attribute-template')
-    } catch (error: any) {
+    } catch (error) {
       console.error('Update product attribute template error:', error)
-      const errorMsg = error?.response?.data?.message || 'toasts.error'
-      showToast('error', errorMsg)
     } finally {
       setIsSubmitting(false)
     }

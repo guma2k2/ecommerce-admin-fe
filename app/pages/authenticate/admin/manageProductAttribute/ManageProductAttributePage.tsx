@@ -99,10 +99,8 @@ export default function ManageProductAttributePage() {
     try {
       await deleteProductAttribute(attributeToDelete.id)
       updateQueryParams({ _t: String(Date.now()) })
-    } catch (error: any) {
+    } catch (error) {
       console.error('Delete attribute error:', error)
-      const errorMsg = error?.response?.data?.message || 'toasts.error'
-      showToast('error', errorMsg)
     }
   }
 

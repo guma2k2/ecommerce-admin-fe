@@ -68,9 +68,8 @@ export default function ManageAccountPage() {
       setName(freshProfile.name || '')
       setAvatar(freshProfile.avatar || '')
       showToast('success', 'Profile data refreshed')
-    } catch (error: any) {
-      const msg = error?.response?.data?.message || 'Failed to refresh profile'
-      showToast('error', msg)
+    } catch (error) {
+      console.error('Refresh profile error:', error)
     } finally {
       setIsRefreshing(false)
     }
@@ -91,9 +90,8 @@ export default function ManageAccountPage() {
         avatar: avatar.trim() || undefined
       })
       setUser(updated)
-    } catch (error: any) {
-      const msg = error?.response?.data?.message || 'Failed to update profile'
-      showToast('error', msg)
+    } catch (error) {
+      console.error('Update profile error:', error)
     } finally {
       setIsSaving(false)
     }

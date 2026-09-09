@@ -119,7 +119,6 @@ export default function FileUpload({
       showToast("success", "toasts.uploadSuccess")
     } catch (err) {
       console.error("FileUpload error:", err)
-      showToast("error", "toasts.uploadFailed")
     } finally {
       setIsUploading(false)
       if (fileInputRef.current) {

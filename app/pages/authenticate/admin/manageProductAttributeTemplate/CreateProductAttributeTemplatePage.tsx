@@ -6,7 +6,6 @@ import { useTranslation } from 'react-i18next'
 import ProductAttributeTemplateForm from '~/features/authenticate/manageProductAttributeTemplate/components/ProductAttributeTemplateForm'
 import type { ProductAttributeTemplateFormSchema } from '~/features/authenticate/manageProductAttributeTemplate/validator'
 import { createProductAttributeTemplate } from '~/shared/services/api/productAttributeTemplateService'
-import { showToast } from '~/shared/utils/toast'
 import { Button } from '~/core/components/shadcn/button'
 
 export default function CreateProductAttributeTemplatePage() {
@@ -22,10 +21,8 @@ export default function CreateProductAttributeTemplatePage() {
         attributeIds: values.attributeIds.map(Number).filter((n) => !isNaN(n))
       })
       navigate('/admin/manage-product-attribute-template')
-    } catch (error: any) {
+    } catch (error) {
       console.error('Create product attribute template error:', error)
-      const errorMsg = error?.response?.data?.message || 'toasts.error'
-      showToast('error', errorMsg)
     } finally {
       setIsSubmitting(false)
     }
