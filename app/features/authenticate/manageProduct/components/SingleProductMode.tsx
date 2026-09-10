@@ -28,7 +28,7 @@ export default function SingleProductMode({
           Price ($) *
         </label>
         <PriceInput
-          value={price ?? 0}
+          value={price ? price : ""}
           onChange={onPriceChange}
           placeholder="0.00"
           className="bg-gray-50/50 dark:bg-zinc-800/50 font-medium"
@@ -44,7 +44,7 @@ export default function SingleProductMode({
           type="number"
           min="0"
           placeholder="0"
-          value={quantity ?? 0}
+          value={quantity ? quantity : ""}
           onChange={(e) => onQuantityChange(parseInt(e.target.value, 10) || 0)}
           className="bg-gray-50/50 dark:bg-zinc-800/50"
         />

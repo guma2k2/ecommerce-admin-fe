@@ -1,8 +1,18 @@
 import z from 'zod'
+import { validationMsg } from '~/shared/utils/appUtils'
 
 export const brandFormSchema = z.object({
-  name: z.string().trim().min(1, 'Brand name is required').max(100, 'Brand name must be under 100 characters'),
-  description: z.string().trim().max(500, 'Description must be under 500 characters').optional().or(z.literal('')),
+  name: z
+    .string()
+    .trim()
+    .min(1, validationMsg('validation.required'))
+    .max(100, validationMsg('validation.maxLength', { max: 100 })),
+  description: z
+    .string()
+    .trim()
+    .max(500, validationMsg('validation.maxLength', { max: 500 }))
+    .optional()
+    .or(z.literal('')),
   image: z.string().trim().optional().or(z.literal(''))
 })
 

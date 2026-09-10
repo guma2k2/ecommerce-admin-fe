@@ -104,9 +104,9 @@ export function getInitialProductFormValues(
       return combined
     })(),
     hasOptions: hasOptions,
-    simplePrice: firstVariant?.price || 0,
-    simpleQuantity: firstVariant?.quantity || 0,
-    simpleSku: firstVariant?.sku || "",
+    simplePrice: !hasOptions ? firstVariant?.price || 0 : 0,
+    simpleQuantity: !hasOptions ? firstVariant?.quantity || 0 : 0,
+    simpleSku: !hasOptions ? firstVariant?.sku || "" : "",
     options: (initialData.options || []).map((opt) => ({
       id: opt.id,
       productOptionId: opt.productOptionId,
@@ -165,25 +165,42 @@ export function transformProductFormToPayload(
     : []
 
   // 2. Prepare variants payload
-  const variantsPayload = values.variants.map((v, idx) => {
-    const variantAttrs = (v.attributes || [])
-      .filter((a) => a.value?.trim())
-      .map((a) => ({
-        ...(mode === "edit" && typeof a.id === "number" ? { id: a.id } : {}),
-        productAttributeId: Number(a.productAttributeId),
-        value: a.value.trim()
-      }))
+  const variantsPayload = !values.hasOptions
+    ? [
+        {
+          ...(mode === "edit" && typeof values.variants[0]?.id === "number"
+            ? { id: values.variants[0].id }
+            : {}),
+          title: values.variants[0]?.title?.trim() || "Default Variant",
+          sku:
+            (values.variants[0]?.sku || "").trim() ||
+            (values.simpleSku || "").trim() ||
+            `${values.slug.toUpperCase()}-DEF`,
+          price: Number(values.variants[0]?.price ?? values.simplePrice) || 0,
+          quantity: Number(values.variants[0]?.quantity ?? values.simpleQuantity) || 0,
+          mediaId: values.variants[0]?.mediaId || null,
+          attributeValues: []
+        }
+      ]
+    : values.variants.map((v, idx) => {
+        const variantAttrs = (v.attributes || [])
+          .filter((a) => a.value?.trim())
+          .map((a) => ({
+            ...(mode === "edit" && typeof a.id === "number" ? { id: a.id } : {}),
+            productAttributeId: Number(a.productAttributeId),
+            value: a.value.trim()
+          }))
 
-    return {
-      ...(mode === "edit" && typeof v.id === "number" ? { id: v.id } : {}),
-      title: v.title?.trim() || "Default",
-      sku: (v.sku || "").trim() || `${values.slug.toUpperCase()}-${idx + 1}`,
-      price: Number(v.price) || 0,
-      quantity: Number(v.quantity) || 0,
-      mediaId: v.mediaId || null,
-      attributeValues: variantAttrs
-    }
-  })
+        return {
+          ...(mode === "edit" && typeof v.id === "number" ? { id: v.id } : {}),
+          title: v.title?.trim() || "Default",
+          sku: (v.sku || "").trim() || `${values.slug.toUpperCase()}-${idx + 1}`,
+          price: Number(v.price) || 0,
+          quantity: Number(v.quantity) || 0,
+          mediaId: v.mediaId || null,
+          attributeValues: variantAttrs
+        }
+      })
 
   // 3. Prepare medias payload
   const mediasPayload = values.medias.map((m, pos) => ({

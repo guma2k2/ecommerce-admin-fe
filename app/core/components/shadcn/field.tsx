@@ -1,4 +1,5 @@
 import { useMemo } from 'react'
+import { useTranslation } from 'react-i18next'
 import { cva, type VariantProps } from 'class-variance-authority'
 
 import { Label } from '~/core/components/shadcn/label'
@@ -172,6 +173,8 @@ function FieldError({
 }: React.ComponentProps<'div'> & {
   errors?: Array<{ message?: string } | undefined>
 }) {
+  const { t } = useTranslation()
+
   const content = useMemo(() => {
     if (children) {
       return children
@@ -181,18 +184,33 @@ function FieldError({
       return null
     }
 
+    const translateMessage = (msg?: string): string => {
+      if (!msg) return ''
+      if (msg.startsWith('{') && msg.endsWith('}')) {
+        try {
+          const parsed = JSON.parse(msg) as { key?: string; [k: string]: unknown }
+          if (parsed && typeof parsed === 'object' && parsed.key) {
+            return String(t(parsed.key, parsed))
+          }
+        } catch {
+          // Fall back to direct translation
+        }
+      }
+      return String(t(msg, { defaultValue: msg }))
+    }
+
     const uniqueErrors = [...new Map(errors.map((error) => [error?.message, error])).values()]
 
-    if (uniqueErrors?.length == 1) {
-      return uniqueErrors[0]?.message
+    if (uniqueErrors?.length === 1) {
+      return translateMessage(uniqueErrors[0]?.message)
     }
 
     return (
       <ul className='ml-4 flex list-disc flex-col gap-1'>
-        {uniqueErrors.map((error, index) => error?.message && <li key={index}>{error.message}</li>)}
+        {uniqueErrors.map((error, index) => error?.message && <li key={index}>{translateMessage(error.message)}</li>)}
       </ul>
     )
-  }, [children, errors])
+  }, [children, errors, t])
 
   if (!content) {
     return null

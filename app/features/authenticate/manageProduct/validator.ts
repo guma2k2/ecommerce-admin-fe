@@ -1,16 +1,16 @@
 import z from 'zod'
+import { validationMsg } from '~/shared/utils/appUtils'
 
 export const productOptionValueSchema = z.object({
   id: z.number().nullable().optional(),
-  value: z.string().trim().min(1, 'Option value is required'),
-  position: z.number().optional(),
-  image: z.string().optional()
+  value: z.string().trim().min(1, validationMsg('validation.required')),
+  position: z.number().optional()
 })
 
 export const productOptionSchema = z.object({
   id: z.union([z.number(), z.string()]).nullable().optional(),
   productOptionId: z.number().optional(),
-  name: z.string().trim().min(1, 'Option name is required'),
+  name: z.string().trim().min(1, validationMsg('validation.required')),
   position: z.number().optional(),
   showing: z.boolean().optional(),
   values: z.array(productOptionValueSchema)
@@ -27,10 +27,9 @@ export const productAttributeItemSchema = z.object({
 export const productVariantSchema = z.object({
   id: z.number().nullable().optional(),
   title: z.string().optional(),
-  name: z.string().optional(),
   sku: z.string().optional(),
-  price: z.number().min(0, 'Price must be greater than or equal to 0'),
-  quantity: z.number().min(0, 'Quantity must be greater than or equal to 0'),
+  price: z.number().min(0, validationMsg('validation.min', { min: 0 })),
+  quantity: z.number().min(0, validationMsg('validation.min', { min: 0 })),
   mediaId: z.string().nullable().optional(),
   image: z.string().optional(),
   productOptionValueIds: z.array(z.number()).optional(),
@@ -46,8 +45,16 @@ export const productMediaItemSchema = z.object({
 
 export const productFormSchema = z.object({
   id: z.union([z.number(), z.string()]).optional(),
-  name: z.string().trim().min(1, 'Product name is required').max(255, 'Name too long'),
-  slug: z.string().trim().min(1, 'Slug is required').max(255, 'Slug too long'),
+  name: z
+    .string()
+    .trim()
+    .min(1, validationMsg('validation.required'))
+    .max(255, validationMsg('validation.maxLength', { max: 255 })),
+  slug: z
+    .string()
+    .trim()
+    .min(1, validationMsg('validation.required'))
+    .max(255, validationMsg('validation.maxLength', { max: 255 })),
   description: z.string().optional(),
   metaTitle: z.string().optional(),
   metaKeyword: z.string().optional(),
@@ -59,11 +66,11 @@ export const productFormSchema = z.object({
   medias: z.array(productMediaItemSchema),
   attributes: z.array(productAttributeItemSchema),
   hasOptions: z.boolean(),
-  simplePrice: z.number().min(0, 'Price must be greater than or equal to 0'),
-  simpleQuantity: z.number().min(0, 'Quantity must be greater than or equal to 0'),
+  simplePrice: z.number().min(0, validationMsg('validation.min', { min: 0 })),
+  simpleQuantity: z.number().min(0, validationMsg('validation.min', { min: 0 })),
   simpleSku: z.string().optional(),
   options: z.array(productOptionSchema),
-  variants: z.array(productVariantSchema).min(1, 'At least 1 variant is required')
+  variants: z.array(productVariantSchema).min(1, validationMsg('validation.atLeastOneVariant'))
 })
 
 export type ProductOptionValueFormType = z.infer<typeof productOptionValueSchema>
@@ -72,4 +79,3 @@ export type ProductVariantFormItem = z.infer<typeof productVariantSchema>
 export type ProductMediaItemForm = z.infer<typeof productMediaItemSchema>
 export type ProductAttributeItemForm = z.infer<typeof productAttributeItemSchema>
 export type ProductFormSchema = z.infer<typeof productFormSchema>
-
