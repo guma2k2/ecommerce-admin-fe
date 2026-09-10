@@ -294,6 +294,16 @@
     "showing": "Hiển thị {{start}} đến {{end}} trong tổng số {{total}} thương hiệu",
     "perPage": "Mỗi trang:"
   },
+  "validation": {
+    "required": "Trường này là bắt buộc",
+    "email": "Vui lòng nhập địa chỉ email hợp lệ",
+    "minLength": "Phải có ít nhất {{min}} ký tự",
+    "maxLength": "Tối đa {{max}} ký tự",
+    "min": "Phải lớn hơn hoặc bằng {{min}}",
+    "max": "Phải nhỏ hơn hoặc bằng {{max}}",
+    "passwordMismatch": "Mật khẩu không khớp",
+    "atLeastOneVariant": "Yêu cầu ít nhất 1 biến thể"
+  },
   "form": {
     "required": "Trường này là bắt buộc",
     "emailInvalid": "Email không hợp lệ",

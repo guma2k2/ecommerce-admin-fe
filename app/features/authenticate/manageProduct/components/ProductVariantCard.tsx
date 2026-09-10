@@ -5,12 +5,23 @@ import { arrayMove } from "@dnd-kit/sortable"
 import { Layers } from "lucide-react"
 import { Checkbox } from "~/core/components/shadcn/checkbox"
 import { cartesian } from "~/shared/utils/appUtils"
-import type { ProductFormSchema } from "~/features/authenticate/manageProduct/validator"
+import type {
+  ProductFormSchema,
+  ProductVariantFormItem
+} from "~/features/authenticate/manageProduct/validator"
 import SingleProductMode from "./SingleProductMode"
 import ProductOptionSection from "./ProductOptionSection"
 import ProductVariantsMatrixTable from "./ProductVariantsMatrixTable"
 
-export default function ProductVariantCard() {
+export interface ProductVariantCardProps {
+  initialSingleVariantId?: number | null
+  initialVariants?: ProductVariantFormItem[]
+}
+
+export default function ProductVariantCard({
+  initialSingleVariantId,
+  initialVariants
+}: ProductVariantCardProps = {}) {
   const { control, setValue, getValues } = useFormContext<ProductFormSchema>()
   const hasOptions = useWatch({ control, name: "hasOptions" })
   const options = useWatch({ control, name: "options" }) || []
@@ -33,30 +44,7 @@ export default function ProductVariantCard() {
 
   // Synchronize variants when options change in multi-variant mode
   useEffect(() => {
-    if (!hasOptions) {
-      // In single mode, ensure 1 default variant is present
-      const simplePrice = Number(getValues("simplePrice")) || 0
-      const simpleQuantity = Number(getValues("simpleQuantity")) || 0
-      const simpleSku = getValues("simpleSku") || `${productSlug.toUpperCase()}-DEF`
-      const existingId = variants[0]?.id || null
-
-      setValue(
-        "variants",
-        [
-          {
-            id: existingId,
-            title: "Default Variant",
-            sku: simpleSku,
-            price: simplePrice,
-            quantity: simpleQuantity,
-            image: variants[0]?.image || "",
-            mediaId: variants[0]?.mediaId || undefined
-          }
-        ],
-        { shouldValidate: true }
-      )
-      return
-    }
+    if (!hasOptions) return
 
     // Filter valid options with at least one non-empty value
     const validOptions = options.filter(
@@ -93,9 +81,9 @@ export default function ProductVariantCard() {
 
     const newVariants = combinations.map((combo, idx) => {
       const comboTitle = combo.map((c) => c.value).join(" / ")
-      const matchingExisting = currentVariants.find(
-        (v) => v.title?.toLowerCase() === comboTitle.toLowerCase()
-      )
+      const matchingExisting =
+        currentVariants.find((v) => v.title?.toLowerCase() === comboTitle.toLowerCase()) ||
+        initialVariants?.find((v) => v.title?.toLowerCase() === comboTitle.toLowerCase())
 
       // Generate clean default SKU
       const skuSuffix = combo
@@ -119,22 +107,114 @@ export default function ProductVariantCard() {
     })
 
     setValue("variants", newVariants, { shouldValidate: true })
-  }, [hasOptions, optionsJson])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [hasOptions, optionsJson, initialVariants])
+
+  // Handle switching between single product and multi-variant mode
+  const handleToggleHasOptions = (checked: boolean) => {
+    setValue("hasOptions", checked, { shouldDirty: true })
+    if (!checked) {
+      // Clean reset of single product mode values to default empty
+      setValue("simplePrice", 0, { shouldDirty: true })
+      setValue("simpleQuantity", 0, { shouldDirty: true })
+      setValue("simpleSku", "", { shouldDirty: true })
+      setValue(
+        "variants",
+        [
+          {
+            id: initialSingleVariantId ?? null,
+            title: "Default Variant",
+            sku: "",
+            price: 0,
+            quantity: 0,
+            image: "",
+            mediaId: undefined,
+            productOptionValueIds: [],
+            attributes: []
+          }
+        ],
+        { shouldValidate: true, shouldDirty: true }
+      )
+    }
+  }
 
   // Single Product Mode Handlers
   const handleSinglePriceChange = (val: number) => {
-    setValue("simplePrice", val)
-    setValue("variants.0.price", val, { shouldDirty: true })
+    setValue("simplePrice", val, { shouldDirty: true })
+    const currentVariants = getValues("variants") || []
+    if (currentVariants.length > 0) {
+      setValue("variants.0.price", val, { shouldDirty: true })
+    } else {
+      setValue(
+        "variants",
+        [
+          {
+            id: initialSingleVariantId ?? null,
+            title: "Default Variant",
+            sku: getValues("simpleSku") || "",
+            price: val,
+            quantity: Number(getValues("simpleQuantity")) || 0,
+            image: "",
+            mediaId: undefined,
+            productOptionValueIds: [],
+            attributes: []
+          }
+        ],
+        { shouldDirty: true }
+      )
+    }
   }
 
   const handleSingleQuantityChange = (val: number) => {
-    setValue("simpleQuantity", val)
-    setValue("variants.0.quantity", val, { shouldDirty: true })
+    setValue("simpleQuantity", val, { shouldDirty: true })
+    const currentVariants = getValues("variants") || []
+    if (currentVariants.length > 0) {
+      setValue("variants.0.quantity", val, { shouldDirty: true })
+    } else {
+      setValue(
+        "variants",
+        [
+          {
+            id: initialSingleVariantId ?? null,
+            title: "Default Variant",
+            sku: getValues("simpleSku") || "",
+            price: Number(getValues("simplePrice")) || 0,
+            quantity: val,
+            image: "",
+            mediaId: undefined,
+            productOptionValueIds: [],
+            attributes: []
+          }
+        ],
+        { shouldDirty: true }
+      )
+    }
   }
 
   const handleSingleSkuChange = (val: string) => {
-    setValue("simpleSku", val)
-    setValue("variants.0.sku", val, { shouldDirty: true })
+    setValue("simpleSku", val, { shouldDirty: true })
+    const currentVariants = getValues("variants") || []
+    if (currentVariants.length > 0) {
+      setValue("variants.0.sku", val, { shouldDirty: true })
+    } else {
+      setValue(
+        "variants",
+        [
+          {
+            id: initialSingleVariantId ?? null,
+            title: "Default Variant",
+            sku: val,
+            price: Number(getValues("simplePrice")) || 0,
+            quantity: Number(getValues("simpleQuantity")) || 0,
+            image: "",
+            mediaId: undefined,
+            productOptionValueIds: [],
+            attributes: []
+          }
+        ],
+        { shouldDirty: true }
+      )
+    }
   }
 
   // Multi-variant Option Axis Handlers
@@ -398,7 +478,7 @@ export default function ProductVariantCard() {
         <label className="flex items-center gap-2.5 cursor-pointer bg-gray-50 dark:bg-zinc-800/80 px-3 py-1.5 rounded-lg border border-gray-200 dark:border-zinc-700 text-xs font-medium">
           <Checkbox
             checked={hasOptions}
-            onCheckedChange={(checked) => setValue("hasOptions", !!checked, { shouldDirty: true })}
+            onCheckedChange={(checked) => handleToggleHasOptions(!!checked)}
           />
           <span>Multiple variations (Size, Color, etc.)</span>
         </label>

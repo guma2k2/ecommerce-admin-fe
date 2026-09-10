@@ -143,3 +143,10 @@ export function isVideoMedia(media: { type?: string; fileType?: string }): boole
     ['mp4', 'mov', 'avi', 'mkv', 'flv', 'wmv', 'webm', 'm4v', '3gp', 'ts', 'mpg', 'mpeg'].includes(ext)
   )
 }
+
+/**
+ * Formats a validation translation key and optional interpolation params into a message string for Zod.
+ */
+export function validationMsg(key: string, params?: Record<string, unknown>): string {
+  return params ? JSON.stringify({ key, ...params }) : key
+}

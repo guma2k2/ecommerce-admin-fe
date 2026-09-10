@@ -96,10 +96,8 @@ export default function FormBase<
 }
 
 export const FormInput: FormControlFunc<
-  Omit<React.ComponentProps<typeof Input>, "name" | "value" | "defaultValue"> & {
-    onChangeCustom?: (e: React.ChangeEvent<HTMLInputElement>) => void
-  }
-> = ({ onChangeCustom, type, placeholder, ...props }) => {
+  Omit<React.ComponentProps<typeof Input>, "name" | "value" | "defaultValue">
+> = ({ type, placeholder, ...props }) => {
   return (
     <FormBase {...props}>
       {(field) => (
@@ -107,10 +105,6 @@ export const FormInput: FormControlFunc<
           {...field}
           type={type}
           placeholder={placeholder}
-          onChange={(e) => {
-            onChangeCustom?.(e)
-            field.onChange(e)
-          }}
         />
       )}
     </FormBase>
@@ -151,10 +145,8 @@ export const FormCheckbox: FormControlFunc = (props) => {
 }
 
 export const FormTextarea: FormControlFunc<
-  Omit<React.ComponentProps<typeof Textarea>, "name" | "value" | "defaultValue"> & {
-    onChangeCustom?: (e: React.ChangeEvent<HTMLTextAreaElement>) => void
-  }
-> = ({ onChangeCustom, ...props }) => {
+  Omit<React.ComponentProps<typeof Textarea>, "name" | "value" | "defaultValue">
+> = (props) => {
   const { control, label, name, description, ...textareaProps } = props
   return (
     <FormBase control={control} name={name} label={label} description={description}>
@@ -162,10 +154,6 @@ export const FormTextarea: FormControlFunc<
         <Textarea
           {...field}
           {...textareaProps}
-          onChange={(e) => {
-            onChangeCustom?.(e)
-            field.onChange(e)
-          }}
         />
       )}
     </FormBase>
@@ -186,21 +174,15 @@ export function FormInfiniteSelect<
   TItem extends Record<string, any> = Record<string, any>
 >(
   props: FormControlProps<TFieldValues, TName> &
-    Omit<InfiniteSelectProps<TItem>, "value" | "onChange"> & {
-      onChangeCustom?: (value: string, item?: TItem) => void
-    }
+    Omit<InfiniteSelectProps<TItem>, "value" | "onChange">
 ) {
-  const { onChangeCustom, ...baseProps } = props
   return (
-    <FormBase {...baseProps}>
+    <FormBase {...props}>
       {({ onChange, value }) => (
         <InfiniteSelect<TItem>
           {...props}
           value={value ?? ""}
-          onChange={(val, item) => {
-            onChange(val)
-            onChangeCustom?.(val, item)
-          }}
+          onChange={onChange}
         />
       )}
     </FormBase>
@@ -208,10 +190,8 @@ export function FormInfiniteSelect<
 }
 
 export const FormPriceInput: FormControlFunc<
-  Omit<PriceInputProps, "name" | "value" | "onChange"> & {
-    onChangeCustom?: (val: number) => void
-  }
-> = ({ onChangeCustom, prefix, placeholder, ...props }) => {
+  Omit<PriceInputProps, "name" | "value" | "onChange">
+> = ({ prefix, placeholder, ...props }) => {
   return (
     <FormBase {...props}>
       {({ onChange, value, ...field }) => (
@@ -220,10 +200,7 @@ export const FormPriceInput: FormControlFunc<
           prefix={prefix}
           value={value ?? 0}
           placeholder={placeholder}
-          onChange={(num) => {
-            onChange(num)
-            onChangeCustom?.(num)
-          }}
+          onChange={onChange}
         />
       )}
     </FormBase>
@@ -231,10 +208,8 @@ export const FormPriceInput: FormControlFunc<
 }
 
 export const FormTextEditor: FormControlFunc<
-  Omit<TextEditorProps, "value" | "onChange" | "onBlur"> & {
-    onChangeCustom?: (val: string) => void
-  }
-> = ({ onChangeCustom, placeholder, className, ...props }) => {
+  Omit<TextEditorProps, "value" | "onChange" | "onBlur">
+> = ({ placeholder, className, ...props }) => {
   return (
     <FormBase {...props}>
       {({ onChange, onBlur, value, id }) => (
@@ -245,10 +220,7 @@ export const FormTextEditor: FormControlFunc<
           placeholder={placeholder}
           className={className}
           onBlur={onBlur}
-          onChange={(val) => {
-            onChange(val)
-            onChangeCustom?.(val)
-          }}
+          onChange={onChange}
         />
       )}
     </FormBase>

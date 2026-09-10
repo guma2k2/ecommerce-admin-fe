@@ -58,6 +58,28 @@ const ProductForm = forwardRef<ProductFormHandle, ProductFormProps>(function Pro
     [initialData, mode]
   )
 
+  // Determine if the product originally had options in DB
+  const initialHasOptions = Boolean(initialData?.options && initialData.options.length > 0)
+  // If the product was originally a single product in DB, retain its true DB variant ID; otherwise null
+  const initialSingleVariantId =
+    !initialHasOptions && initialData?.variants?.[0]?.id ? initialData.variants[0].id : null
+
+  // Retain initial variant records so re-enabling multi-variant mode preserves original DB variant IDs
+  const initialVariants = useMemo(
+    () =>
+      (initialData?.variants || []).map((v) => ({
+        id: v.id,
+        title: v.title,
+        sku: v.sku,
+        price: v.price,
+        quantity: v.quantity,
+        mediaId: v.mediaId || undefined,
+        image: v.mediaUrl || initialData?.medias?.find((m) => m.mediaId === v.mediaId)?.url || "",
+        productOptionValueIds: v.productOptionValueIds
+      })),
+    [initialData]
+  )
+
   const methods = useForm<ProductFormSchema>({
     resolver: zodResolver(productFormSchema),
     defaultValues
@@ -103,7 +125,10 @@ const ProductForm = forwardRef<ProductFormHandle, ProductFormProps>(function Pro
             <ProductGeneralInfoCard />
             <ProductMediaCard />
             <ProductAttributesCard />
-            <ProductVariantCard />
+            <ProductVariantCard
+              initialSingleVariantId={initialSingleVariantId}
+              initialVariants={initialVariants}
+            />
             <ProductSeoCard />
           </div>
 
