@@ -78,12 +78,27 @@ export default function ProductVariantCard({
 
     const combinations = cartesian(valueMatrix)
     const currentVariants = getValues("variants") || []
+    const usedVariantIds = new Set<number>()
 
     const newVariants = combinations.map((combo, idx) => {
       const comboTitle = combo.map((c) => c.value).join(" / ")
+
+      // Match strictly by exact title, ensuring an existing variant is only claimed once
       const matchingExisting =
-        currentVariants.find((v) => v.title?.toLowerCase() === comboTitle.toLowerCase()) ||
-        initialVariants?.find((v) => v.title?.toLowerCase() === comboTitle.toLowerCase())
+        currentVariants.find(
+          (v) =>
+            v.title?.toLowerCase() === comboTitle.toLowerCase() &&
+            (!v.id || !usedVariantIds.has(v.id))
+        ) ||
+        initialVariants?.find(
+          (v) =>
+            v.title?.toLowerCase() === comboTitle.toLowerCase() &&
+            (!v.id || !usedVariantIds.has(v.id))
+        )
+
+      if (matchingExisting?.id) {
+        usedVariantIds.add(matchingExisting.id)
+      }
 
       // Generate clean default SKU
       const skuSuffix = combo

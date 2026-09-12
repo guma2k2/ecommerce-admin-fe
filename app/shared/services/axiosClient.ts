@@ -278,7 +278,6 @@ class AxiosClient {
       setAccessToken(null)
       authCallbacks.onUnauthorized?.()
 
-      this.showError('unauthorized')
       this.handleUnauthorized(err)
       return Promise.reject(err)
     } finally {
@@ -288,6 +287,7 @@ class AxiosClient {
 
   private handleUnauthorized(error?: unknown): void {
     if (typeof window === 'undefined') return
+    window.location.href = "/login";
     // AuthenticateLayout automatically redirects when useAuthStore isAuthenticated becomes false
   }
 

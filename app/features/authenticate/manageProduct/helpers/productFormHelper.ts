@@ -109,7 +109,7 @@ export function getInitialProductFormValues(
     simpleSku: !hasOptions ? firstVariant?.sku || "" : "",
     options: (initialData.options || []).map((opt) => ({
       id: opt.id,
-      productOptionId: opt.productOptionId,
+      productOptionId: opt.productOptionId ?? (typeof opt.id === "number" ? opt.id : undefined),
       name: opt.name,
       position: opt.position,
       showing: false,
@@ -150,18 +150,20 @@ export function transformProductFormToPayload(
   const optionsPayload = values.hasOptions
     ? values.options
         .filter((opt) => opt.name.trim() && opt.values.some((v) => v.value.trim()))
-        .map((opt, optIndex) => ({
-          ...(mode === "edit" && typeof opt.id === "number" ? { id: opt.id } : {}),
-          productOptionId: opt.productOptionId || optIndex + 1,
-          position: typeof opt.position === "number" ? opt.position : optIndex,
-          values: opt.values
-            .filter((v) => v.value.trim())
-            .map((v, valIndex) => ({
-              ...(mode === "edit" && typeof v.id === "number" ? { id: v.id } : {}),
-              value: v.value.trim(),
-              position: typeof v.position === "number" ? v.position : valIndex
-            }))
-        }))
+        .map((opt, optIndex) => {
+          const resolvedOptionId = Number(opt.productOptionId ?? opt.id)
+          return {
+            productOptionId: resolvedOptionId,
+            position: optIndex,
+            values: opt.values
+              .filter((v) => v.value.trim())
+              .map((v, valIndex) => ({
+                ...(mode === "edit" && typeof v.id === "number" ? { id: v.id } : {}),
+                value: v.value.trim(),
+                position: valIndex
+              }))
+          }
+        })
     : []
 
   // 2. Prepare variants payload
@@ -186,7 +188,6 @@ export function transformProductFormToPayload(
         const variantAttrs = (v.attributes || [])
           .filter((a) => a.value?.trim())
           .map((a) => ({
-            ...(mode === "edit" && typeof a.id === "number" ? { id: a.id } : {}),
             productAttributeId: Number(a.productAttributeId),
             value: a.value.trim()
           }))
@@ -212,7 +213,6 @@ export function transformProductFormToPayload(
   const attributesPayload = values.attributes
     .filter((a) => a.applyTo !== "variant" && a.value?.trim())
     .map((a) => ({
-      ...(mode === "edit" && typeof a.id === "number" ? { id: a.id } : {}),
       productAttributeId: Number(a.productAttributeId),
       value: a.value.trim()
     }))

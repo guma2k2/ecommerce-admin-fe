@@ -34,7 +34,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <QueryProvider>
           <I18nProvider>{children}</I18nProvider>
         </QueryProvider>
-        <Toaster />
+        <Toaster position="top-center"  />
         <ScrollRestoration />
         <Scripts />
       </body>

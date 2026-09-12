@@ -42,14 +42,12 @@ export interface ProductMediaResponse {
 export interface ProductOptionValueRequest {
   id?: number | null
   value: string
-  position?: number
+  position: number
 }
 
 export interface ProductOptionCombinationRequest {
-  id?: number | null
   productOptionId: number
-  name?: string
-  position?: number
+  position: number
   values: ProductOptionValueRequest[]
 }
 
@@ -61,7 +59,7 @@ export interface ProductOptionValueResponse {
 
 export interface ProductOptionCombinationResponse {
   id: number
-  productOptionId: number
+  productOptionId?: number
   name: string
   position: number
   values: ProductOptionValueResponse[]
@@ -69,7 +67,6 @@ export interface ProductOptionCombinationResponse {
 
 // Attributes
 export interface ProductAttributeValueRequest {
-  id?: number | null
   productAttributeId: number
   value: string
 }
@@ -83,7 +80,6 @@ export interface ProductAttributeValueResponse {
 
 // Variants
 export interface ProductVariantAttributeValueRequest {
-  id?: number | null
   productAttributeId: number
   value: string
 }
