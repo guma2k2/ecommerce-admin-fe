@@ -36,6 +36,7 @@ export default function UpdateProductPage() {
   const handleSave = async () => {
     const payload = await formRef.current?.submit()
     if (!payload) return
+    console.log("Payload: ", payload);
 
     try {
       setIsSubmitting(true)
