@@ -4,7 +4,7 @@ import {
   useQueryClient,
   type UseMutationOptions,
   type UseQueryOptions
-} from '@tanstack/react-query'
+} from "@tanstack/react-query"
 import {
   createCategory,
   deleteCategory,
@@ -12,7 +12,7 @@ import {
   getCategoryById,
   getCategoriesPage,
   updateCategory
-} from '~/shared/services/api/categoryService'
+} from "~/shared/services/api/categoryService"
 import type {
   CategoryCreateRequest,
   CategoryItem,
@@ -20,17 +20,17 @@ import type {
   CategoryUpdateRequest,
   PageResponse,
   PaginationParams
-} from '~/shared/types'
+} from "~/shared/types"
 
 /**
  * Query key factory for category cache management.
  */
 export const categoryKeys = {
-  all: ['categories'] as const,
-  lists: () => [...categoryKeys.all, 'list'] as const,
+  all: ["categories"] as const,
+  lists: () => [...categoryKeys.all, "list"] as const,
   list: (params?: PaginationParams & { search?: string }) => [...categoryKeys.lists(), params] as const,
-  trees: () => [...categoryKeys.all, 'tree'] as const,
-  details: () => [...categoryKeys.all, 'detail'] as const,
+  trees: () => [...categoryKeys.all, "tree"] as const,
+  details: () => [...categoryKeys.all, "detail"] as const,
   detail: (id?: number | string) => [...categoryKeys.details(), id] as const
 }
 
@@ -39,7 +39,7 @@ export const categoryKeys = {
  */
 export function useCategoryPageQuery(
   params: PaginationParams & { search?: string } = {},
-  options?: Omit<UseQueryOptions<PageResponse<CategoryResponse>, Error>, 'queryKey' | 'queryFn'>
+  options?: Omit<UseQueryOptions<PageResponse<CategoryResponse>, Error>, "queryKey" | "queryFn">
 ) {
   return useQuery<PageResponse<CategoryResponse>, Error>({
     queryKey: categoryKeys.list(params),
@@ -52,9 +52,7 @@ export function useCategoryPageQuery(
 /**
  * React Query hook for fetching all categories flattened for selectors.
  */
-export function useAllCategoriesQuery(
-  options?: Omit<UseQueryOptions<CategoryItem[], Error>, 'queryKey' | 'queryFn'>
-) {
+export function useAllCategoriesQuery(options?: Omit<UseQueryOptions<CategoryItem[], Error>, "queryKey" | "queryFn">) {
   return useQuery<CategoryItem[], Error>({
     queryKey: categoryKeys.trees(),
     queryFn: () => getAllCategories(),
@@ -67,12 +65,12 @@ export function useAllCategoriesQuery(
  */
 export function useCategoryDetailQuery(
   categoryId?: number | string,
-  options?: Omit<UseQueryOptions<CategoryResponse, Error>, 'queryKey' | 'queryFn'>
+  options?: Omit<UseQueryOptions<CategoryResponse, Error>, "queryKey" | "queryFn">
 ) {
   return useQuery<CategoryResponse, Error>({
     queryKey: categoryKeys.detail(categoryId),
     queryFn: () => {
-      if (!categoryId) throw new Error('Category ID is required')
+      if (!categoryId) throw new Error("Category ID is required")
       return getCategoryById(categoryId)
     },
     enabled: Boolean(categoryId),
@@ -84,7 +82,7 @@ export function useCategoryDetailQuery(
  * React Query hook for creating a new category.
  */
 export function useCreateCategoryMutation(
-  options?: UseMutationOptions<void, Error, CategoryCreateRequest>
+  options?: UseMutationOptions<CategoryResponse, Error, CategoryCreateRequest>
 ) {
   const queryClient = useQueryClient()
 
@@ -93,15 +91,11 @@ export function useCreateCategoryMutation(
     mutationFn: (payload: CategoryCreateRequest) => createCategory(payload),
     onSuccess: (data, variables, context, ...rest) => {
       queryClient.invalidateQueries({ queryKey: categoryKeys.all })
-      if (options?.onSuccess) {
-        ;(options.onSuccess as any)(data, variables, context, ...rest)
-      }
+      options?.onSuccess?.(data, variables, context, ...rest)
     },
     onError: (error, variables, context, ...rest) => {
-      console.error('Create category error:', error)
-      if (options?.onError) {
-        ;(options.onError as any)(error, variables, context, ...rest)
-      }
+      console.error("Create category error:", error)
+      options?.onError?.(error, variables, context, ...rest)
     }
   })
 }
@@ -125,7 +119,7 @@ export function useUpdateCategoryMutation(
       }
     },
     onError: (error, variables, context, ...rest) => {
-      console.error('Update category error:', error)
+      console.error("Update category error:", error)
       if (options?.onError) {
         ;(options.onError as any)(error, variables, context, ...rest)
       }
@@ -136,9 +130,7 @@ export function useUpdateCategoryMutation(
 /**
  * React Query hook for deleting a category.
  */
-export function useDeleteCategoryMutation(
-  options?: UseMutationOptions<void, Error, number | string>
-) {
+export function useDeleteCategoryMutation(options?: UseMutationOptions<void, Error, number | string>) {
   const queryClient = useQueryClient()
 
   return useMutation({
@@ -151,7 +143,7 @@ export function useDeleteCategoryMutation(
       }
     },
     onError: (error, variables, context, ...rest) => {
-      console.error('Delete category error:', error)
+      console.error("Delete category error:", error)
       if (options?.onError) {
         ;(options.onError as any)(error, variables, context, ...rest)
       }

@@ -88,11 +88,12 @@ export async function getBrandById(brandId: number | string): Promise<BrandRespo
 /**
  * Creates a new brand entity.
  */
-export async function createBrand(payload: BrandCreateRequest): Promise<void> {
-  await httpRequest.post<ApiResponse<void>>('/brands', {
+export async function createBrand(payload: BrandCreateRequest): Promise<BrandResponse> {
+  const response = await httpRequest.post<ApiResponse<BrandResponse>>('/brands', {
     name: payload.name.trim(),
     description: payload.description?.trim() || null
   })
+  return response.data.data
 }
 
 /**

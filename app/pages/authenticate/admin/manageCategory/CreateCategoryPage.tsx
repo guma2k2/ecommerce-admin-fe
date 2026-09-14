@@ -1,11 +1,12 @@
-import { useState } from 'react'
-import { useNavigate, Link, useLoaderData } from 'react-router'
-import { ArrowLeft, FolderPlus } from 'lucide-react'
-import { useTranslation } from 'react-i18next'
+import { useState } from "react"
+import { useNavigate, Link, useLoaderData } from "react-router"
+import { ArrowLeft, FolderPlus } from "lucide-react"
+import { useTranslation } from "react-i18next"
 
-import CategoryForm from '~/features/authenticate/manageCategory/components/CategoryForm'
-import { createCategory, getAllCategories } from '~/shared/services/api/categoryService'
-import { Button } from '~/core/components/shadcn/button'
+import CategoryForm from "~/features/authenticate/manageCategory/components/CategoryForm"
+import { createCategory, getAllCategories } from "~/shared/services/api/categoryService"
+import { Button } from "~/core/components/shadcn/button"
+import { showToast } from "~/shared/utils"
 
 export async function clientLoader() {
   const categories = await getAllCategories()
@@ -23,10 +24,15 @@ export default function CreateCategoryPage() {
   const handleCreate = async (values: { name: string; parentId: number | null }) => {
     try {
       setIsSubmitting(true)
-      await createCategory(values)
-      navigate('/admin/manage-category')
-    } catch (error: any) {
-      console.error('Create category error:', error)
+      const created = await createCategory(values)
+      showToast("success", "toasts.createdSuccess")
+      if (created?.id) {
+        navigate(`/admin/manage-category/edit/${created.id}`)
+      } else {
+        navigate("/admin/manage-category")
+      }
+    } catch (error: unknown) {
+      console.error("Create category error:", error)
     } finally {
       setIsSubmitting(false)
     }
@@ -39,15 +45,15 @@ export default function CreateCategoryPage() {
         <Button variant='outline' size='icon' asChild className='bg-white dark:bg-zinc-900 shadow-xs'>
           <Link to='/admin/manage-category'>
             <ArrowLeft className='size-4' />
-            <span className='sr-only'>{t('category.backToCategories')}</span>
+            <span className='sr-only'>{t("category.backToCategories")}</span>
           </Link>
         </Button>
         <div>
           <h1 className='text-2xl font-bold tracking-tight text-gray-900 dark:text-gray-50 flex items-center gap-2'>
             <FolderPlus className='size-6 text-primary' />
-            {t('category.addNew')}
+            {t("category.addNew")}
           </h1>
-          <p className='text-sm text-muted-foreground'>{t('category.addSubtitle')}</p>
+          <p className='text-sm text-muted-foreground'>{t("category.addSubtitle")}</p>
         </div>
       </div>
 
@@ -57,8 +63,8 @@ export default function CreateCategoryPage() {
           categories={categories}
           onSubmit={handleCreate}
           isSubmitting={isSubmitting}
-          onCancel={() => navigate('/admin/manage-category')}
-          submitLabel={t('category.createCategory')}
+          onCancel={() => navigate("/admin/manage-category")}
+          submitLabel={t("category.createCategory")}
         />
       </div>
     </div>

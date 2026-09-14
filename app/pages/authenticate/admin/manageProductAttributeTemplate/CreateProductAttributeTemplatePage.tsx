@@ -1,12 +1,13 @@
-import { useState } from 'react'
-import { useNavigate, Link } from 'react-router'
-import { ArrowLeft, SlidersHorizontal } from 'lucide-react'
-import { useTranslation } from 'react-i18next'
+import { useState } from "react"
+import { useNavigate, Link } from "react-router"
+import { ArrowLeft, SlidersHorizontal } from "lucide-react"
+import { useTranslation } from "react-i18next"
 
-import ProductAttributeTemplateForm from '~/features/authenticate/manageProductAttributeTemplate/components/ProductAttributeTemplateForm'
-import type { ProductAttributeTemplateFormSchema } from '~/features/authenticate/manageProductAttributeTemplate/validator'
-import { createProductAttributeTemplate } from '~/shared/services/api/productAttributeTemplateService'
-import { Button } from '~/core/components/shadcn/button'
+import ProductAttributeTemplateForm from "~/features/authenticate/manageProductAttributeTemplate/components/ProductAttributeTemplateForm"
+import type { ProductAttributeTemplateFormSchema } from "~/features/authenticate/manageProductAttributeTemplate/validator"
+import { createProductAttributeTemplate } from "~/shared/services/api/productAttributeTemplateService"
+import { Button } from "~/core/components/shadcn/button"
+import { showToast } from "~/shared/utils"
 
 export default function CreateProductAttributeTemplatePage() {
   const { t } = useTranslation()
@@ -16,13 +17,18 @@ export default function CreateProductAttributeTemplatePage() {
   const handleCreate = async (values: ProductAttributeTemplateFormSchema) => {
     try {
       setIsSubmitting(true)
-      await createProductAttributeTemplate({
+      const created = await createProductAttributeTemplate({
         name: values.name,
         attributeIds: values.attributeIds.map(Number).filter((n) => !isNaN(n))
       })
-      navigate('/admin/manage-product-attribute-template')
-    } catch (error) {
-      console.error('Create product attribute template error:', error)
+      showToast("success", "toasts.createdSuccess")
+      if (created?.id) {
+        navigate(`/admin/manage-product-attribute-template/edit/${created.id}`)
+      } else {
+        navigate("/admin/manage-product-attribute-template")
+      }
+    } catch (error: unknown) {
+      console.error("Create product attribute template error:", error)
     } finally {
       setIsSubmitting(false)
     }
@@ -35,17 +41,15 @@ export default function CreateProductAttributeTemplatePage() {
         <Button variant='outline' size='icon' asChild className='bg-white dark:bg-zinc-900 shadow-xs'>
           <Link to='/admin/manage-product-attribute-template'>
             <ArrowLeft className='size-4' />
-            <span className='sr-only'>{t('productAttributeTemplate.backToTemplates')}</span>
+            <span className='sr-only'>{t("productAttributeTemplate.backToTemplates")}</span>
           </Link>
         </Button>
         <div>
           <h1 className='text-2xl font-bold tracking-tight text-gray-900 dark:text-gray-50 flex items-center gap-2'>
             <SlidersHorizontal className='size-6 text-indigo-500' />
-            {t('productAttributeTemplate.addNew')}
+            {t("productAttributeTemplate.addNew")}
           </h1>
-          <p className='text-sm text-muted-foreground'>
-            {t('productAttributeTemplate.addSubtitle')}
-          </p>
+          <p className='text-sm text-muted-foreground'>{t("productAttributeTemplate.addSubtitle")}</p>
         </div>
       </div>
 
@@ -54,8 +58,8 @@ export default function CreateProductAttributeTemplatePage() {
         <ProductAttributeTemplateForm
           onSubmit={handleCreate}
           isSubmitting={isSubmitting}
-          onCancel={() => navigate('/admin/manage-product-attribute-template')}
-          submitLabel={t('productAttributeTemplate.createTemplate')}
+          onCancel={() => navigate("/admin/manage-product-attribute-template")}
+          submitLabel={t("productAttributeTemplate.createTemplate")}
         />
       </div>
     </div>

@@ -1,12 +1,13 @@
-import { useState } from 'react'
-import { useNavigate, Link } from 'react-router'
-import { ArrowLeft, Tag } from 'lucide-react'
-import { useTranslation } from 'react-i18next'
+import { useState } from "react"
+import { useNavigate, Link } from "react-router"
+import { ArrowLeft, Tag } from "lucide-react"
+import { useTranslation } from "react-i18next"
 
-import ProductAttributeForm from '~/features/authenticate/manageProductAttribute/components/ProductAttributeForm'
-import type { ProductAttributeFormSchema } from '~/features/authenticate/manageProductAttribute/validator'
-import { createProductAttribute } from '~/shared/services/api/productAttributeService'
-import { Button } from '~/core/components/shadcn/button'
+import ProductAttributeForm from "~/features/authenticate/manageProductAttribute/components/ProductAttributeForm"
+import type { ProductAttributeFormSchema } from "~/features/authenticate/manageProductAttribute/validator"
+import { createProductAttribute } from "~/shared/services/api/productAttributeService"
+import { Button } from "~/core/components/shadcn/button"
+import { showToast } from "~/shared/utils"
 
 export default function CreateProductAttributePage() {
   const { t } = useTranslation()
@@ -16,10 +17,15 @@ export default function CreateProductAttributePage() {
   const handleCreate = async (values: ProductAttributeFormSchema) => {
     try {
       setIsSubmitting(true)
-      await createProductAttribute({ name: values.name })
-      navigate('/admin/manage-product-attribute')
-    } catch (error) {
-      console.error('Create product attribute error:', error)
+      const created = await createProductAttribute({ name: values.name })
+      showToast("success", "toasts.createdSuccess")
+      if (created?.id) {
+        navigate(`/admin/manage-product-attribute/edit/${created.id}`)
+      } else {
+        navigate("/admin/manage-product-attribute")
+      }
+    } catch (error: unknown) {
+      console.error("Create product attribute error:", error)
     } finally {
       setIsSubmitting(false)
     }
@@ -32,17 +38,15 @@ export default function CreateProductAttributePage() {
         <Button variant='outline' size='icon' asChild className='bg-white dark:bg-zinc-900 shadow-xs'>
           <Link to='/admin/manage-product-attribute'>
             <ArrowLeft className='size-4' />
-            <span className='sr-only'>{t('productAttribute.backToAttributes')}</span>
+            <span className='sr-only'>{t("productAttribute.backToAttributes")}</span>
           </Link>
         </Button>
         <div>
           <h1 className='text-2xl font-bold tracking-tight text-gray-900 dark:text-gray-50 flex items-center gap-2'>
             <Tag className='size-6 text-emerald-500' />
-            {t('productAttribute.addNew')}
+            {t("productAttribute.addNew")}
           </h1>
-          <p className='text-sm text-muted-foreground'>
-            {t('productAttribute.addSubtitle')}
-          </p>
+          <p className='text-sm text-muted-foreground'>{t("productAttribute.addSubtitle")}</p>
         </div>
       </div>
 
@@ -51,8 +55,8 @@ export default function CreateProductAttributePage() {
         <ProductAttributeForm
           onSubmit={handleCreate}
           isSubmitting={isSubmitting}
-          onCancel={() => navigate('/admin/manage-product-attribute')}
-          submitLabel={t('productAttribute.createAttribute')}
+          onCancel={() => navigate("/admin/manage-product-attribute")}
+          submitLabel={t("productAttribute.createAttribute")}
         />
       </div>
     </div>

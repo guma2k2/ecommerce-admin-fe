@@ -1,5 +1,5 @@
 import { useState, useRef } from "react"
-import { useLoaderData, useNavigate, type LoaderFunctionArgs } from "react-router"
+import { useLoaderData, useNavigate, useRevalidator, type LoaderFunctionArgs } from "react-router"
 import {
   ProductForm,
   ProductActionHeader,
@@ -9,6 +9,7 @@ import { getProductById, updateProduct } from "~/shared/services/api/productServ
 import { getAllCategories } from "~/shared/services/api/categoryService"
 import { getAllBrands } from "~/shared/services/api/brandService"
 import type { ProductUpdateRequest } from "~/shared/types"
+import { showToast } from "~/shared/utils"
 
 export async function clientLoader({ params }: LoaderFunctionArgs) {
   const productId = params.id
@@ -29,20 +30,24 @@ clientLoader.hydrate = true as const
 export default function UpdateProductPage() {
   const { product, categories, brands, productId } = useLoaderData<typeof clientLoader>()
   const navigate = useNavigate()
+  const revalidator = useRevalidator()
   const formRef = useRef<ProductFormHandle>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isDirty, setIsDirty] = useState(false)
+  const [updateCount, setUpdateCount] = useState(0)
 
   const handleSave = async () => {
     const payload = await formRef.current?.submit()
     if (!payload) return
-    console.log("Payload: ", payload);
 
     try {
       setIsSubmitting(true)
       const targetId = product?.id || productId
       await updateProduct(targetId, payload as ProductUpdateRequest)
-      navigate("/admin/manage-product")
+      showToast("success", "toasts.updatedSuccess")
+      setIsDirty(false)
+      revalidator.revalidate()
+      setUpdateCount((prev) => prev + 1)
     } catch (error: unknown) {
       console.error("Failed to update product:", error)
     } finally {
@@ -51,17 +56,18 @@ export default function UpdateProductPage() {
   }
 
   return (
-    <div className="w-full min-h-screen bg-gray-50/50 dark:bg-zinc-950 p-6 space-y-6">
+    <div className='w-full min-h-screen bg-gray-50/50 dark:bg-zinc-950 p-6 space-y-6'>
       <ProductActionHeader
-        mode="edit"
+        mode='edit'
         initialData={product}
         isDirty={isDirty}
         isSubmitting={isSubmitting}
         onSave={handleSave}
       />
       <ProductForm
+        key={`${product?.id}-${product?.updatedAt || updateCount}`}
         ref={formRef}
-        mode="edit"
+        mode='edit'
         initialData={product}
         categories={categories}
         brands={brands}

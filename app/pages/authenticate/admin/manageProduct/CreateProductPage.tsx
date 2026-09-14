@@ -9,12 +9,10 @@ import { getAllCategories } from "~/shared/services/api/categoryService"
 import { getAllBrands } from "~/shared/services/api/brandService"
 import { createProduct } from "~/shared/services/api/productService"
 import type { ProductCreateRequest } from "~/shared/types"
+import { showToast } from "~/shared/utils"
 
 export async function clientLoader() {
-  const [categories, brands] = await Promise.all([
-    getAllCategories().catch(() => []),
-    getAllBrands().catch(() => [])
-  ])
+  const [categories, brands] = await Promise.all([getAllCategories().catch(() => []), getAllBrands().catch(() => [])])
   return { categories, brands }
 }
 
@@ -30,11 +28,15 @@ export default function CreateProductPage() {
   const handleSave = async () => {
     const payload = await formRef.current?.submit()
     if (!payload) return
-    console.log("Payload: ", payload);
     try {
       setIsSubmitting(true)
-      await createProduct(payload as ProductCreateRequest)
-      navigate("/admin/manage-product")
+      const created = await createProduct(payload as ProductCreateRequest)
+      showToast("success", "toasts.createdSuccess")
+      if (created?.id) {
+        navigate(`/admin/manage-product/edit/${created.id}`)
+      } else {
+        navigate("/admin/manage-product")
+      }
     } catch (error: unknown) {
       console.error("Failed to create product:", error)
     } finally {
@@ -43,20 +45,9 @@ export default function CreateProductPage() {
   }
 
   return (
-    <div className="w-full min-h-screen bg-gray-50/50 dark:bg-zinc-950 p-6 space-y-6">
-      <ProductActionHeader
-        mode="create"
-        isDirty={isDirty}
-        isSubmitting={isSubmitting}
-        onSave={handleSave}
-      />
-      <ProductForm
-        ref={formRef}
-        mode="create"
-        categories={categories}
-        brands={brands}
-        onDirtyChange={setIsDirty}
-      />
+    <div className='w-full min-h-screen bg-gray-50/50 dark:bg-zinc-950 p-6 space-y-6'>
+      <ProductActionHeader mode='create' isDirty={isDirty} isSubmitting={isSubmitting} onSave={handleSave} />
+      <ProductForm ref={formRef} mode='create' categories={categories} brands={brands} onDirtyChange={setIsDirty} />
     </div>
   )
 }

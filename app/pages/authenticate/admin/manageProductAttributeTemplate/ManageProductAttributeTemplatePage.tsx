@@ -1,33 +1,32 @@
-import { useState } from 'react'
-import { useLoaderData, useSearchParams, useNavigation, useNavigate, Link } from 'react-router'
-import type { ClientLoaderFunctionArgs } from 'react-router'
-import { Plus, SlidersHorizontal, RefreshCw } from 'lucide-react'
-import { useTranslation } from 'react-i18next'
+import { useState } from "react"
+import { useLoaderData, useSearchParams, useNavigation, useNavigate, Link } from "react-router"
+import type { ClientLoaderFunctionArgs } from "react-router"
+import { Plus, SlidersHorizontal, RefreshCw, Trash2 } from "lucide-react"
+import { useTranslation } from "react-i18next"
 
 import {
   getProductAttributeTemplates,
   deleteProductAttributeTemplate
-} from '~/shared/services/api/productAttributeTemplateService'
-import type {
-  ProductAttributeTemplateItem,
-  SortDirection,
-  ProductAttributeTemplateSortField
-} from '~/shared/types'
-import { showToast } from '~/shared/utils/toast'
-import ProductAttributeTemplateSearch from '~/features/authenticate/manageProductAttributeTemplate/components/ProductAttributeTemplateSearch'
-import ProductAttributeTemplateTable from '~/features/authenticate/manageProductAttributeTemplate/components/ProductAttributeTemplateTable'
-import ProductAttributeTemplatePagination from '~/features/authenticate/manageProductAttributeTemplate/components/ProductAttributeTemplatePagination'
-import ProductAttributeTemplateDeleteDialog from '~/features/authenticate/manageProductAttributeTemplate/components/ProductAttributeTemplateDeleteDialog'
-import { Button } from '~/core/components/shadcn/button'
-import { Badge } from '~/core/components/shadcn/badge'
+} from "~/shared/services/api/productAttributeTemplateService"
+import type { ProductAttributeTemplateItem, SortDirection, ProductAttributeTemplateSortField } from "~/shared/types"
+import { showToast } from "~/shared/utils/toast"
+import { useTableSelection } from "~/shared/hooks"
+import ProductAttributeTemplateSearch from "~/features/authenticate/manageProductAttributeTemplate/components/ProductAttributeTemplateSearch"
+import ProductAttributeTemplateTable from "~/features/authenticate/manageProductAttributeTemplate/components/ProductAttributeTemplateTable"
+import ProductAttributeTemplatePagination from "~/features/authenticate/manageProductAttributeTemplate/components/ProductAttributeTemplatePagination"
+import ProductAttributeTemplateDeleteDialog from "~/features/authenticate/manageProductAttributeTemplate/components/ProductAttributeTemplateDeleteDialog"
+import { Button } from "~/core/components/shadcn/button"
+import { Badge } from "~/core/components/shadcn/badge"
 
 export async function clientLoader({ request }: ClientLoaderFunctionArgs) {
   const url = new URL(request.url)
-  const pageNumber = Number(url.searchParams.get('pageNumber') || url.searchParams.get('page') || '1')
-  const pageSize = Number(url.searchParams.get('pageSize') || url.searchParams.get('limit') || '10')
-  const search = url.searchParams.get('search') || ''
-  const sortField = (url.searchParams.get('sortField') || url.searchParams.get('sort') || 'name') as ProductAttributeTemplateSortField
-  const sortDir = (url.searchParams.get('sortDir') || url.searchParams.get('order') || 'asc') as SortDirection
+  const pageNumber = Number(url.searchParams.get("pageNumber") || url.searchParams.get("page") || "1")
+  const pageSize = Number(url.searchParams.get("pageSize") || url.searchParams.get("limit") || "10")
+  const search = url.searchParams.get("search") || ""
+  const sortField = (url.searchParams.get("sortField") ||
+    url.searchParams.get("sort") ||
+    "name") as ProductAttributeTemplateSortField
+  const sortDir = (url.searchParams.get("sortDir") || url.searchParams.get("order") || "asc") as SortDirection
 
   const response = await getProductAttributeTemplates({ pageNumber, pageSize, search, sortField, sortDir })
 
@@ -49,15 +48,19 @@ export default function ManageProductAttributeTemplatePage() {
 
   // Modal Dialog States
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
-  const [templateToDelete, setTemplateToDelete] = useState<ProductAttributeTemplateItem | null>(null)
+  const { selectedIds, toggleSelect, toggleSelectAll, clearSelection, selectedCount } = useTableSelection<
+    string | number
+  >()
 
-  const isLoading = navigation.state === 'loading' || navigation.state === 'submitting'
+  const isLoading = navigation.state === "loading" || navigation.state === "submitting"
+
+  const selectedTemplates = content.filter((tmpl) => selectedIds.includes(tmpl.id))
 
   const updateQueryParams = (updates: Record<string, string | null>) => {
     setSearchParams((prev) => {
       const next = new URLSearchParams(prev)
       Object.entries(updates).forEach(([key, value]) => {
-        if (value === null || value === '') {
+        if (value === null || value === "") {
           next.delete(key)
         } else {
           next.set(key, value)
@@ -68,20 +71,23 @@ export default function ManageProductAttributeTemplatePage() {
   }
 
   const handleSearchChange = (newSearch: string) => {
-    updateQueryParams({ search: newSearch, pageNumber: '1' })
+    clearSelection()
+    updateQueryParams({ search: newSearch, pageNumber: "1" })
   }
 
   const handlePageChange = (newPageNumber: number) => {
+    clearSelection()
     updateQueryParams({ pageNumber: String(newPageNumber) })
   }
 
   const handlePageSizeChange = (newPageSize: number) => {
-    updateQueryParams({ pageSize: String(newPageSize), pageNumber: '1' })
+    clearSelection()
+    updateQueryParams({ pageSize: String(newPageSize), pageNumber: "1" })
   }
 
   const handleSort = (field: ProductAttributeTemplateSortField) => {
     const isCurrentField = currentParams.sortField === field
-    const newDir: SortDirection = isCurrentField && currentParams.sortDir === 'asc' ? 'desc' : 'asc'
+    const newDir: SortDirection = isCurrentField && currentParams.sortDir === "asc" ? "desc" : "asc"
     updateQueryParams({ sortField: field, sortDir: newDir })
   }
 
@@ -89,24 +95,23 @@ export default function ManageProductAttributeTemplatePage() {
     navigate(`/admin/manage-product-attribute-template/edit/${template.id}`)
   }
 
-  const handleOpenDeleteModal = (template: ProductAttributeTemplateItem) => {
-    setTemplateToDelete(template)
-    setDeleteDialogOpen(true)
-  }
-
   const handleDeleteConfirm = async () => {
-    if (!templateToDelete) return
+    if (selectedCount === 0) return
     try {
-      await deleteProductAttributeTemplate(templateToDelete.id)
+      await Promise.all(selectedIds.map((id) => deleteProductAttributeTemplate(id)))
+      showToast("success", "toasts.deletedSuccess")
+      clearSelection()
       updateQueryParams({ _t: String(Date.now()) })
-    } catch (error) {
-      console.error('Delete template error:', error)
+    } catch (error: any) {
+      console.error("Delete template error:", error)
+      showToast("error", error?.response?.data?.message || "Failed to delete selected template(s)")
     }
   }
 
   const handleRefresh = () => {
+    clearSelection()
     updateQueryParams({ _t: String(Date.now()) })
-    showToast('info', 'toasts.attributeTemplateRefreshed')
+    showToast("info", "toasts.attributeTemplateRefreshed")
   }
 
   return (
@@ -119,15 +124,13 @@ export default function ManageProductAttributeTemplatePage() {
               <SlidersHorizontal className='size-5' />
             </div>
             <h1 className='text-2xl font-bold tracking-tight text-gray-900 dark:text-gray-50'>
-              {t('productAttributeTemplate.title')}
+              {t("productAttributeTemplate.title")}
             </h1>
             <Badge variant='secondary' className='ml-1 font-semibold'>
-              {t('productAttributeTemplate.totalCount', { count: totalElements })}
+              {t("productAttributeTemplate.totalCount", { count: totalElements })}
             </Badge>
           </div>
-          <p className='text-sm text-muted-foreground'>
-            {t('productAttributeTemplate.subtitle')}
-          </p>
+          <p className='text-sm text-muted-foreground'>{t("productAttributeTemplate.subtitle")}</p>
         </div>
 
         <div className='flex items-center gap-2 self-start sm:self-auto'>
@@ -135,18 +138,18 @@ export default function ManageProductAttributeTemplatePage() {
             variant='outline'
             size='icon'
             onClick={handleRefresh}
-            title={t('productAttributeTemplate.refresh')}
+            title={t("productAttributeTemplate.refresh")}
             disabled={isLoading}
             className='bg-white dark:bg-zinc-900 shadow-xs'
           >
-            <RefreshCw className={`size-4 ${isLoading ? 'animate-spin' : ''}`} />
-            <span className='sr-only'>{t('productAttributeTemplate.refresh')}</span>
+            <RefreshCw className={`size-4 ${isLoading ? "animate-spin" : ""}`} />
+            <span className='sr-only'>{t("productAttributeTemplate.refresh")}</span>
           </Button>
 
           <Button asChild className='shadow-xs gap-1.5'>
             <Link to='/admin/manage-product-attribute-template/create'>
               <Plus className='size-4' />
-              {t('productAttributeTemplate.addNew')}
+              {t("productAttributeTemplate.addNew")}
             </Link>
           </Button>
         </div>
@@ -161,17 +164,30 @@ export default function ManageProductAttributeTemplatePage() {
             onChange={handleSearchChange}
             isLoading={isLoading}
           />
+
+          <Button
+            type='button'
+            variant='destructive'
+            disabled={selectedCount === 0 || isLoading}
+            onClick={() => setDeleteDialogOpen(true)}
+            className='gap-2 shrink-0 cursor-pointer'
+          >
+            <Trash2 className='size-4' />
+            {t("button.delete")} {selectedCount > 0 ? `(${selectedCount})` : ""}
+          </Button>
         </div>
 
         {/* Product Attribute Template Table */}
         <ProductAttributeTemplateTable
           templates={content}
           isLoading={isLoading}
+          selectedIds={selectedIds}
+          onToggleSelect={toggleSelect}
+          onToggleSelectAll={() => toggleSelectAll(content.map((tmpl) => tmpl.id))}
           sortField={currentParams.sortField}
           sortOrder={currentParams.sortDir}
           onSort={handleSort}
           onEdit={handleEditClick}
-          onDelete={handleOpenDeleteModal}
         />
 
         {/* Pagination */}
@@ -191,7 +207,8 @@ export default function ManageProductAttributeTemplatePage() {
       <ProductAttributeTemplateDeleteDialog
         open={deleteDialogOpen}
         onOpenChange={setDeleteDialogOpen}
-        templateToDelete={templateToDelete}
+        selectedCount={selectedCount}
+        selectedTemplates={selectedTemplates}
         onConfirm={handleDeleteConfirm}
       />
     </div>

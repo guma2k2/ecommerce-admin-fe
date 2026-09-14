@@ -138,7 +138,7 @@ export async function getCategoryById(categoryId: number | string): Promise<Cate
 /**
  * Creates a new category (root or child).
  */
-export async function createCategory(payload: CategoryCreateRequest | CategoryInput | string): Promise<void> {
+export async function createCategory(payload: CategoryCreateRequest | CategoryInput | string): Promise<CategoryResponse> {
   let name = ''
   let parentId: number | null = null
 
@@ -152,10 +152,11 @@ export async function createCategory(payload: CategoryCreateRequest | CategoryIn
     }
   }
 
-  await httpRequest.post<ApiResponse<void>>('/categories', {
+  const response = await httpRequest.post<ApiResponse<CategoryResponse>>('/categories', {
     name,
     parentId
   })
+  return response.data.data
 }
 
 /**

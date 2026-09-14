@@ -1,12 +1,13 @@
-import { useState } from 'react'
-import { useNavigate, Link } from 'react-router'
-import { ArrowLeft, Award } from 'lucide-react'
-import { useTranslation } from 'react-i18next'
+import { useState } from "react"
+import { useNavigate, Link } from "react-router"
+import { ArrowLeft, Award } from "lucide-react"
+import { useTranslation } from "react-i18next"
 
-import BrandForm from '~/features/authenticate/manageBrand/components/BrandForm'
-import type { BrandFormSchema } from '~/features/authenticate/manageBrand/validator'
-import { createBrand } from '~/shared/services/api/brandService'
-import { Button } from '~/core/components/shadcn/button'
+import BrandForm from "~/features/authenticate/manageBrand/components/BrandForm"
+import type { BrandFormSchema } from "~/features/authenticate/manageBrand/validator"
+import { createBrand } from "~/shared/services/api/brandService"
+import { Button } from "~/core/components/shadcn/button"
+import { showToast } from "~/shared/utils"
 
 export default function CreateBrandPage() {
   const { t } = useTranslation()
@@ -16,13 +17,18 @@ export default function CreateBrandPage() {
   const handleCreate = async (values: BrandFormSchema) => {
     try {
       setIsSubmitting(true)
-      await createBrand({
+      const created = await createBrand({
         name: values.name,
         description: values.description || null
       })
-      navigate('/admin/manage-brand')
-    } catch (error: any) {
-      console.error('Create brand error:', error)
+      showToast("success", "toasts.createdSuccess")
+      if (created?.id) {
+        navigate(`/admin/manage-brand/edit/${created.id}`)
+      } else {
+        navigate("/admin/manage-brand")
+      }
+    } catch (error: unknown) {
+      console.error("Create brand error:", error)
     } finally {
       setIsSubmitting(false)
     }
@@ -35,17 +41,15 @@ export default function CreateBrandPage() {
         <Button variant='outline' size='icon' asChild className='bg-white dark:bg-zinc-900 shadow-xs'>
           <Link to='/admin/manage-brand'>
             <ArrowLeft className='size-4' />
-            <span className='sr-only'>{t('brand.backToBrands')}</span>
+            <span className='sr-only'>{t("brand.backToBrands")}</span>
           </Link>
         </Button>
         <div>
           <h1 className='text-2xl font-bold tracking-tight text-gray-900 dark:text-gray-50 flex items-center gap-2'>
             <Award className='size-6 text-amber-500' />
-            {t('brand.addNew')}
+            {t("brand.addNew")}
           </h1>
-          <p className='text-sm text-muted-foreground'>
-            {t('brand.addSubtitle')}
-          </p>
+          <p className='text-sm text-muted-foreground'>{t("brand.addSubtitle")}</p>
         </div>
       </div>
 
@@ -54,8 +58,8 @@ export default function CreateBrandPage() {
         <BrandForm
           onSubmit={handleCreate}
           isSubmitting={isSubmitting}
-          onCancel={() => navigate('/admin/manage-brand')}
-          submitLabel={t('brand.createBrand')}
+          onCancel={() => navigate("/admin/manage-brand")}
+          submitLabel={t("brand.createBrand")}
         />
       </div>
     </div>
