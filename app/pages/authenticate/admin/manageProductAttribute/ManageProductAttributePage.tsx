@@ -1,33 +1,29 @@
-import { useState } from 'react'
-import { useLoaderData, useSearchParams, useNavigation, useNavigate, Link } from 'react-router'
-import type { ClientLoaderFunctionArgs } from 'react-router'
-import { Plus, Tag, RefreshCw } from 'lucide-react'
-import { useTranslation } from 'react-i18next'
+import { useState } from "react"
+import { useLoaderData, useSearchParams, useNavigation, useNavigate, Link } from "react-router"
+import type { ClientLoaderFunctionArgs } from "react-router"
+import { Plus, Tag, RefreshCw, Trash2 } from "lucide-react"
+import { useTranslation } from "react-i18next"
 
-import {
-  getProductAttributes,
-  deleteProductAttribute
-} from '~/shared/services/api/productAttributeService'
-import type {
-  ProductAttributeItem,
-  SortDirection,
-  ProductAttributeSortField
-} from '~/shared/types'
-import { showToast } from '~/shared/utils/toast'
-import ProductAttributeSearch from '~/features/authenticate/manageProductAttribute/components/ProductAttributeSearch'
-import ProductAttributeTable from '~/features/authenticate/manageProductAttribute/components/ProductAttributeTable'
-import ProductAttributePagination from '~/features/authenticate/manageProductAttribute/components/ProductAttributePagination'
-import ProductAttributeDeleteDialog from '~/features/authenticate/manageProductAttribute/components/ProductAttributeDeleteDialog'
-import { Button } from '~/core/components/shadcn/button'
-import { Badge } from '~/core/components/shadcn/badge'
+import { getProductAttributes, deleteProductAttribute } from "~/shared/services/api/productAttributeService"
+import type { ProductAttributeResponse, SortDirection, ProductAttributeSortField } from "~/shared/types"
+import { showToast } from "~/shared/utils/toast"
+import { useTableSelection } from "~/shared/hooks"
+import ProductAttributeSearch from "~/features/authenticate/manageProductAttribute/components/ProductAttributeSearch"
+import ProductAttributeTable from "~/features/authenticate/manageProductAttribute/components/ProductAttributeTable"
+import ProductAttributePagination from "~/features/authenticate/manageProductAttribute/components/ProductAttributePagination"
+import ProductAttributeDeleteDialog from "~/features/authenticate/manageProductAttribute/components/ProductAttributeDeleteDialog"
+import { Button } from "~/core/components/shadcn/button"
+import { Badge } from "~/core/components/shadcn/badge"
 
 export async function clientLoader({ request }: ClientLoaderFunctionArgs) {
   const url = new URL(request.url)
-  const pageNumber = Number(url.searchParams.get('pageNumber') || url.searchParams.get('page') || '1')
-  const pageSize = Number(url.searchParams.get('pageSize') || url.searchParams.get('limit') || '10')
-  const search = url.searchParams.get('search') || ''
-  const sortField = (url.searchParams.get('sortField') || url.searchParams.get('sort') || 'name') as ProductAttributeSortField
-  const sortDir = (url.searchParams.get('sortDir') || url.searchParams.get('order') || 'asc') as SortDirection
+  const pageNumber = Number(url.searchParams.get("pageNumber") || url.searchParams.get("page") || "1")
+  const pageSize = Number(url.searchParams.get("pageSize") || url.searchParams.get("limit") || "10")
+  const search = url.searchParams.get("search") || ""
+  const sortField = (url.searchParams.get("sortField") ||
+    url.searchParams.get("sort") ||
+    "name") as ProductAttributeSortField
+  const sortDir = (url.searchParams.get("sortDir") || url.searchParams.get("order") || "asc") as SortDirection
 
   const response = await getProductAttributes({ pageNumber, pageSize, search, sortField, sortDir })
 
@@ -49,15 +45,19 @@ export default function ManageProductAttributePage() {
 
   // Modal Dialog States
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
-  const [attributeToDelete, setAttributeToDelete] = useState<ProductAttributeItem | null>(null)
+  const { selectedIds, toggleSelect, toggleSelectAll, clearSelection, selectedCount } = useTableSelection<
+    string | number
+  >()
 
-  const isLoading = navigation.state === 'loading' || navigation.state === 'submitting'
+  const isLoading = navigation.state === "loading" || navigation.state === "submitting"
+
+  const selectedAttributes = content.filter((a) => selectedIds.includes(a.id))
 
   const updateQueryParams = (updates: Record<string, string | null>) => {
     setSearchParams((prev) => {
       const next = new URLSearchParams(prev)
       Object.entries(updates).forEach(([key, value]) => {
-        if (value === null || value === '') {
+        if (value === null || value === "") {
           next.delete(key)
         } else {
           next.set(key, value)
@@ -68,45 +68,47 @@ export default function ManageProductAttributePage() {
   }
 
   const handleSearchChange = (newSearch: string) => {
-    updateQueryParams({ search: newSearch, pageNumber: '1' })
+    clearSelection()
+    updateQueryParams({ search: newSearch, pageNumber: "1" })
   }
 
   const handlePageChange = (newPageNumber: number) => {
+    clearSelection()
     updateQueryParams({ pageNumber: String(newPageNumber) })
   }
 
   const handlePageSizeChange = (newPageSize: number) => {
-    updateQueryParams({ pageSize: String(newPageSize), pageNumber: '1' })
+    clearSelection()
+    updateQueryParams({ pageSize: String(newPageSize), pageNumber: "1" })
   }
 
   const handleSort = (field: ProductAttributeSortField) => {
     const isCurrentField = currentParams.sortField === field
-    const newDir: SortDirection = isCurrentField && currentParams.sortDir === 'asc' ? 'desc' : 'asc'
+    const newDir: SortDirection = isCurrentField && currentParams.sortDir === "asc" ? "desc" : "asc"
     updateQueryParams({ sortField: field, sortDir: newDir })
   }
 
-  const handleEditClick = (attribute: ProductAttributeItem) => {
+  const handleEditClick = (attribute: ProductAttributeResponse) => {
     navigate(`/admin/manage-product-attribute/edit/${attribute.id}`)
   }
 
-  const handleOpenDeleteModal = (attribute: ProductAttributeItem) => {
-    setAttributeToDelete(attribute)
-    setDeleteDialogOpen(true)
-  }
-
   const handleDeleteConfirm = async () => {
-    if (!attributeToDelete) return
+    if (selectedCount === 0) return
     try {
-      await deleteProductAttribute(attributeToDelete.id)
+      await Promise.all(selectedIds.map((id) => deleteProductAttribute(id)))
+      showToast("success", "toasts.deletedSuccess")
+      clearSelection()
       updateQueryParams({ _t: String(Date.now()) })
-    } catch (error) {
-      console.error('Delete attribute error:', error)
+    } catch (error: any) {
+      console.error("Delete attribute error:", error)
+      showToast("error", error?.response?.data?.message || "Failed to delete selected attribute(s)")
     }
   }
 
   const handleRefresh = () => {
+    clearSelection()
     updateQueryParams({ _t: String(Date.now()) })
-    showToast('info', 'toasts.attributeRefreshed')
+    showToast("info", "toasts.attributeRefreshed")
   }
 
   return (
@@ -119,15 +121,13 @@ export default function ManageProductAttributePage() {
               <Tag className='size-5' />
             </div>
             <h1 className='text-2xl font-bold tracking-tight text-gray-900 dark:text-gray-50'>
-              {t('productAttribute.title')}
+              {t("productAttribute.title")}
             </h1>
             <Badge variant='secondary' className='ml-1 font-semibold'>
-              {t('productAttribute.totalCount', { count: totalElements })}
+              {t("productAttribute.totalCount", { count: totalElements })}
             </Badge>
           </div>
-          <p className='text-sm text-muted-foreground'>
-            {t('productAttribute.subtitle')}
-          </p>
+          <p className='text-sm text-muted-foreground'>{t("productAttribute.subtitle")}</p>
         </div>
 
         <div className='flex items-center gap-2 self-start sm:self-auto'>
@@ -135,18 +135,18 @@ export default function ManageProductAttributePage() {
             variant='outline'
             size='icon'
             onClick={handleRefresh}
-            title={t('productAttribute.refresh')}
+            title={t("productAttribute.refresh")}
             disabled={isLoading}
             className='bg-white dark:bg-zinc-900 shadow-xs'
           >
-            <RefreshCw className={`size-4 ${isLoading ? 'animate-spin' : ''}`} />
-            <span className='sr-only'>{t('productAttribute.refresh')}</span>
+            <RefreshCw className={`size-4 ${isLoading ? "animate-spin" : ""}`} />
+            <span className='sr-only'>{t("productAttribute.refresh")}</span>
           </Button>
 
           <Button asChild className='shadow-xs gap-1.5'>
             <Link to='/admin/manage-product-attribute/create'>
               <Plus className='size-4' />
-              {t('productAttribute.addNew')}
+              {t("productAttribute.addNew")}
             </Link>
           </Button>
         </div>
@@ -156,22 +156,31 @@ export default function ManageProductAttributePage() {
       <div className='space-y-4'>
         {/* Search & Action Bar */}
         <div className='flex items-center justify-between gap-4 bg-white dark:bg-zinc-900 p-4 rounded-lg border border-gray-200 dark:border-zinc-800 shadow-2xs'>
-          <ProductAttributeSearch
-            value={currentParams.search}
-            onChange={handleSearchChange}
-            isLoading={isLoading}
-          />
+          <ProductAttributeSearch value={currentParams.search} onChange={handleSearchChange} isLoading={isLoading} />
+
+          <Button
+            type='button'
+            variant='destructive'
+            disabled={selectedCount === 0 || isLoading}
+            onClick={() => setDeleteDialogOpen(true)}
+            className='gap-2 shrink-0 cursor-pointer'
+          >
+            <Trash2 className='size-4' />
+            {t("button.delete")} {selectedCount > 0 ? `(${selectedCount})` : ""}
+          </Button>
         </div>
 
         {/* Product Attribute Table */}
         <ProductAttributeTable
           attributes={content}
           isLoading={isLoading}
+          selectedIds={selectedIds}
+          onToggleSelect={toggleSelect}
+          onToggleSelectAll={() => toggleSelectAll(content.map((a) => a.id))}
           sortField={currentParams.sortField}
           sortOrder={currentParams.sortDir}
           onSort={handleSort}
           onEdit={handleEditClick}
-          onDelete={handleOpenDeleteModal}
         />
 
         {/* Pagination */}
@@ -191,7 +200,8 @@ export default function ManageProductAttributePage() {
       <ProductAttributeDeleteDialog
         open={deleteDialogOpen}
         onOpenChange={setDeleteDialogOpen}
-        attributeToDelete={attributeToDelete}
+        selectedCount={selectedCount}
+        selectedAttributes={selectedAttributes}
         onConfirm={handleDeleteConfirm}
       />
     </div>

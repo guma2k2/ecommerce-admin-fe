@@ -4,30 +4,24 @@ import {
   useQueryClient,
   type UseMutationOptions,
   type UseQueryOptions
-} from '@tanstack/react-query'
-import {
-  createBrand,
-  deleteBrand,
-  getBrandById,
-  getBrandsPage,
-  updateBrand
-} from '~/shared/services/api/brandService'
+} from "@tanstack/react-query"
+import { createBrand, deleteBrand, getBrandById, getBrandsPage, updateBrand } from "~/shared/services/api/brandService"
 import type {
   BrandCreateRequest,
   BrandResponse,
   BrandUpdateRequest,
   PageResponse,
   PaginationParams
-} from '~/shared/types'
+} from "~/shared/types"
 
 /**
  * Query key factory for brand cache management.
  */
 export const brandKeys = {
-  all: ['brands'] as const,
-  lists: () => [...brandKeys.all, 'list'] as const,
+  all: ["brands"] as const,
+  lists: () => [...brandKeys.all, "list"] as const,
   list: (params?: PaginationParams & { search?: string }) => [...brandKeys.lists(), params] as const,
-  details: () => [...brandKeys.all, 'detail'] as const,
+  details: () => [...brandKeys.all, "detail"] as const,
   detail: (id?: number | string) => [...brandKeys.details(), id] as const
 }
 
@@ -36,7 +30,7 @@ export const brandKeys = {
  */
 export function useBrandPageQuery(
   params: PaginationParams & { search?: string } = {},
-  options?: Omit<UseQueryOptions<PageResponse<BrandResponse>, Error>, 'queryKey' | 'queryFn'>
+  options?: Omit<UseQueryOptions<PageResponse<BrandResponse>, Error>, "queryKey" | "queryFn">
 ) {
   return useQuery<PageResponse<BrandResponse>, Error>({
     queryKey: brandKeys.list(params),
@@ -51,12 +45,12 @@ export function useBrandPageQuery(
  */
 export function useBrandDetailQuery(
   brandId?: number | string,
-  options?: Omit<UseQueryOptions<BrandResponse, Error>, 'queryKey' | 'queryFn'>
+  options?: Omit<UseQueryOptions<BrandResponse, Error>, "queryKey" | "queryFn">
 ) {
   return useQuery<BrandResponse, Error>({
     queryKey: brandKeys.detail(brandId),
     queryFn: () => {
-      if (!brandId) throw new Error('Brand ID is required')
+      if (!brandId) throw new Error("Brand ID is required")
       return getBrandById(brandId)
     },
     enabled: Boolean(brandId),
@@ -67,9 +61,7 @@ export function useBrandDetailQuery(
 /**
  * React Query hook for creating a new brand.
  */
-export function useCreateBrandMutation(
-  options?: UseMutationOptions<void, Error, BrandCreateRequest>
-) {
+export function useCreateBrandMutation(options?: UseMutationOptions<BrandResponse, Error, BrandCreateRequest>) {
   const queryClient = useQueryClient()
 
   return useMutation({
@@ -77,15 +69,11 @@ export function useCreateBrandMutation(
     mutationFn: (payload: BrandCreateRequest) => createBrand(payload),
     onSuccess: (data, variables, context, ...rest) => {
       queryClient.invalidateQueries({ queryKey: brandKeys.lists() })
-      if (options?.onSuccess) {
-        ;(options.onSuccess as any)(data, variables, context, ...rest)
-      }
+      options?.onSuccess?.(data, variables, context, ...rest)
     },
     onError: (error, variables, context, ...rest) => {
-      console.error('Create brand error:', error)
-      if (options?.onError) {
-        ;(options.onError as any)(error, variables, context, ...rest)
-      }
+      console.error("Create brand error:", error)
+      options?.onError?.(error, variables, context, ...rest)
     }
   })
 }
@@ -100,8 +88,7 @@ export function useUpdateBrandMutation(
 
   return useMutation({
     ...options,
-    mutationFn: ({ id, payload }: { id: number | string; payload: BrandUpdateRequest }) =>
-      updateBrand(id, payload),
+    mutationFn: ({ id, payload }: { id: number | string; payload: BrandUpdateRequest }) => updateBrand(id, payload),
     onSuccess: (data, variables, context, ...rest) => {
       queryClient.invalidateQueries({ queryKey: brandKeys.all })
       if (options?.onSuccess) {
@@ -109,7 +96,7 @@ export function useUpdateBrandMutation(
       }
     },
     onError: (error, variables, context, ...rest) => {
-      console.error('Update brand error:', error)
+      console.error("Update brand error:", error)
       if (options?.onError) {
         ;(options.onError as any)(error, variables, context, ...rest)
       }
@@ -120,9 +107,7 @@ export function useUpdateBrandMutation(
 /**
  * React Query hook for deleting a brand.
  */
-export function useDeleteBrandMutation(
-  options?: UseMutationOptions<void, Error, number | string>
-) {
+export function useDeleteBrandMutation(options?: UseMutationOptions<void, Error, number | string>) {
   const queryClient = useQueryClient()
 
   return useMutation({
@@ -135,7 +120,7 @@ export function useDeleteBrandMutation(
       }
     },
     onError: (error, variables, context, ...rest) => {
-      console.error('Delete brand error:', error)
+      console.error("Delete brand error:", error)
       if (options?.onError) {
         ;(options.onError as any)(error, variables, context, ...rest)
       }

@@ -150,7 +150,7 @@ export async function createProductAttributeTemplate(
   payload:
     | ProductTemplateCreateRequest
     | { name: string; attribute_ids?: (number | string)[]; attributeIds?: number[] }
-): Promise<void> {
+): Promise<ProductTemplateResponse> {
   let attributeIds: number[] = []
 
   if (payload.attributeIds && Array.isArray(payload.attributeIds)) {
@@ -159,10 +159,11 @@ export async function createProductAttributeTemplate(
     attributeIds = payload.attribute_ids.map(Number).filter((n) => !isNaN(n))
   }
 
-  await httpRequest.post<ApiResponse<void>>('/product-templates', {
+  const response = await httpRequest.post<ApiResponse<ProductTemplateResponse>>('/product-templates', {
     name: payload.name.trim(),
     attributeIds
   })
+  return response.data.data
 }
 
 export const createTemplate = createProductAttributeTemplate

@@ -1,26 +1,27 @@
-import { useState } from 'react'
-import { useLoaderData, useSearchParams, useNavigation, useNavigate, Link } from 'react-router'
-import type { ClientLoaderFunctionArgs } from 'react-router'
-import { Plus, FolderTree, RefreshCw } from 'lucide-react'
-import { useTranslation } from 'react-i18next'
+import { useState } from "react"
+import { useLoaderData, useSearchParams, useNavigation, useNavigate, Link } from "react-router"
+import type { ClientLoaderFunctionArgs } from "react-router"
+import { Plus, FolderTree, RefreshCw, Trash2 } from "lucide-react"
+import { useTranslation } from "react-i18next"
 
-import { getCategories, deleteCategory } from '~/shared/services/api/categoryService'
-import type { CategoryItem, SortDirection, SortField } from '~/shared/types'
-import { showToast } from '~/shared/utils/toast'
-import CategorySearch from '~/features/authenticate/manageCategory/components/CategorySearch'
-import CategoryTable from '~/features/authenticate/manageCategory/components/CategoryTable'
-import CategoryPagination from '~/features/authenticate/manageCategory/components/CategoryPagination'
-import CategoryDeleteDialog from '~/features/authenticate/manageCategory/components/CategoryDeleteDialog'
-import { Button } from '~/core/components/shadcn/button'
-import { Badge } from '~/core/components/shadcn/badge'
+import { getCategories, deleteCategory } from "~/shared/services/api/categoryService"
+import type { CategoryItem, SortDirection, SortField } from "~/shared/types"
+import { showToast } from "~/shared/utils/toast"
+import { useTableSelection } from "~/shared/hooks"
+import CategorySearch from "~/features/authenticate/manageCategory/components/CategorySearch"
+import CategoryTable from "~/features/authenticate/manageCategory/components/CategoryTable"
+import CategoryPagination from "~/features/authenticate/manageCategory/components/CategoryPagination"
+import CategoryDeleteDialog from "~/features/authenticate/manageCategory/components/CategoryDeleteDialog"
+import { Button } from "~/core/components/shadcn/button"
+import { Badge } from "~/core/components/shadcn/badge"
 
 export async function clientLoader({ request }: ClientLoaderFunctionArgs) {
   const url = new URL(request.url)
-  const pageNumber = Number(url.searchParams.get('pageNumber') || url.searchParams.get('page') || '1')
-  const pageSize = Number(url.searchParams.get('pageSize') || url.searchParams.get('limit') || '10')
-  const search = url.searchParams.get('search') || ''
-  const sortField = (url.searchParams.get('sortField') || url.searchParams.get('sort') || 'name') as SortField
-  const sortDir = (url.searchParams.get('sortDir') || url.searchParams.get('order') || 'asc') as SortDirection
+  const pageNumber = Number(url.searchParams.get("pageNumber") || url.searchParams.get("page") || "1")
+  const pageSize = Number(url.searchParams.get("pageSize") || url.searchParams.get("limit") || "10")
+  const search = url.searchParams.get("search") || ""
+  const sortField = (url.searchParams.get("sortField") || url.searchParams.get("sort") || "name") as SortField
+  const sortDir = (url.searchParams.get("sortDir") || url.searchParams.get("order") || "asc") as SortDirection
 
   const response = await getCategories({ pageNumber, pageSize, search, sortField, sortDir })
 
@@ -42,15 +43,19 @@ export default function ManageCategoryPage() {
 
   // Delete Dialog State
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
-  const [categoryToDelete, setCategoryToDelete] = useState<CategoryItem | null>(null)
+  const { selectedIds, toggleSelect, toggleSelectAll, clearSelection, selectedCount } = useTableSelection<
+    string | number
+  >()
 
-  const isLoading = navigation.state === 'loading' || navigation.state === 'submitting'
+  const isLoading = navigation.state === "loading" || navigation.state === "submitting"
+
+  const selectedCategories = content.filter((c) => selectedIds.includes(c.id))
 
   const updateQueryParams = (updates: Record<string, string | null>) => {
     setSearchParams((prev) => {
       const next = new URLSearchParams(prev)
       Object.entries(updates).forEach(([key, value]) => {
-        if (value === null || value === '') {
+        if (value === null || value === "") {
           next.delete(key)
         } else {
           next.set(key, value)
@@ -61,20 +66,23 @@ export default function ManageCategoryPage() {
   }
 
   const handleSearchChange = (newSearch: string) => {
-    updateQueryParams({ search: newSearch, pageNumber: '1' })
+    clearSelection()
+    updateQueryParams({ search: newSearch, pageNumber: "1" })
   }
 
   const handlePageChange = (newPageNumber: number) => {
+    clearSelection()
     updateQueryParams({ pageNumber: String(newPageNumber) })
   }
 
   const handlePageSizeChange = (newPageSize: number) => {
-    updateQueryParams({ pageSize: String(newPageSize), pageNumber: '1' })
+    clearSelection()
+    updateQueryParams({ pageSize: String(newPageSize), pageNumber: "1" })
   }
 
   const handleSort = (field: SortField) => {
     const isCurrentField = currentParams.sortField === field
-    const newDir: SortDirection = isCurrentField && currentParams.sortDir === 'asc' ? 'desc' : 'asc'
+    const newDir: SortDirection = isCurrentField && currentParams.sortDir === "asc" ? "desc" : "asc"
     updateQueryParams({ sortField: field, sortDir: newDir })
   }
 
@@ -82,24 +90,23 @@ export default function ManageCategoryPage() {
     navigate(`/admin/manage-category/edit/${category.id}`)
   }
 
-  const handleOpenDeleteModal = (category: CategoryItem) => {
-    setCategoryToDelete(category)
-    setDeleteDialogOpen(true)
-  }
-
   const handleDeleteConfirm = async () => {
-    if (!categoryToDelete) return
+    if (selectedCount === 0) return
     try {
-      await deleteCategory(categoryToDelete.id)
+      await Promise.all(selectedIds.map((id) => deleteCategory(id)))
+      showToast("success", "toasts.deletedSuccess")
+      clearSelection()
       updateQueryParams({ _t: String(Date.now()) })
-    } catch (error) {
-      console.error('Delete category error:', error)
+    } catch (error: any) {
+      console.error("Delete category error:", error)
+      showToast("error", error?.response?.data?.message || "Failed to delete selected category")
     }
   }
 
   const handleRefresh = () => {
+    clearSelection()
     updateQueryParams({ _t: String(Date.now()) })
-    showToast('info', 'toasts.categoryRefreshed')
+    showToast("info", "toasts.categoryRefreshed")
   }
 
   return (
@@ -111,12 +118,12 @@ export default function ManageCategoryPage() {
             <div className='w-9 h-9 rounded-lg bg-primary/10 text-primary flex items-center justify-center'>
               <FolderTree className='size-5' />
             </div>
-            <h1 className='text-2xl font-bold tracking-tight text-gray-900 dark:text-gray-50'>{t('category.title')}</h1>
+            <h1 className='text-2xl font-bold tracking-tight text-gray-900 dark:text-gray-50'>{t("category.title")}</h1>
             <Badge variant='secondary' className='ml-1 font-semibold'>
-              {t('category.totalCount', { count: totalElements })}
+              {t("category.totalCount", { count: totalElements })}
             </Badge>
           </div>
-          <p className='text-sm text-muted-foreground'>{t('category.subtitle')}</p>
+          <p className='text-sm text-muted-foreground'>{t("category.subtitle")}</p>
         </div>
 
         <div className='flex items-center gap-2 self-start sm:self-auto'>
@@ -124,18 +131,18 @@ export default function ManageCategoryPage() {
             variant='outline'
             size='icon'
             onClick={handleRefresh}
-            title={t('category.refresh')}
+            title={t("category.refresh")}
             disabled={isLoading}
             className='bg-white dark:bg-zinc-900 shadow-xs'
           >
-            <RefreshCw className={`size-4 ${isLoading ? 'animate-spin' : ''}`} />
-            <span className='sr-only'>{t('category.refresh')}</span>
+            <RefreshCw className={`size-4 ${isLoading ? "animate-spin" : ""}`} />
+            <span className='sr-only'>{t("category.refresh")}</span>
           </Button>
 
           <Button asChild className='shadow-xs gap-1.5'>
             <Link to='/admin/manage-category/create'>
               <Plus className='size-4' />
-              {t('category.addNew')}
+              {t("category.addNew")}
             </Link>
           </Button>
         </div>
@@ -146,17 +153,30 @@ export default function ManageCategoryPage() {
         {/* Search & Action Bar */}
         <div className='flex items-center justify-between gap-4 bg-white dark:bg-zinc-900 p-4 rounded-lg border border-gray-200 dark:border-zinc-800 shadow-2xs'>
           <CategorySearch value={currentParams.search} onChange={handleSearchChange} isLoading={isLoading} />
+
+          <Button
+            type='button'
+            variant='destructive'
+            disabled={selectedCount === 0 || isLoading}
+            onClick={() => setDeleteDialogOpen(true)}
+            className='gap-2 shrink-0 cursor-pointer'
+          >
+            <Trash2 className='size-4' />
+            {t("button.delete")} {selectedCount > 0 ? `(${selectedCount})` : ""}
+          </Button>
         </div>
 
         {/* Category Table */}
         <CategoryTable
           categories={content}
           isLoading={isLoading}
+          selectedIds={selectedIds}
+          onToggleSelect={toggleSelect}
+          onToggleSelectAll={() => toggleSelectAll(content.map((c) => c.id))}
           sortField={currentParams.sortField}
           sortOrder={currentParams.sortDir}
           onSort={handleSort}
           onEdit={handleEditClick}
-          onDelete={handleOpenDeleteModal}
         />
 
         {/* Pagination */}
@@ -176,7 +196,8 @@ export default function ManageCategoryPage() {
       <CategoryDeleteDialog
         open={deleteDialogOpen}
         onOpenChange={setDeleteDialogOpen}
-        categoryToDelete={categoryToDelete}
+        selectedCount={selectedCount}
+        selectedCategories={selectedCategories}
         onConfirm={handleDeleteConfirm}
       />
     </div>

@@ -1,21 +1,23 @@
-export { default as ProductActionHeader } from './ProductActionHeader'
-export * from './ProductActionHeader'
-export { default as ProductForm } from './ProductForm'
-export * from './ProductForm'
-export { default as ProductGeneralInfoCard } from './ProductGeneralInfoCard'
-export { default as ProductMediaCard } from './ProductMediaCard'
-export { default as ProductVariantCard } from './ProductVariantCard'
-export { default as ProductClassificationCard } from './ProductClassificationCard'
-export { default as ProductAttributesCard } from './ProductAttributesCard'
-export { default as ProductSeoCard } from './ProductSeoCard'
-export { default as ProductPagination } from './ProductPagination'
-export { default as ProductSearch } from './ProductSearch'
-export { default as ProductTable } from './ProductTable'
-export { default as SortableImage } from './SortableImage'
-export * from './SortableImage'
-export { default as SortableOptionAxisCard } from './SortableOptionAxisCard'
-export { default as SortableOptionValueItem } from './SortableOptionValueItem'
-export { default as SingleProductMode } from './SingleProductMode'
-export { default as ProductOptionSection } from './ProductOptionSection'
-export { default as ProductVariantsMatrixTable } from './ProductVariantsMatrixTable'
-export { default as ProductVariantRow } from './ProductVariantRow'
+export { default as ProductActionHeader } from "./ProductActionHeader"
+export * from "./ProductActionHeader"
+export { default as ProductForm } from "./ProductForm"
+export * from "./ProductForm"
+export { default as ProductGeneralInfoCard } from "./ProductGeneralInfoCard"
+export { default as ProductMediaCard } from "./ProductMediaCard"
+export { default as ProductVariantCard } from "./ProductVariantCard"
+export { default as ProductClassificationCard } from "./ProductClassificationCard"
+export { default as ProductAttributesCard } from "./ProductAttributesCard"
+export { default as ProductSeoCard } from "./ProductSeoCard"
+export { default as ProductPagination } from "./ProductPagination"
+export { default as ProductSearch } from "./ProductSearch"
+export { default as ProductTable } from "./ProductTable"
+export { default as ProductDeleteDialog } from "./ProductDeleteDialog"
+export * from "./ProductDeleteDialog"
+export { default as SortableImage } from "./SortableImage"
+export * from "./SortableImage"
+export { default as SortableOptionAxisCard } from "./SortableOptionAxisCard"
+export { default as SortableOptionValueItem } from "./SortableOptionValueItem"
+export { default as SingleProductMode } from "./SingleProductMode"
+export { default as ProductOptionSection } from "./ProductOptionSection"
+export { default as ProductVariantsMatrixTable } from "./ProductVariantsMatrixTable"
+export { default as ProductVariantRow } from "./ProductVariantRow"

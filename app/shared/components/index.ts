@@ -1,6 +1,6 @@
-export { default as AccountDialog } from './AccountDialog'
-export { default as FileUpload } from './FileUpload'
-export * from './FileUpload'
+export { default as AccountDialog } from "./AccountDialog"
+export { default as FileUpload } from "./FileUpload"
+export * from "./FileUpload"
 export {
   default as Form,
   FormInput,
@@ -11,21 +11,23 @@ export {
   FormInfiniteSelect,
   FormPriceInput,
   FormTextEditor
-} from './Form'
-export * from './Form'
-export { default as Header } from './Header'
-export { default as InfiniteSelect } from './InfiniteSelect'
-export * from './InfiniteSelect'
-export { default as LanguageSwitcher } from './LanguageSwitcher'
-export { default as MultipleUpload } from './MultipleUpload'
-export { default as PriceInput, PriceInput as PriceInputComponent } from './PriceInput'
-export * from './PriceInput'
-export { default as Sidebar, AppSidebar } from './Sidebar'
-export { default as TextEditor, TextEditor as TextEditorComponent } from './TextEditor'
-export * from './TextEditor'
-export { default as Pagination, Pagination as PaginationComponent } from './Pagination'
-export * from './Pagination'
-export { default as Search, Search as SearchComponent } from './Search'
-export * from './Search'
-export { default as MediaSelectModal } from './MediaSelectModal'
-export * from './MediaSelectModal'
+} from "./Form"
+export * from "./Form"
+export { default as Header } from "./Header"
+export { default as InfiniteSelect } from "./InfiniteSelect"
+export * from "./InfiniteSelect"
+export { default as LanguageSwitcher } from "./LanguageSwitcher"
+export { default as MultipleUpload } from "./MultipleUpload"
+export { default as PriceInput, PriceInput as PriceInputComponent } from "./PriceInput"
+export * from "./PriceInput"
+export { default as Sidebar, AppSidebar } from "./Sidebar"
+export { default as TextEditor, TextEditor as TextEditorComponent } from "./TextEditor"
+export * from "./TextEditor"
+export { default as Pagination, Pagination as PaginationComponent } from "./Pagination"
+export * from "./Pagination"
+export { default as Search, Search as SearchComponent } from "./Search"
+export * from "./Search"
+export { default as MediaSelectModal } from "./MediaSelectModal"
+export * from "./MediaSelectModal"
+export { default as DeleteConfirmDialog } from "./DeleteConfirmDialog"
+export * from "./DeleteConfirmDialog"

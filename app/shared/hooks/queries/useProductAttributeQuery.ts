@@ -4,7 +4,7 @@ import {
   useQueryClient,
   type UseMutationOptions,
   type UseQueryOptions
-} from '@tanstack/react-query'
+} from "@tanstack/react-query"
 import {
   createProductAttribute,
   deleteProductAttribute,
@@ -12,23 +12,23 @@ import {
   getProductAttributeById,
   getAttributesPage,
   updateProductAttribute
-} from '~/shared/services/api/productAttributeService'
+} from "~/shared/services/api/productAttributeService"
 import type {
   PageResponse,
   PaginationParams,
   ProductAttributeCreateRequest,
   ProductAttributeResponse,
   ProductAttributeUpdateRequest
-} from '~/shared/types'
+} from "~/shared/types"
 
 /**
  * Query key factory for product attributes.
  */
 export const attributeKeys = {
-  all: ['product-attributes'] as const,
-  lists: () => [...attributeKeys.all, 'list'] as const,
+  all: ["product-attributes"] as const,
+  lists: () => [...attributeKeys.all, "list"] as const,
   list: (params?: PaginationParams & { search?: string }) => [...attributeKeys.lists(), params] as const,
-  details: () => [...attributeKeys.all, 'detail'] as const,
+  details: () => [...attributeKeys.all, "detail"] as const,
   detail: (id?: number | string) => [...attributeKeys.details(), id] as const
 }
 
@@ -37,7 +37,7 @@ export const attributeKeys = {
  */
 export function useProductAttributePageQuery(
   params: PaginationParams & { search?: string } = {},
-  options?: Omit<UseQueryOptions<PageResponse<ProductAttributeResponse>, Error>, 'queryKey' | 'queryFn'>
+  options?: Omit<UseQueryOptions<PageResponse<ProductAttributeResponse>, Error>, "queryKey" | "queryFn">
 ) {
   return useQuery<PageResponse<ProductAttributeResponse>, Error>({
     queryKey: attributeKeys.list(params),
@@ -51,7 +51,7 @@ export function useProductAttributePageQuery(
  * React Query hook for fetching all product attributes.
  */
 export function useAllProductAttributesQuery(
-  options?: Omit<UseQueryOptions<ProductAttributeResponse[], Error>, 'queryKey' | 'queryFn'>
+  options?: Omit<UseQueryOptions<ProductAttributeResponse[], Error>, "queryKey" | "queryFn">
 ) {
   return useQuery<ProductAttributeResponse[], Error>({
     queryKey: attributeKeys.lists(),
@@ -65,12 +65,12 @@ export function useAllProductAttributesQuery(
  */
 export function useProductAttributeDetailQuery(
   id?: number | string,
-  options?: Omit<UseQueryOptions<ProductAttributeResponse, Error>, 'queryKey' | 'queryFn'>
+  options?: Omit<UseQueryOptions<ProductAttributeResponse, Error>, "queryKey" | "queryFn">
 ) {
   return useQuery<ProductAttributeResponse, Error>({
     queryKey: attributeKeys.detail(id),
     queryFn: () => {
-      if (!id) throw new Error('Attribute ID is required')
+      if (!id) throw new Error("Attribute ID is required")
       return getProductAttributeById(id)
     },
     enabled: Boolean(id),
@@ -82,7 +82,7 @@ export function useProductAttributeDetailQuery(
  * React Query hook for creating a product attribute.
  */
 export function useCreateProductAttributeMutation(
-  options?: UseMutationOptions<void, Error, ProductAttributeCreateRequest>
+  options?: UseMutationOptions<ProductAttributeResponse, Error, ProductAttributeCreateRequest>
 ) {
   const queryClient = useQueryClient()
 
@@ -91,15 +91,11 @@ export function useCreateProductAttributeMutation(
     mutationFn: (payload: ProductAttributeCreateRequest) => createProductAttribute(payload),
     onSuccess: (data, variables, context, ...rest) => {
       queryClient.invalidateQueries({ queryKey: attributeKeys.all })
-      if (options?.onSuccess) {
-        ;(options.onSuccess as any)(data, variables, context, ...rest)
-      }
+      options?.onSuccess?.(data, variables, context, ...rest)
     },
     onError: (error, variables, context, ...rest) => {
-      console.error('Create attribute error:', error)
-      if (options?.onError) {
-        ;(options.onError as any)(error, variables, context, ...rest)
-      }
+      console.error("Create attribute error:", error)
+      options?.onError?.(error, variables, context, ...rest)
     }
   })
 }
@@ -123,7 +119,7 @@ export function useUpdateProductAttributeMutation(
       }
     },
     onError: (error, variables, context, ...rest) => {
-      console.error('Update attribute error:', error)
+      console.error("Update attribute error:", error)
       if (options?.onError) {
         ;(options.onError as any)(error, variables, context, ...rest)
       }
@@ -134,9 +130,7 @@ export function useUpdateProductAttributeMutation(
 /**
  * React Query hook for deleting a product attribute.
  */
-export function useDeleteProductAttributeMutation(
-  options?: UseMutationOptions<void, Error, number | string>
-) {
+export function useDeleteProductAttributeMutation(options?: UseMutationOptions<void, Error, number | string>) {
   const queryClient = useQueryClient()
 
   return useMutation({
@@ -149,7 +143,7 @@ export function useDeleteProductAttributeMutation(
       }
     },
     onError: (error, variables, context, ...rest) => {
-      console.error('Delete attribute error:', error)
+      console.error("Delete attribute error:", error)
       if (options?.onError) {
         ;(options.onError as any)(error, variables, context, ...rest)
       }

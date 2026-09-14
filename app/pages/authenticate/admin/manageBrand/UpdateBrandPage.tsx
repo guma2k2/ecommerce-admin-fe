@@ -1,18 +1,19 @@
-import { useState } from 'react'
-import { useLoaderData, useNavigate, Link } from 'react-router'
-import type { ClientLoaderFunctionArgs } from 'react-router'
-import { ArrowLeft, Pencil } from 'lucide-react'
-import { useTranslation } from 'react-i18next'
+import { useState } from "react"
+import { useLoaderData, useNavigate, Link, useRevalidator } from "react-router"
+import type { ClientLoaderFunctionArgs } from "react-router"
+import { ArrowLeft, Pencil } from "lucide-react"
+import { useTranslation } from "react-i18next"
 
-import BrandForm from '~/features/authenticate/manageBrand/components/BrandForm'
-import type { BrandFormSchema } from '~/features/authenticate/manageBrand/validator'
-import { getBrandById, updateBrand } from '~/shared/services/api/brandService'
-import { Button } from '~/core/components/shadcn/button'
+import BrandForm from "~/features/authenticate/manageBrand/components/BrandForm"
+import type { BrandFormSchema } from "~/features/authenticate/manageBrand/validator"
+import { getBrandById, updateBrand } from "~/shared/services/api/brandService"
+import { Button } from "~/core/components/shadcn/button"
+import { showToast } from "~/shared/utils"
 
 export async function clientLoader({ params }: ClientLoaderFunctionArgs) {
   const brandId = params.id
   if (!brandId) {
-    throw new Error('Brand ID is required')
+    throw new Error("Brand ID is required")
   }
   const brand = await getBrandById(brandId)
   return { brand }
@@ -24,7 +25,9 @@ export default function UpdateBrandPage() {
   const { t } = useTranslation()
   const { brand } = useLoaderData<typeof clientLoader>()
   const navigate = useNavigate()
+  const revalidator = useRevalidator()
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [updateCount, setUpdateCount] = useState(0)
 
   const handleUpdate = async (values: BrandFormSchema) => {
     try {
@@ -33,9 +36,11 @@ export default function UpdateBrandPage() {
         name: values.name,
         description: values.description || null
       })
-      navigate('/admin/manage-brand')
-    } catch (error: any) {
-      console.error('Update brand error:', error)
+      showToast("success", "toasts.updatedSuccess")
+      revalidator.revalidate()
+      setUpdateCount((c) => c + 1)
+    } catch (error: unknown) {
+      console.error("Update brand error:", error)
     } finally {
       setIsSubmitting(false)
     }
@@ -48,31 +53,30 @@ export default function UpdateBrandPage() {
         <Button variant='outline' size='icon' asChild className='bg-white dark:bg-zinc-900 shadow-xs'>
           <Link to='/admin/manage-brand'>
             <ArrowLeft className='size-4' />
-            <span className='sr-only'>{t('brand.backToBrands')}</span>
+            <span className='sr-only'>{t("brand.backToBrands")}</span>
           </Link>
         </Button>
         <div>
           <h1 className='text-2xl font-bold tracking-tight text-gray-900 dark:text-gray-50 flex items-center gap-2'>
             <Pencil className='size-6 text-amber-500' />
-            {t('brand.updateTitle')}
+            {t("brand.updateTitle")}
           </h1>
-          <p className='text-sm text-muted-foreground'>
-            {t('brand.updateSubtitle', { id: brand.id })}
-          </p>
+          <p className='text-sm text-muted-foreground'>{t("brand.updateSubtitle", { id: brand.id })}</p>
         </div>
       </div>
 
       {/* Main Form Box */}
       <div className='max-w-2xl bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 shadow-xs p-6'>
         <BrandForm
+          key={`${brand.id}-${brand.updatedAt || updateCount}`}
           defaultValues={{
             name: brand.name,
-            description: brand.description || ''
+            description: brand.description || ""
           }}
           onSubmit={handleUpdate}
           isSubmitting={isSubmitting}
-          onCancel={() => navigate('/admin/manage-brand')}
-          submitLabel={t('brand.updateBrand')}
+          onCancel={() => navigate("/admin/manage-brand")}
+          submitLabel={t("brand.updateBrand")}
         />
       </div>
     </div>

@@ -4,7 +4,7 @@ import {
   useQueryClient,
   type UseMutationOptions,
   type UseQueryOptions
-} from '@tanstack/react-query'
+} from "@tanstack/react-query"
 import {
   createProductAttributeTemplate,
   deleteProductAttributeTemplate,
@@ -12,7 +12,7 @@ import {
   getProductAttributeTemplateById,
   getTemplatesPage,
   updateProductAttributeTemplate
-} from '~/shared/services/api/productAttributeTemplateService'
+} from "~/shared/services/api/productAttributeTemplateService"
 import type {
   PageResponse,
   PaginationParams,
@@ -20,16 +20,16 @@ import type {
   ProductTemplateCreateRequest,
   ProductTemplateResponse,
   ProductTemplateUpdateRequest
-} from '~/shared/types'
+} from "~/shared/types"
 
 /**
  * Query key factory for product templates (attribute templates).
  */
 export const templateKeys = {
-  all: ['product-templates'] as const,
-  lists: () => [...templateKeys.all, 'list'] as const,
+  all: ["product-templates"] as const,
+  lists: () => [...templateKeys.all, "list"] as const,
   list: (params?: PaginationParams & { search?: string }) => [...templateKeys.lists(), params] as const,
-  details: () => [...templateKeys.all, 'detail'] as const,
+  details: () => [...templateKeys.all, "detail"] as const,
   detail: (id?: number | string) => [...templateKeys.details(), id] as const
 }
 
@@ -38,7 +38,7 @@ export const templateKeys = {
  */
 export function useProductTemplatePageQuery(
   params: PaginationParams & { search?: string } = {},
-  options?: Omit<UseQueryOptions<PageResponse<ProductTemplateResponse>, Error>, 'queryKey' | 'queryFn'>
+  options?: Omit<UseQueryOptions<PageResponse<ProductTemplateResponse>, Error>, "queryKey" | "queryFn">
 ) {
   return useQuery<PageResponse<ProductTemplateResponse>, Error>({
     queryKey: templateKeys.list(params),
@@ -52,7 +52,7 @@ export function useProductTemplatePageQuery(
  * React Query hook for fetching all product templates enriched with attribute items.
  */
 export function useAllProductTemplatesQuery(
-  options?: Omit<UseQueryOptions<ProductAttributeTemplateItem[], Error>, 'queryKey' | 'queryFn'>
+  options?: Omit<UseQueryOptions<ProductAttributeTemplateItem[], Error>, "queryKey" | "queryFn">
 ) {
   return useQuery<ProductAttributeTemplateItem[], Error>({
     queryKey: templateKeys.lists(),
@@ -66,12 +66,12 @@ export function useAllProductTemplatesQuery(
  */
 export function useProductTemplateDetailQuery(
   id?: number | string,
-  options?: Omit<UseQueryOptions<ProductAttributeTemplateItem, Error>, 'queryKey' | 'queryFn'>
+  options?: Omit<UseQueryOptions<ProductAttributeTemplateItem, Error>, "queryKey" | "queryFn">
 ) {
   return useQuery<ProductAttributeTemplateItem, Error>({
     queryKey: templateKeys.detail(id),
     queryFn: () => {
-      if (!id) throw new Error('Template ID is required')
+      if (!id) throw new Error("Template ID is required")
       return getProductAttributeTemplateById(id)
     },
     enabled: Boolean(id),
@@ -83,7 +83,7 @@ export function useProductTemplateDetailQuery(
  * React Query hook for creating a product template.
  */
 export function useCreateProductTemplateMutation(
-  options?: UseMutationOptions<void, Error, ProductTemplateCreateRequest>
+  options?: UseMutationOptions<ProductTemplateResponse, Error, ProductTemplateCreateRequest>
 ) {
   const queryClient = useQueryClient()
 
@@ -92,15 +92,11 @@ export function useCreateProductTemplateMutation(
     mutationFn: (payload) => createProductAttributeTemplate(payload),
     onSuccess: (data, variables, context, ...rest) => {
       queryClient.invalidateQueries({ queryKey: templateKeys.all })
-      if (options?.onSuccess) {
-        ;(options.onSuccess as any)(data, variables, context, ...rest)
-      }
+      options?.onSuccess?.(data, variables, context, ...rest)
     },
     onError: (error, variables, context, ...rest) => {
-      console.error('Create template error:', error)
-      if (options?.onError) {
-        ;(options.onError as any)(error, variables, context, ...rest)
-      }
+      console.error("Create template error:", error)
+      options?.onError?.(error, variables, context, ...rest)
     }
   })
 }
@@ -109,11 +105,7 @@ export function useCreateProductTemplateMutation(
  * React Query hook for updating a product template.
  */
 export function useUpdateProductTemplateMutation(
-  options?: UseMutationOptions<
-    void,
-    Error,
-    { id: number | string; payload: ProductTemplateUpdateRequest }
-  >
+  options?: UseMutationOptions<void, Error, { id: number | string; payload: ProductTemplateUpdateRequest }>
 ) {
   const queryClient = useQueryClient()
 
@@ -127,7 +119,7 @@ export function useUpdateProductTemplateMutation(
       }
     },
     onError: (error, variables, context, ...rest) => {
-      console.error('Update template error:', error)
+      console.error("Update template error:", error)
       if (options?.onError) {
         ;(options.onError as any)(error, variables, context, ...rest)
       }
@@ -138,9 +130,7 @@ export function useUpdateProductTemplateMutation(
 /**
  * React Query hook for deleting a product template.
  */
-export function useDeleteProductTemplateMutation(
-  options?: UseMutationOptions<void, Error, number | string>
-) {
+export function useDeleteProductTemplateMutation(options?: UseMutationOptions<void, Error, number | string>) {
   const queryClient = useQueryClient()
 
   return useMutation({
@@ -153,7 +143,7 @@ export function useDeleteProductTemplateMutation(
       }
     },
     onError: (error, variables, context, ...rest) => {
-      console.error('Delete template error:', error)
+      console.error("Delete template error:", error)
       if (options?.onError) {
         ;(options.onError as any)(error, variables, context, ...rest)
       }

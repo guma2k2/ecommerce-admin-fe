@@ -106,10 +106,11 @@ export const getAttributeById = getProductAttributeById
  */
 export async function createProductAttribute(
   payload: ProductAttributeCreateRequest | { name: string }
-): Promise<void> {
-  await httpRequest.post<ApiResponse<void>>('/product-attributes', {
+): Promise<ProductAttributeResponse> {
+  const response = await httpRequest.post<ApiResponse<ProductAttributeResponse>>('/product-attributes', {
     name: payload.name.trim()
   })
+  return response.data.data
 }
 
 export const createAttribute = createProductAttribute
