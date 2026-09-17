@@ -108,8 +108,8 @@ export function getInitialProductFormValues(
     simpleQuantity: !hasOptions ? firstVariant?.quantity || 0 : 0,
     simpleSku: !hasOptions ? firstVariant?.sku || "" : "",
     options: (initialData.options || []).map((opt) => ({
-      id: opt.id,
-      productOptionId: opt.productOptionId ?? (typeof opt.id === "number" ? opt.id : undefined),
+      id: opt.productOptionId,
+      productOptionId: opt.productOptionId,
       name: opt.name,
       position: opt.position,
       showing: false,
