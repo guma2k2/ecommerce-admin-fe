@@ -9,7 +9,6 @@ import { getAllCategories } from "~/shared/services/api/categoryService"
 import { getAllBrands } from "~/shared/services/api/brandService"
 import { createProduct } from "~/shared/services/api/productService"
 import type { ProductCreateRequest } from "~/shared/types"
-import { showToast } from "~/shared/utils"
 
 export async function clientLoader() {
   const [categories, brands] = await Promise.all([getAllCategories().catch(() => []), getAllBrands().catch(() => [])])
@@ -31,7 +30,6 @@ export default function CreateProductPage() {
     try {
       setIsSubmitting(true)
       const created = await createProduct(payload as ProductCreateRequest)
-      showToast("success", "toasts.createdSuccess")
       if (created?.id) {
         navigate(`/admin/manage-product/edit/${created.id}`)
       } else {

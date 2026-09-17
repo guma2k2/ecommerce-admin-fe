@@ -9,7 +9,6 @@ import { getProductById, updateProduct } from "~/shared/services/api/productServ
 import { getAllCategories } from "~/shared/services/api/categoryService"
 import { getAllBrands } from "~/shared/services/api/brandService"
 import type { ProductUpdateRequest } from "~/shared/types"
-import { showToast } from "~/shared/utils"
 
 export async function clientLoader({ params }: LoaderFunctionArgs) {
   const productId = params.id
@@ -44,7 +43,6 @@ export default function UpdateProductPage() {
       setIsSubmitting(true)
       const targetId = product?.id || productId
       await updateProduct(targetId, payload as ProductUpdateRequest)
-      showToast("success", "toasts.updatedSuccess")
       setIsDirty(false)
       revalidator.revalidate()
       setUpdateCount((prev) => prev + 1)

@@ -58,8 +58,7 @@ export interface ProductOptionValueResponse {
 }
 
 export interface ProductOptionCombinationResponse {
-  id: number
-  productOptionId?: number
+  productOptionId: number
   name: string
   position: number
   values: ProductOptionValueResponse[]
