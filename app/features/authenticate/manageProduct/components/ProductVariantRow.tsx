@@ -1,5 +1,5 @@
 import React from "react"
-import { Tag, ChevronDown } from "lucide-react"
+import { Tag, ChevronDown, Trash2 } from "lucide-react"
 import { Checkbox } from "~/core/components/shadcn/checkbox"
 import { Button } from "~/core/components/shadcn/button"
 import { Input } from "~/core/components/shadcn/input"
@@ -28,12 +28,13 @@ export interface ProductVariantRowProps {
   isSelected: boolean
   variantAttributes?: { productAttributeId: number; name?: string }[]
   isExpanded?: boolean
+  canDelete?: boolean
   onToggleExpand?: () => void
   onSelect: (checked: boolean) => void
   onImageChange: (url: string, mediaId?: string) => void
-  onSkuChange: (sku: string) => void
   onPriceChange: (price: number) => void
   onQuantityChange: (quantity: number) => void
+  onDelete?: () => void
 }
 
 export default function ProductVariantRow({
@@ -42,12 +43,13 @@ export default function ProductVariantRow({
   isSelected,
   variantAttributes = [],
   isExpanded = false,
+  canDelete = true,
   onToggleExpand,
   onSelect,
   onImageChange,
-  onSkuChange,
   onPriceChange,
-  onQuantityChange
+  onQuantityChange,
+  onDelete
 }: ProductVariantRowProps) {
   const totalAttrs = variantAttributes.length
   const configuredCount = variantAttributes.filter((va) => {
@@ -90,14 +92,6 @@ export default function ProductVariantRow({
             </span>
           )}
         </div>
-      </td>
-      <td className="py-2 px-3 w-36 min-w-[130px]">
-        <Input
-          value={variant.sku || ""}
-          onChange={(e) => onSkuChange(e.target.value)}
-          placeholder="SKU"
-          className="h-8 font-mono text-xs bg-transparent"
-        />
       </td>
       <td className="py-2 px-3 w-28 min-w-[100px]">
         <PriceInput
@@ -149,6 +143,23 @@ export default function ProductVariantRow({
           </Button>
         </td>
       )}
+
+      {/* Action Column: Delete */}
+      <td className="py-2 px-2 w-10 text-right">
+        {onDelete && (
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            disabled={canDelete === false}
+            onClick={onDelete}
+            className="h-7 w-7 p-0 text-muted-foreground hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30 rounded-md transition-colors"
+            title="Delete variant"
+          >
+            <Trash2 className="size-3.5" />
+          </Button>
+        )}
+      </td>
     </tr>
   )
 }

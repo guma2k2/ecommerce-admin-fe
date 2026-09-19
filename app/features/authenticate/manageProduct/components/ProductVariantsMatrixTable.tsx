@@ -1,5 +1,5 @@
 import React, { useState } from "react"
-import { Tag, Copy, Sliders, ChevronDown, ChevronUp, Check } from "lucide-react"
+import { Tag, Copy, Sliders, ChevronDown, ChevronUp, Check, Edit3, Plus, Trash2 } from "lucide-react"
 import { Checkbox } from "~/core/components/shadcn/checkbox"
 import { Button } from "~/core/components/shadcn/button"
 import { Input } from "~/core/components/shadcn/input"
@@ -10,7 +10,8 @@ import {
   SelectTrigger,
   SelectValue
 } from "~/core/components/shadcn/select"
-import PriceInput from "~/shared/components/PriceInput"
+import DeleteConfirmDialog from "~/shared/components/DeleteConfirmDialog"
+import BulkEditVariantsDialog from "./BulkEditVariantsDialog"
 import ProductVariantRow, { type VariantRowItem } from "./ProductVariantRow"
 
 export interface ProductVariantsMatrixTableProps {
@@ -30,6 +31,9 @@ export interface ProductVariantsMatrixTableProps {
     name: string,
     val: string
   ) => void
+  onAddVariantClick?: () => void
+  onDeleteVariant?: (index: number) => void
+  onBulkDeleteVariants?: (indices: number[]) => void
 }
 
 export default function ProductVariantsMatrixTable({
@@ -43,10 +47,18 @@ export default function ProductVariantsMatrixTable({
   onApplyBulkAttribute,
   onCopyAttributesToSelected,
   onUpdateVariantField,
-  onUpdateVariantAttribute
+  onUpdateVariantAttribute,
+  onAddVariantClick,
+  onDeleteVariant,
+  onBulkDeleteVariants
 }: ProductVariantsMatrixTableProps) {
-  const [bulkPrice, setBulkPrice] = useState("")
-  const [bulkStock, setBulkStock] = useState("")
+  const [isBulkEditOpen, setIsBulkEditOpen] = useState(false)
+  const [deleteConfirmState, setDeleteConfirmState] = useState<{
+    open: boolean
+    type: "single" | "bulk"
+    targetIndex?: number
+    targetIndices?: number[]
+  }>({ open: false, type: "single" })
 
   // State for expanded variant specification sub-rows
   const [expandedIndices, setExpandedIndices] = useState<Set<number>>(new Set())
@@ -57,18 +69,13 @@ export default function ProductVariantsMatrixTable({
   )
   const [bulkAttrVal, setBulkAttrVal] = useState("")
 
-  const handleApplyPrice = () => {
-    const p = parseFloat(bulkPrice)
-    if (isNaN(p) || p < 0) return
-    onApplyBulkPrice(p)
-    setBulkPrice("")
-  }
-
-  const handleApplyStock = () => {
-    const q = parseInt(bulkStock, 10)
-    if (isNaN(q) || q < 0) return
-    onApplyBulkStock(q)
-    setBulkStock("")
+  const handleApplyBulkModal = ({ price, stock }: { price?: number; stock?: number }) => {
+    if (price !== undefined) {
+      onApplyBulkPrice(price)
+    }
+    if (stock !== undefined) {
+      onApplyBulkStock(stock)
+    }
   }
 
   const handleApplyBulkAttr = () => {
@@ -107,57 +114,80 @@ export default function ProductVariantsMatrixTable({
     <div className="space-y-3 pt-2">
       {/* Bulk Actions Toolbar */}
       <div className="p-3 rounded-xl bg-gray-50 dark:bg-zinc-800/60 border border-gray-200 dark:border-zinc-800 space-y-2.5 shadow-2xs">
-        {/* Row 1: Selection count, Bulk Price, Bulk Stock, Expand All */}
+        {/* Row 1: Selection count, Bulk Edit Action, Bulk Delete Action, Add Variant, Expand All */}
         <div className="flex flex-wrap items-center justify-between gap-3">
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2.5">
             <Checkbox
-              checked={variants.length > 0 && selectedIndices.length === variants.length}
+              checked={
+                variants.length > 0 && selectedIndices.length === variants.length
+                  ? true
+                  : selectedIndices.length > 0
+                  ? "indeterminate"
+                  : false
+              }
               onCheckedChange={(c) => onSelectAll(!!c)}
             />
             <span className="text-xs font-semibold text-gray-800 dark:text-gray-200">
               {selectedIndices.length > 0
-                ? `${selectedIndices.length} of ${variants.length} selected`
-                : `Total ${variants.length} SKU(s)`}
+                ? `${selectedIndices.length} selected`
+                : `Total ${variants.length} variant(s)`}
             </span>
+
+            {/* Bulk Edit Button (shown when 1+ variants are selected) */}
+            {selectedIndices.length > 0 && (
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => setIsBulkEditOpen(true)}
+                className="h-8 px-3 text-xs font-medium gap-1.5 shadow-2xs border-gray-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 hover:bg-gray-100 dark:hover:bg-zinc-800"
+              >
+                <Edit3 className="size-3.5 text-muted-foreground" />
+                Bulk edit
+              </Button>
+            )}
+
+            {/* Bulk Delete Button (shown when 1+ variants are selected) */}
+            {selectedIndices.length > 0 && onBulkDeleteVariants && (
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                disabled={variants.length - selectedIndices.length < 1}
+                onClick={() =>
+                  setDeleteConfirmState({
+                    open: true,
+                    type: "bulk",
+                    targetIndices: selectedIndices
+                  })
+                }
+                className="h-8 px-3 text-xs font-medium gap-1.5 shadow-2xs border-red-200 dark:border-red-900/50 text-red-600 dark:text-red-400 bg-white dark:bg-zinc-900 hover:bg-red-50 dark:hover:bg-red-950/30 disabled:opacity-50 disabled:pointer-events-none"
+                title={
+                  variants.length - selectedIndices.length < 1
+                    ? "At least one variant must remain"
+                    : "Delete selected variants"
+                }
+              >
+                <Trash2 className="size-3.5" />
+                Delete ({selectedIndices.length})
+              </Button>
+            )}
           </div>
 
           <div className="flex flex-wrap items-center gap-2">
-            <div className="flex items-center gap-1">
-              <PriceInput
-                placeholder="Bulk Price ($)"
-                value={bulkPrice ? parseFloat(bulkPrice) : ""}
-                onChange={(val) => setBulkPrice(val ? String(val) : "")}
-                className="h-8 w-28 bg-white dark:bg-zinc-900 text-xs"
-              />
+            {/* Add Variant Button */}
+            {onAddVariantClick && (
               <Button
                 type="button"
                 variant="outline"
                 size="sm"
-                onClick={handleApplyPrice}
-                className="h-8 px-2.5 text-xs font-medium"
+                onClick={onAddVariantClick}
+                className="h-8 px-3 text-xs font-medium gap-1.5 shadow-2xs border-gray-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 hover:bg-gray-100 dark:hover:bg-zinc-800"
               >
-                Apply
+                <Plus className="size-3.5 text-primary" />
+                Add variant
               </Button>
-            </div>
-
-            <div className="flex items-center gap-1">
-              <Input
-                type="number"
-                placeholder="Bulk Stock"
-                value={bulkStock}
-                onChange={(e) => setBulkStock(e.target.value)}
-                className="h-8 w-24 bg-white dark:bg-zinc-900 text-xs"
-              />
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={handleApplyStock}
-                className="h-8 px-2.5 text-xs font-medium"
-              >
-                Apply
-              </Button>
-            </div>
+            )}
 
             {totalAttrs > 0 && (
               <Button
@@ -242,7 +272,6 @@ export default function ProductVariantsMatrixTable({
               <th className="py-2.5 px-3 w-8"></th>
               <th className="py-2.5 px-3 w-14">Image</th>
               <th className="py-2.5 px-3 min-w-[150px]">Variant Combination</th>
-              <th className="py-2.5 px-3 w-36">SKU *</th>
               <th className="py-2.5 px-3 w-28">Price ($) *</th>
               <th className="py-2.5 px-3 w-24">Available *</th>
               {totalAttrs > 0 && (
@@ -253,6 +282,7 @@ export default function ProductVariantsMatrixTable({
                   </span>
                 </th>
               )}
+              <th className="py-2.5 px-3 w-10 text-right"></th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-100 dark:divide-zinc-800">
@@ -275,6 +305,7 @@ export default function ProductVariantsMatrixTable({
                     isSelected={isSelected}
                     variantAttributes={variantAttributes}
                     isExpanded={isExpanded}
+                    canDelete={variants.length > 1}
                     onToggleExpand={() => toggleExpand(index)}
                     onSelect={(checked) => onSelectVariant(index, checked)}
                     onImageChange={(url, mediaId) => {
@@ -283,9 +314,15 @@ export default function ProductVariantsMatrixTable({
                         onUpdateVariantField(index, "mediaId", mediaId)
                       }
                     }}
-                    onSkuChange={(sku) => onUpdateVariantField(index, "sku", sku)}
                     onPriceChange={(price) => onUpdateVariantField(index, "price", price)}
                     onQuantityChange={(qty) => onUpdateVariantField(index, "quantity", qty)}
+                    onDelete={() =>
+                      setDeleteConfirmState({
+                        open: true,
+                        type: "single",
+                        targetIndex: index
+                      })
+                    }
                   />
 
                   {/* Expandable Specifications Sub-Row Accordion */}
@@ -379,6 +416,40 @@ export default function ProductVariantsMatrixTable({
           </tbody>
         </table>
       </div>
+
+      {/* Bulk Edit Price & Stock Modal Dialog */}
+      <BulkEditVariantsDialog
+        open={isBulkEditOpen}
+        onOpenChange={setIsBulkEditOpen}
+        selectedCount={selectedIndices.length}
+        onApply={handleApplyBulkModal}
+      />
+
+      {/* Delete Single/Bulk Variant Confirmation Dialog */}
+      <DeleteConfirmDialog
+        open={deleteConfirmState.open}
+        onOpenChange={(open) =>
+          setDeleteConfirmState((prev) => ({ ...prev, open }))
+        }
+        selectedCount={
+          deleteConfirmState.type === "single"
+            ? 1
+            : deleteConfirmState.targetIndices?.length || 0
+        }
+        onConfirm={async () => {
+          if (
+            deleteConfirmState.type === "single" &&
+            deleteConfirmState.targetIndex !== undefined
+          ) {
+            onDeleteVariant?.(deleteConfirmState.targetIndex)
+          } else if (
+            deleteConfirmState.type === "bulk" &&
+            deleteConfirmState.targetIndices
+          ) {
+            onBulkDeleteVariants?.(deleteConfirmState.targetIndices)
+          }
+        }}
+      />
     </div>
   )
 }

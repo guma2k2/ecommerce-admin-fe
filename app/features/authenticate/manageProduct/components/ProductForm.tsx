@@ -67,16 +67,30 @@ const ProductForm = forwardRef<ProductFormHandle, ProductFormProps>(function Pro
   // Retain initial variant records so re-enabling multi-variant mode preserves original DB variant IDs
   const initialVariants = useMemo(
     () =>
-      (initialData?.variants || []).map((v) => ({
-        id: v.id,
-        title: v.title,
-        sku: v.sku,
-        price: v.price,
-        quantity: v.quantity,
-        mediaId: v.mediaId || undefined,
-        image: v.mediaUrl || initialData?.medias?.find((m) => m.mediaId === v.mediaId)?.url || "",
-        productOptionValueIds: v.productOptionValueIds
-      })),
+      (initialData?.variants || []).map((v) => {
+        const optionValues = (v.productOptionValueIds || []).map((valId) => {
+          const opt = initialData?.options?.find((o) => o.values?.some((val) => val.id === valId))
+          const val = opt?.values?.find((val) => val.id === valId)
+          return {
+            optionId: opt?.productOptionId ?? null,
+            optionName: opt?.name || "",
+            optionValueId: valId,
+            value: val?.value || ""
+          }
+        })
+
+        return {
+          id: v.id,
+          title: v.title,
+          sku: v.sku,
+          price: v.price,
+          quantity: v.quantity,
+          mediaId: v.mediaId || undefined,
+          image: v.mediaUrl || initialData?.medias?.find((m) => m.mediaId === v.mediaId)?.url || "",
+          productOptionValueIds: v.productOptionValueIds,
+          optionValues
+        }
+      }),
     [initialData]
   )
 
