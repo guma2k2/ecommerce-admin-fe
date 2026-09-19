@@ -24,6 +24,13 @@ export const productAttributeItemSchema = z.object({
   applyTo: z.enum(['base', 'variant'])
 })
 
+export const productVariantOptionValueSchema = z.object({
+  optionId: z.union([z.number(), z.string()]).nullable().optional(),
+  optionName: z.string().optional(),
+  optionValueId: z.number().nullable().optional(),
+  value: z.string()
+})
+
 export const productVariantSchema = z.object({
   id: z.number().nullable().optional(),
   title: z.string().optional(),
@@ -33,6 +40,7 @@ export const productVariantSchema = z.object({
   mediaId: z.string().nullable().optional(),
   image: z.string().optional(),
   productOptionValueIds: z.array(z.number()).optional(),
+  optionValues: z.array(productVariantOptionValueSchema).optional(),
   attributes: z.array(productAttributeItemSchema).optional()
 })
 
@@ -68,13 +76,13 @@ export const productFormSchema = z.object({
   hasOptions: z.boolean(),
   simplePrice: z.number().min(0, validationMsg('validation.min', { min: 0 })),
   simpleQuantity: z.number().min(0, validationMsg('validation.min', { min: 0 })),
-  simpleSku: z.string().optional(),
   options: z.array(productOptionSchema),
   variants: z.array(productVariantSchema).min(1, validationMsg('validation.atLeastOneVariant'))
 })
 
 export type ProductOptionValueFormType = z.infer<typeof productOptionValueSchema>
 export type ProductOptionForm = z.infer<typeof productOptionSchema>
+export type ProductVariantOptionValueItem = z.infer<typeof productVariantOptionValueSchema>
 export type ProductVariantFormItem = z.infer<typeof productVariantSchema>
 export type ProductMediaItemForm = z.infer<typeof productMediaItemSchema>
 export type ProductAttributeItemForm = z.infer<typeof productAttributeItemSchema>

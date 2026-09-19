@@ -1,12 +1,139 @@
 import type {
   ProductFormSchema,
-  ProductAttributeItemForm
+  ProductAttributeItemForm,
+  ProductVariantOptionValueItem
 } from "~/features/authenticate/manageProduct/validator"
 import type {
   ProductResponse,
   ProductCreateRequest,
   ProductUpdateRequest
 } from "~/shared/types"
+
+export interface ComboOptionItem {
+  optionId: number | string
+  optionName: string
+  optionValueId?: number | null
+  value: string
+}
+
+/**
+ * Generates an order-independent signature string for an option combination.
+ * e.g., [{ optionName: "Color", value: "Red" }, { optionName: "Size", value: "S" }] -> "color:red|size:s"
+ */
+export function getCombinationSignature(
+  items?: { optionId?: number | string | null; optionName?: string; value: string }[]
+): string {
+  if (!items || items.length === 0) return ""
+  return items
+    .map((item) => {
+      const optKey = (item.optionName || String(item.optionId || "")).trim().toLowerCase()
+      const valKey = item.value.trim().toLowerCase()
+      return `${optKey}:${valKey}`
+    })
+    .sort()
+    .join("|")
+}
+
+/**
+ * Checks if an existing variant matches a given option combination set.
+ * Matches by the set of (option id, option value) pairs rather than comparing titles.
+ */
+export function isVariantMatchingCombo(
+  variant: {
+    title?: string
+    productOptionValueIds?: number[]
+    optionValues?: ProductVariantOptionValueItem[]
+  },
+  combo: ComboOptionItem[]
+): boolean {
+  // 1. Primary match: by variant.optionValues
+  if (variant.optionValues && variant.optionValues.length === combo.length && combo.length > 0) {
+    const allMatch = combo.every((c) => {
+      return variant.optionValues!.some((ov) => {
+        // Match option: by optionId or by optionName
+        const isOptMatched =
+          (c.optionId && ov.optionId && String(c.optionId) === String(ov.optionId)) ||
+          (c.optionName && ov.optionName && c.optionName.trim().toLowerCase() === ov.optionName.trim().toLowerCase())
+
+        if (!isOptMatched) return false
+
+        // Match value: by optionValueId if both have it, or by value text
+        if (c.optionValueId && ov.optionValueId) {
+          return c.optionValueId === ov.optionValueId
+        }
+
+        return c.value.trim().toLowerCase() === ov.value.trim().toLowerCase()
+      })
+    })
+
+    if (allMatch) return true
+  }
+
+  // 2. Secondary match: by productOptionValueIds if combo has optionValueId for all items
+  if (
+    variant.productOptionValueIds &&
+    variant.productOptionValueIds.length === combo.length &&
+    combo.length > 0 &&
+    combo.every((c) => typeof c.optionValueId === "number")
+  ) {
+    const idsSet = new Set(variant.productOptionValueIds)
+    const allIdsMatched = combo.every((c) => idsSet.has(c.optionValueId!))
+    if (allIdsMatched) return true
+  }
+
+  // 3. Tertiary match: if variant has title and no optionValues, check set equality of values
+  if (variant.title && combo.length > 0) {
+    const titleParts = variant.title.split("/").map((p) => p.trim().toLowerCase())
+    if (titleParts.length === combo.length) {
+      const comboVals = combo.map((c) => c.value.trim().toLowerCase()).sort()
+      const sortedTitleParts = [...titleParts].sort()
+      if (comboVals.every((val, idx) => val === sortedTitleParts[idx])) {
+        return true
+      }
+    }
+  }
+
+  return false
+}
+
+/**
+ * Auto-generates a clean, standardized SKU string.
+ */
+export function generateVariantSku(
+  baseSlugOrName: string,
+  variantTitle?: string,
+  index?: number
+): string {
+  const cleanBase =
+    (baseSlugOrName || "PRD")
+      .trim()
+      .toUpperCase()
+      .replace(/[^A-Z0-9-]/g, "")
+      .slice(0, 24) || "PRD"
+
+  if (
+    !variantTitle ||
+    variantTitle.toLowerCase() === "default" ||
+    variantTitle.toLowerCase() === "default variant" ||
+    variantTitle.toLowerCase() === "default title"
+  ) {
+    return `${cleanBase}-DEFAULT`
+  }
+
+  // Extract clean segment codes from variant title like "Red / XL" -> "RED-XL"
+  const cleanSuffix = variantTitle
+    .split("/")
+    .map((seg) => seg.trim().toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 8))
+    .filter(Boolean)
+    .join("-")
+
+  if (cleanSuffix) {
+    return `${cleanBase}-${cleanSuffix}`
+  }
+
+  const idxSuffix = typeof index === "number" ? String(index + 1).padStart(3, "0") : "001"
+  return `${cleanBase}-${idxSuffix}`
+}
 
 /**
  * Maps incoming ProductResponse API data into ProductFormSchema state.
@@ -31,7 +158,6 @@ export function getInitialProductFormValues(
       hasOptions: false,
       simplePrice: 0,
       simpleQuantity: 0,
-      simpleSku: "",
       options: [],
       variants: [
         {
@@ -106,7 +232,6 @@ export function getInitialProductFormValues(
     hasOptions: hasOptions,
     simplePrice: !hasOptions ? firstVariant?.price || 0 : 0,
     simpleQuantity: !hasOptions ? firstVariant?.quantity || 0 : 0,
-    simpleSku: !hasOptions ? firstVariant?.sku || "" : "",
     options: (initialData.options || []).map((opt) => ({
       id: opt.productOptionId,
       productOptionId: opt.productOptionId,
@@ -119,23 +244,37 @@ export function getInitialProductFormValues(
         position: v.position
       }))
     })),
-    variants: (initialData.variants || []).map((v) => ({
-      id: v.id,
-      title: v.title,
-      sku: v.sku,
-      price: v.price,
-      quantity: v.quantity,
-      mediaId: v.mediaId || undefined,
-      image: v.mediaUrl || initialData.medias?.find((m) => m.mediaId === v.mediaId)?.url || "",
-      productOptionValueIds: v.productOptionValueIds,
-      attributes: (v.attributeValues || []).map((a) => ({
-        id: a.id,
-        productAttributeId: a.productAttributeId,
-        name: a.name || "",
-        value: a.value || "",
-        applyTo: "variant" as const
-      }))
-    }))
+    variants: (initialData.variants || []).map((v) => {
+      const optionValues: ProductVariantOptionValueItem[] = (v.productOptionValueIds || []).map((valId) => {
+        const opt = initialData.options?.find((o) => o.values?.some((val) => val.id === valId))
+        const val = opt?.values?.find((val) => val.id === valId)
+        return {
+          optionId: opt?.productOptionId ?? null,
+          optionName: opt?.name || "",
+          optionValueId: valId,
+          value: val?.value || ""
+        }
+      })
+
+      return {
+        id: v.id,
+        title: v.title,
+        sku: v.sku,
+        price: v.price,
+        quantity: v.quantity,
+        mediaId: v.mediaId || undefined,
+        image: v.mediaUrl || initialData.medias?.find((m) => m.mediaId === v.mediaId)?.url || "",
+        productOptionValueIds: v.productOptionValueIds,
+        optionValues,
+        attributes: (v.attributeValues || []).map((a) => ({
+          id: a.id,
+          productAttributeId: a.productAttributeId,
+          name: a.name || "",
+          value: a.value || "",
+          applyTo: "variant" as const
+        }))
+      }
+    })
   }
 }
 
@@ -176,8 +315,7 @@ export function transformProductFormToPayload(
           title: values.variants[0]?.title?.trim() || "Default Variant",
           sku:
             (values.variants[0]?.sku || "").trim() ||
-            (values.simpleSku || "").trim() ||
-            `${values.slug.toUpperCase()}-DEF`,
+            generateVariantSku(values.slug || values.name, "DEFAULT"),
           price: Number(values.variants[0]?.price ?? values.simplePrice) || 0,
           quantity: Number(values.variants[0]?.quantity ?? values.simpleQuantity) || 0,
           mediaId: values.variants[0]?.mediaId || null,
@@ -195,7 +333,7 @@ export function transformProductFormToPayload(
         return {
           ...(mode === "edit" && typeof v.id === "number" ? { id: v.id } : {}),
           title: v.title?.trim() || "Default",
-          sku: (v.sku || "").trim() || `${values.slug.toUpperCase()}-${idx + 1}`,
+          sku: (v.sku || "").trim() || generateVariantSku(values.slug || values.name, v.title, idx),
           price: Number(v.price) || 0,
           quantity: Number(v.quantity) || 0,
           mediaId: v.mediaId || null,

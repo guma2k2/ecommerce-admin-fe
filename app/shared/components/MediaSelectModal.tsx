@@ -199,7 +199,7 @@ export default function MediaSelectModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-4xl max-w-4xl w-[92vw] max-h-[85vh] flex flex-col p-0 overflow-hidden bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-800 rounded-xl shadow-2xl">
+      <DialogContent className="sm:max-w-4xl max-w-4xl w-[96vw] max-h-[85vh] flex flex-col p-0 overflow-hidden bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-800 rounded-xl shadow-2xl">
         {/* Hidden file input */}
         <input
           ref={fileInputRef}
@@ -368,7 +368,7 @@ export default function MediaSelectModal({
                     className={cn(
                       "group relative border rounded-lg p-2 transition-all cursor-pointer select-none bg-white dark:bg-zinc-900 flex flex-col justify-between",
                       isSelected
-                        ? "border-primary ring-2 ring-primary/20 bg-primary/5"
+                        ? "bg-primary/5"
                         : "border-gray-200 dark:border-zinc-800 hover:border-gray-300 hover:shadow-xs"
                     )}
                   >
@@ -401,9 +401,6 @@ export default function MediaSelectModal({
                       <p className="text-[11px] font-medium text-gray-700 dark:text-gray-300 truncate" title={item.name}>
                         {item.name}
                       </p>
-                      <span className="text-[10px] text-gray-400 uppercase font-semibold tracking-wider">
-                        {ext}
-                      </span>
                     </div>
                   </div>
                 )
@@ -440,7 +437,6 @@ export default function MediaSelectModal({
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="text-xs font-medium text-gray-900 dark:text-gray-100 truncate">{item.name}</p>
-                      <p className="text-[10px] text-gray-400">{(item.type || item.fileType || "File")} • {(item.size / 1024).toFixed(1)} KB</p>
                     </div>
                   </div>
                 )

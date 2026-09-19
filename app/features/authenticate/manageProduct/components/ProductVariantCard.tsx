@@ -9,9 +9,16 @@ import type {
   ProductFormSchema,
   ProductVariantFormItem
 } from "~/features/authenticate/manageProduct/validator"
+import {
+  generateVariantSku,
+  isVariantMatchingCombo,
+  getCombinationSignature,
+  type ComboOptionItem
+} from "~/features/authenticate/manageProduct/helpers"
 import SingleProductMode from "./SingleProductMode"
 import ProductOptionSection from "./ProductOptionSection"
 import ProductVariantsMatrixTable from "./ProductVariantsMatrixTable"
+import AddVariantDialog, { type NewVariantData } from "./AddVariantDialog"
 
 export interface ProductVariantCardProps {
   initialSingleVariantId?: number | null
@@ -24,11 +31,48 @@ export default function ProductVariantCard({
 }: ProductVariantCardProps = {}) {
   const { control, setValue, getValues } = useFormContext<ProductFormSchema>()
   const hasOptions = useWatch({ control, name: "hasOptions" })
-  const options = useWatch({ control, name: "options" }) || []
-  const variants = useWatch({ control, name: "variants" }) || []
+  const rawOptions = useWatch({ control, name: "options" })
+  const options = React.useMemo(() => rawOptions || [], [rawOptions])
+  const rawVariants = useWatch({ control, name: "variants" })
+  const variants = React.useMemo(() => rawVariants || [], [rawVariants])
   const productSlug = useWatch({ control, name: "slug" }) || "PROD"
 
   const [selectedVariantIndices, setSelectedVariantIndices] = useState<number[]>([])
+  const [isAddVariantOpen, setIsAddVariantOpen] = useState(false)
+
+  // Track signatures of combinations explicitly excluded by the user or not present in initialVariants
+  const [excludedSignatures, setExcludedSignatures] = useState<Set<string>>(() => {
+    const initialExcluded = new Set<string>()
+    if (initialVariants && initialVariants.length > 0 && options.length > 0) {
+      const validOptions = options.filter(
+        (opt) => opt.name?.trim() && opt.values && opt.values.some((v) => v.value?.trim())
+      )
+      if (validOptions.length > 0) {
+        const valueMatrix: ComboOptionItem[][] = validOptions.map((opt) => {
+          const optId = opt.productOptionId ?? opt.id ?? opt.name.trim().toLowerCase()
+          return opt.values
+            .filter((v) => v.value?.trim())
+            .map((v) => ({
+              optionId: optId,
+              optionName: opt.name.trim(),
+              value: v.value.trim(),
+              optionValueId: v.id || null
+            }))
+        })
+        const combinations = cartesian(valueMatrix)
+        combinations.forEach((combo) => {
+          const isMatched = initialVariants.some((iv) => isVariantMatchingCombo(iv, combo))
+          if (!isMatched) {
+            initialExcluded.add(getCombinationSignature(combo))
+          }
+        })
+      }
+    }
+    return initialExcluded
+  })
+
+  // Ref to cache custom-created variants or field overrides
+  const customVariantsMapRef = React.useRef<Map<string, ProductVariantFormItem>>(new Map())
 
   const {
     fields: optionFields,
@@ -57,7 +101,7 @@ export default function ProductVariantCard({
           {
             id: null,
             title: "Default",
-            sku: `${productSlug.toUpperCase()}-001`,
+            sku: generateVariantSku(productSlug, "DEFAULT"),
             price: Number(getValues("simplePrice")) || 0,
             quantity: Number(getValues("simpleQuantity")) || 0
           }
@@ -66,64 +110,75 @@ export default function ProductVariantCard({
       return
     }
 
-    const valueMatrix = validOptions.map((opt) =>
-      opt.values
+    const valueMatrix: ComboOptionItem[][] = validOptions.map((opt) => {
+      const optId = opt.productOptionId ?? opt.id ?? opt.name.trim().toLowerCase()
+      return opt.values
         .filter((v) => v.value?.trim())
         .map((v) => ({
-          optionName: opt.name,
+          optionId: optId,
+          optionName: opt.name.trim(),
           value: v.value.trim(),
           optionValueId: v.id || null
         }))
-    )
+    })
 
-    const combinations = cartesian(valueMatrix)
+    const allCombinations = cartesian(valueMatrix)
+    // Filter out combinations that have been explicitly deleted/excluded
+    const combinations = allCombinations.filter((combo) => {
+      const sig = getCombinationSignature(combo)
+      return !excludedSignatures.has(sig)
+    })
+
     const currentVariants = getValues("variants") || []
-    const usedVariantIds = new Set<number>()
+    const claimedVariants = new Set<ProductVariantFormItem>()
 
     const newVariants = combinations.map((combo, idx) => {
       const comboTitle = combo.map((c) => c.value).join(" / ")
+      const comboSig = getCombinationSignature(combo)
+      const customSaved = customVariantsMapRef.current.get(comboSig)
 
-      // Match strictly by exact title, ensuring an existing variant is only claimed once
+      // Match strictly by (option id, option value) set rather than comparing titles
       const matchingExisting =
         currentVariants.find(
-          (v) =>
-            v.title?.toLowerCase() === comboTitle.toLowerCase() &&
-            (!v.id || !usedVariantIds.has(v.id))
+          (v) => !claimedVariants.has(v) && isVariantMatchingCombo(v, combo)
         ) ||
         initialVariants?.find(
-          (v) =>
-            v.title?.toLowerCase() === comboTitle.toLowerCase() &&
-            (!v.id || !usedVariantIds.has(v.id))
-        )
+          (v) => !claimedVariants.has(v) && isVariantMatchingCombo(v, combo)
+        ) ||
+        customSaved
 
-      if (matchingExisting?.id) {
-        usedVariantIds.add(matchingExisting.id)
+      if (matchingExisting) {
+        claimedVariants.add(matchingExisting)
       }
-
-      // Generate clean default SKU
-      const skuSuffix = combo
-        .map((c) => c.value.replace(/[^a-zA-Z0-9]/g, "").slice(0, 3).toUpperCase())
-        .join("-")
-      const fallbackSku = `${productSlug.toUpperCase().slice(0, 8)}-${skuSuffix || idx + 1}`
 
       return {
         id: matchingExisting?.id || null,
         title: comboTitle,
-        sku: matchingExisting?.sku || fallbackSku,
-        price: matchingExisting ? Number(matchingExisting.price) : Number(getValues("simplePrice")) || 0,
-        quantity: matchingExisting ? Number(matchingExisting.quantity) : Number(getValues("simpleQuantity")) || 0,
+        sku: matchingExisting?.sku || generateVariantSku(productSlug, comboTitle, idx),
+        price: matchingExisting
+          ? Number(matchingExisting.price)
+          : Number(getValues("simplePrice")) || 0,
+        quantity: matchingExisting
+          ? Number(matchingExisting.quantity)
+          : Number(getValues("simpleQuantity")) || 0,
         image: matchingExisting?.image || "",
         mediaId: matchingExisting?.mediaId || undefined,
         productOptionValueIds: combo
           .map((c) => c.optionValueId)
           .filter((id): id is number => typeof id === "number"),
+        optionValues: combo.map((c) => ({
+          optionId: c.optionId,
+          optionName: c.optionName,
+          optionValueId: c.optionValueId,
+          value: c.value
+        })),
         attributes: matchingExisting?.attributes || []
       }
     })
 
     setValue("variants", newVariants, { shouldValidate: true })
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [hasOptions, optionsJson, initialVariants])
+  }, [hasOptions, optionsJson, initialVariants, excludedSignatures])
 
   // Handle switching between single product and multi-variant mode
   const handleToggleHasOptions = (checked: boolean) => {
@@ -132,7 +187,6 @@ export default function ProductVariantCard({
       // Clean reset of single product mode values to default empty
       setValue("simplePrice", 0, { shouldDirty: true })
       setValue("simpleQuantity", 0, { shouldDirty: true })
-      setValue("simpleSku", "", { shouldDirty: true })
       setValue(
         "variants",
         [
@@ -166,7 +220,7 @@ export default function ProductVariantCard({
           {
             id: initialSingleVariantId ?? null,
             title: "Default Variant",
-            sku: getValues("simpleSku") || "",
+            sku: "",
             price: val,
             quantity: Number(getValues("simpleQuantity")) || 0,
             image: "",
@@ -192,35 +246,9 @@ export default function ProductVariantCard({
           {
             id: initialSingleVariantId ?? null,
             title: "Default Variant",
-            sku: getValues("simpleSku") || "",
+            sku: "",
             price: Number(getValues("simplePrice")) || 0,
             quantity: val,
-            image: "",
-            mediaId: undefined,
-            productOptionValueIds: [],
-            attributes: []
-          }
-        ],
-        { shouldDirty: true }
-      )
-    }
-  }
-
-  const handleSingleSkuChange = (val: string) => {
-    setValue("simpleSku", val, { shouldDirty: true })
-    const currentVariants = getValues("variants") || []
-    if (currentVariants.length > 0) {
-      setValue("variants.0.sku", val, { shouldDirty: true })
-    } else {
-      setValue(
-        "variants",
-        [
-          {
-            id: initialSingleVariantId ?? null,
-            title: "Default Variant",
-            sku: val,
-            price: Number(getValues("simplePrice")) || 0,
-            quantity: Number(getValues("simpleQuantity")) || 0,
             image: "",
             mediaId: undefined,
             productOptionValueIds: [],
@@ -236,6 +264,7 @@ export default function ProductVariantCard({
   const handleAddOption = () => {
     const nextPosition = optionFields.length
     appendOption({
+      id: crypto.randomUUID(),
       name: "",
       position: nextPosition,
       showing: true,
@@ -363,6 +392,196 @@ export default function ProductVariantCard({
     setValue("variants", current, { shouldDirty: true })
   }
 
+  // Variant Deletion Handlers
+  const handleDeleteVariant = (index: number) => {
+    const currentVariants = [...(getValues("variants") || [])]
+    if (currentVariants.length <= 1) return
+    const target = currentVariants[index]
+    if (!target) return
+
+    let sig = ""
+    if (target.optionValues && target.optionValues.length > 0) {
+      sig = getCombinationSignature(target.optionValues)
+    } else if (target.title) {
+      const parts = target.title.split("/").map((p) => p.trim())
+      sig = getCombinationSignature(
+        parts.map((p, i) => ({
+          optionId: options[i]?.productOptionId ?? options[i]?.id ?? options[i]?.name ?? `opt-${i}`,
+          optionName: options[i]?.name || `Option ${i + 1}`,
+          value: p
+        }))
+      )
+    }
+
+    if (sig) {
+      setExcludedSignatures((prev) => {
+        const next = new Set(prev)
+        next.add(sig)
+        return next
+      })
+    }
+
+    const remaining = currentVariants.filter((_, i) => i !== index)
+    setValue("variants", remaining, { shouldValidate: true, shouldDirty: true })
+    setSelectedVariantIndices((prev) =>
+      prev.filter((i) => i !== index).map((i) => (i > index ? i - 1 : i))
+    )
+  }
+
+  const handleBulkDeleteVariants = (indices: number[]) => {
+    const currentVariants = [...(getValues("variants") || [])]
+    if (currentVariants.length - indices.length < 1) return
+
+    const indicesSet = new Set(indices)
+    const toDelete = currentVariants.filter((_, i) => indicesSet.has(i))
+
+    const newExcluded = new Set<string>()
+    toDelete.forEach((target) => {
+      let sig = ""
+      if (target.optionValues && target.optionValues.length > 0) {
+        sig = getCombinationSignature(target.optionValues)
+      } else if (target.title) {
+        const parts = target.title.split("/").map((p) => p.trim())
+        sig = getCombinationSignature(
+          parts.map((p, i) => ({
+            optionId: options[i]?.productOptionId ?? options[i]?.id ?? options[i]?.name ?? `opt-${i}`,
+            optionName: options[i]?.name || `Option ${i + 1}`,
+            value: p
+          }))
+        )
+      }
+      if (sig) newExcluded.add(sig)
+    })
+
+    setExcludedSignatures((prev) => {
+      const next = new Set(prev)
+      newExcluded.forEach((s) => next.add(s))
+      return next
+    })
+
+    const remaining = currentVariants.filter((_, i) => !indicesSet.has(i))
+    setValue("variants", remaining, { shouldValidate: true, shouldDirty: true })
+    setSelectedVariantIndices([])
+  }
+
+  // Custom Add Variant Handler
+  const handleAddCustomVariant = (data: NewVariantData) => {
+    const currentOptions = getValues("options") || []
+    const currentVariants = getValues("variants") || []
+
+    // 1. Calculate combinations before adding any new option values
+    const validOldOptions = currentOptions.filter(
+      (opt) => opt.name?.trim() && opt.values && opt.values.some((v) => v.value?.trim())
+    )
+    const oldMatrix: ComboOptionItem[][] = validOldOptions.map((opt) => {
+      const optId = opt.productOptionId ?? opt.id ?? opt.name.trim().toLowerCase()
+      return (opt.values || [])
+        .filter((v) => v.value?.trim())
+        .map((v) => ({
+          optionId: optId,
+          optionName: opt.name.trim(),
+          value: v.value.trim(),
+          optionValueId: v.id || null
+        }))
+    })
+    const oldCombos = cartesian(oldMatrix)
+    const oldSignatures = new Set(oldCombos.map((c) => getCombinationSignature(c)))
+
+    // 2. Register any new option values in options state
+    let hasNewValues = false
+    const updatedOptions = currentOptions.map((opt) => {
+      const sel = data.optionSelections.find(
+        (s) => s.optionName.trim().toLowerCase() === opt.name.trim().toLowerCase()
+      )
+      if (!sel) return opt
+
+      const currentVals = opt.values || []
+      const valExists = currentVals.some(
+        (v) => v.value.trim().toLowerCase() === sel.value.trim().toLowerCase()
+      )
+
+      if (!valExists) {
+        hasNewValues = true
+        return {
+          ...opt,
+          values: [
+            ...currentVals,
+            { id: null, value: sel.value.trim(), position: currentVals.length }
+          ]
+        }
+      }
+      return opt
+    })
+
+    // 3. Compute combinations with updated options to find unwanted combinations
+    const validNewOptions = updatedOptions.filter(
+      (opt) => opt.name?.trim() && opt.values && opt.values.some((v) => v.value?.trim())
+    )
+    const newMatrix: ComboOptionItem[][] = validNewOptions.map((opt) => {
+      const optId = opt.productOptionId ?? opt.id ?? opt.name.trim().toLowerCase()
+      return (opt.values || [])
+        .filter((v) => v.value?.trim())
+        .map((v) => ({
+          optionId: optId,
+          optionName: opt.name.trim(),
+          value: v.value.trim(),
+          optionValueId: v.id || null
+        }))
+    })
+    const allNewCombos = cartesian(newMatrix)
+    const desiredSig = getCombinationSignature(data.optionSelections)
+
+    // Any newly introduced combination that isn't the desired one should be excluded
+    const unwantedSignatures = new Set<string>()
+    allNewCombos.forEach((combo) => {
+      const sig = getCombinationSignature(combo)
+      if (!oldSignatures.has(sig) && sig !== desiredSig) {
+        unwantedSignatures.add(sig)
+      }
+    })
+
+    // 4. Build the new variant item
+    const comboTitle = data.optionSelections.map((s) => s.value).join(" / ")
+    const newVariantItem: ProductVariantFormItem = {
+      id: null,
+      title: comboTitle,
+      sku: generateVariantSku(productSlug, comboTitle, currentVariants.length),
+      price: data.price,
+      quantity: data.quantity,
+      image: data.image || "",
+      mediaId: data.mediaId,
+      productOptionValueIds: [],
+      optionValues: data.optionSelections.map((s) => ({
+        optionId: s.optionId ?? null,
+        optionName: s.optionName,
+        optionValueId: null,
+        value: s.value
+      })),
+      attributes: []
+    }
+
+    // Cache in ref for preservation
+    customVariantsMapRef.current.set(desiredSig, newVariantItem)
+
+    // 5. Update excludedSignatures: remove desiredSig (in case it was previously deleted), add unwanted signatures
+    setExcludedSignatures((prev) => {
+      const next = new Set(prev)
+      unwantedSignatures.forEach((s) => next.add(s))
+      next.delete(desiredSig)
+      return next
+    })
+
+    // 6. Update options in form if new values were added, else update variants directly
+    if (hasNewValues) {
+      setValue("options", updatedOptions, { shouldDirty: true })
+    } else {
+      setValue("variants", [...currentVariants, newVariantItem], {
+        shouldValidate: true,
+        shouldDirty: true
+      })
+    }
+  }
+
   // Variant Matrix Field Changes
   const handleUpdateVariantField = (index: number, field: string, value: string | number | null) => {
     const currentVariants = [...(getValues("variants") || [])]
@@ -475,6 +694,27 @@ export default function ProductVariantCard({
   const formAttributes = useWatch({ control, name: "attributes" }) || []
   const variantAttributes = formAttributes.filter((a) => a.applyTo === "variant")
 
+  const existingSignatures = React.useMemo(() => {
+    const set = new Set<string>()
+    variants.forEach((v) => {
+      if (v.optionValues && v.optionValues.length > 0) {
+        set.add(getCombinationSignature(v.optionValues))
+      } else if (v.title) {
+        const parts = v.title.split("/").map((p) => p.trim())
+        set.add(
+          getCombinationSignature(
+            parts.map((p, i) => ({
+              optionId: options[i]?.productOptionId ?? options[i]?.id ?? options[i]?.name ?? `opt-${i}`,
+              optionName: options[i]?.name || `Option ${i + 1}`,
+              value: p
+            }))
+          )
+        )
+      }
+    })
+    return set
+  }, [variants, options])
+
   return (
     <div className="bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 p-6 space-y-6 shadow-xs">
       {/* Header & Mode Switch */}
@@ -504,10 +744,8 @@ export default function ProductVariantCard({
         <SingleProductMode
           price={variants[0]?.price ?? 0}
           quantity={variants[0]?.quantity ?? 0}
-          sku={variants[0]?.sku ?? ""}
           onPriceChange={handleSinglePriceChange}
           onQuantityChange={handleSingleQuantityChange}
-          onSkuChange={handleSingleSkuChange}
         />
       ) : (
         /* 2. MULTI-VARIANT MODE */
@@ -542,8 +780,22 @@ export default function ProductVariantCard({
               onCopyAttributesToSelected={handleCopyAttributesToSelected}
               onUpdateVariantField={handleUpdateVariantField}
               onUpdateVariantAttribute={handleUpdateVariantAttribute}
+              onAddVariantClick={() => setIsAddVariantOpen(true)}
+              onDeleteVariant={handleDeleteVariant}
+              onBulkDeleteVariants={handleBulkDeleteVariants}
             />
           )}
+
+          {/* Custom Add Variant Dialog */}
+          <AddVariantDialog
+            open={isAddVariantOpen}
+            onOpenChange={setIsAddVariantOpen}
+            options={options}
+            existingSignatures={existingSignatures}
+            defaultPrice={Number(getValues("simplePrice")) || 0}
+            defaultQuantity={Number(getValues("simpleQuantity")) || 0}
+            onSaveVariant={handleAddCustomVariant}
+          />
         </div>
       )}
     </div>
