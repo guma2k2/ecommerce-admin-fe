@@ -60,9 +60,18 @@ export default function ProductVariantCard({
             }))
         })
         const combinations = cartesian(valueMatrix)
+        const claimedInitialIds = new Set<number>()
         combinations.forEach((combo) => {
-          const isMatched = initialVariants.some((iv) => isVariantMatchingCombo(iv, combo))
-          if (!isMatched) {
+          const matchedVariant = initialVariants.find(
+            (iv) =>
+              (iv.id == null || !claimedInitialIds.has(iv.id)) &&
+              isVariantMatchingCombo(iv, combo)
+          )
+          if (matchedVariant) {
+            if (typeof matchedVariant.id === "number") {
+              claimedInitialIds.add(matchedVariant.id)
+            }
+          } else {
             initialExcluded.add(getCombinationSignature(combo))
           }
         })
@@ -131,6 +140,7 @@ export default function ProductVariantCard({
 
     const currentVariants = getValues("variants") || []
     const claimedVariants = new Set<ProductVariantFormItem>()
+    const claimedVariantIds = new Set<number>()
 
     const newVariants = combinations.map((combo, idx) => {
       const comboTitle = combo.map((c) => c.value).join(" / ")
@@ -140,15 +150,24 @@ export default function ProductVariantCard({
       // Match strictly by (option id, option value) set rather than comparing titles
       const matchingExisting =
         currentVariants.find(
-          (v) => !claimedVariants.has(v) && isVariantMatchingCombo(v, combo)
+          (v) =>
+            !claimedVariants.has(v) &&
+            (v.id == null || !claimedVariantIds.has(v.id)) &&
+            isVariantMatchingCombo(v, combo)
         ) ||
         initialVariants?.find(
-          (v) => !claimedVariants.has(v) && isVariantMatchingCombo(v, combo)
+          (v) =>
+            !claimedVariants.has(v) &&
+            (v.id == null || !claimedVariantIds.has(v.id)) &&
+            isVariantMatchingCombo(v, combo)
         ) ||
         customSaved
 
       if (matchingExisting) {
         claimedVariants.add(matchingExisting)
+        if (typeof matchingExisting.id === "number") {
+          claimedVariantIds.add(matchingExisting.id)
+        }
       }
 
       return {

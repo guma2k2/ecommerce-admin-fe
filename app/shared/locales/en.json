@@ -314,6 +314,15 @@
     "unauthenticated": "Session expired. Please log in again.",
     "notFound": "The requested resource was not found.",
     "serverError": "Internal server error. Please try again later.",
-    "networkError": "Network error. Please check your connection."
+    "networkError": "Network error. Please check your connection.",
+    "bad_request": "Invalid request data. Please check your inputs.",
+    "product_name_already_exists": "A product with this name already exists.",
+    "product_slug_already_exists": "A product with this URL slug already exists.",
+    "product_not_found": "The requested product was not found.",
+    "category_not_found": "The specified category was not found.",
+    "brand_not_found": "The specified brand was not found.",
+    "product_option_not_found": "The specified product option was not found.",
+    "product_attribute_not_found": "The specified product attribute was not found.",
+    "invalid_product": "Invalid product data or variant association."
   }
 }

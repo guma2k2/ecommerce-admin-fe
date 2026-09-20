@@ -53,22 +53,35 @@ export async function deleteProduct(id: string | number): Promise<void> {
 /**
  * Fetches a paginated list of products from backend API.
  * Uses 0-based page numbering as expected by Spring Boot Pageable.
+ * Supports filtering by name, categoryId, and brandId according to PRODUCT_API_INTEGRATION_GUIDE.md.
  */
 export async function getProductsPage(
   params: GetProductsParams = {}
 ): Promise<PageResponse<ProductItem>> {
   const pageNumber = params.pageNumber !== undefined ? Math.max(0, params.pageNumber) : 0
   const pageSize = params.pageSize ?? 10
+  const nameQuery = params.name?.trim() || params.search?.trim() || undefined
 
   const response = await httpRequest.get<ApiResponse<PageResponse<ProductItem>>>('/products/page', {
     params: {
       pageNumber,
       pageSize,
-      ...(params.search?.trim() ? { search: params.search.trim() } : {})
+      ...(nameQuery ? { name: nameQuery } : {}),
+      ...(params.categoryId !== undefined ? { categoryId: params.categoryId } : {}),
+      ...(params.brandId !== undefined ? { brandId: params.brandId } : {})
     }
   })
 
-  return response.data.data
+  const pageData = response.data.data
+  const normalizedContent = (pageData.content || []).map((item) => ({
+    ...item,
+    image: item.thumbnailUrl || item.image || ''
+  }))
+
+  return {
+    ...pageData,
+    content: normalizedContent
+  }
 }
 
 /**
@@ -82,21 +95,13 @@ export async function getProducts(
   const pageSize = params.pageSize ?? 10
 
   try {
-    const response = await httpRequest.get<ApiResponse<PageResponse<ProductItem>>>('/products/page', {
-      params: {
-        pageNumber: zeroBasedPage,
-        pageSize,
-        ...(params.search?.trim() ? { search: params.search.trim() } : {})
-      }
+    const pageData = await getProductsPage({
+      ...params,
+      pageNumber: zeroBasedPage,
+      pageSize
     })
 
-    const data = response.data.data
-    let content = data.content || []
-
-    if (params.search?.trim()) {
-      const term = params.search.trim().toLowerCase()
-      content = content.filter((p) => p.name.toLowerCase().includes(term))
-    }
+    let content = pageData.content || []
 
     if (params.sortField) {
       content = [...content].sort((a, b) => {
@@ -109,12 +114,12 @@ export async function getProducts(
     }
 
     return {
-      ...data,
+      ...pageData,
       content,
       pageNumber: uiPageNumber
     }
   } catch {
-    // If /products/page is not yet deployed or error occurs, return empty page response
+    // If error occurs or network is offline, return fallback empty page
     return {
       content: [],
       pageNumber: uiPageNumber,
@@ -135,4 +140,3 @@ export const productService = {
 }
 
 export default productService
-

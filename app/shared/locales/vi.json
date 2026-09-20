@@ -314,6 +314,15 @@
     "unauthenticated": "Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.",
     "notFound": "Không tìm thấy tài nguyên yêu cầu.",
     "serverError": "Lỗi máy chủ nội bộ. Vui lòng thử lại sau.",
-    "networkError": "Lỗi kết nối mạng. Vui lòng kiểm tra lại đường truyền."
+    "networkError": "Lỗi kết nối mạng. Vui lòng kiểm tra lại đường truyền.",
+    "bad_request": "Dữ liệu yêu cầu không hợp lệ. Vui lòng kiểm tra lại các trường.",
+    "product_name_already_exists": "Tên sản phẩm này đã tồn tại.",
+    "product_slug_already_exists": "Đường dẫn slug sản phẩm này đã tồn tại.",
+    "product_not_found": "Không tìm thấy sản phẩm yêu cầu.",
+    "category_not_found": "Danh mục chỉ định không tồn tại.",
+    "brand_not_found": "Thương hiệu chỉ định không tồn tại.",
+    "product_option_not_found": "Tùy chọn sản phẩm chỉ định không tồn tại.",
+    "product_attribute_not_found": "Thuộc tính sản phẩm chỉ định không tồn tại.",
+    "invalid_product": "Dữ liệu sản phẩm hoặc biến thể không hợp lệ."
   }
 }

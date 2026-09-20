@@ -46,6 +46,8 @@ export function isVariantMatchingCombo(
   },
   combo: ComboOptionItem[]
 ): boolean {
+  if (!combo || combo.length === 0) return false
+
   // 1. Primary match: by variant.optionValues
   if (variant.optionValues && variant.optionValues.length === combo.length && combo.length > 0) {
     const allMatch = combo.every((c) => {
@@ -81,8 +83,13 @@ export function isVariantMatchingCombo(
     if (allIdsMatched) return true
   }
 
-  // 3. Tertiary match: if variant has title and no optionValues, check set equality of values
-  if (variant.title && combo.length > 0) {
+  // 3. Tertiary match: fallback by title ONLY when variant has no complete optionValues
+  const hasCompleteOptionValues =
+    variant.optionValues &&
+    variant.optionValues.length === combo.length &&
+    variant.optionValues.every((ov) => ov.value?.trim())
+
+  if (!hasCompleteOptionValues && variant.title && combo.length > 0) {
     const titleParts = variant.title.split("/").map((p) => p.trim().toLowerCase())
     if (titleParts.length === combo.length) {
       const comboVals = combo.map((c) => c.value.trim().toLowerCase()).sort()
@@ -245,7 +252,7 @@ export function getInitialProductFormValues(
       }))
     })),
     variants: (initialData.variants || []).map((v) => {
-      const optionValues: ProductVariantOptionValueItem[] = (v.productOptionValueIds || []).map((valId) => {
+      let optionValues: ProductVariantOptionValueItem[] = (v.productOptionValueIds || []).map((valId) => {
         const opt = initialData.options?.find((o) => o.values?.some((val) => val.id === valId))
         const val = opt?.values?.find((val) => val.id === valId)
         return {
@@ -255,6 +262,30 @@ export function getInitialProductFormValues(
           value: val?.value || ""
         }
       })
+
+      // Fallback: infer optionValues from title if productOptionValueIds was empty in database
+      if (
+        optionValues.length === 0 &&
+        v.title &&
+        initialData.options &&
+        initialData.options.length > 0
+      ) {
+        const titleParts = v.title.split("/").map((p) => p.trim())
+        if (titleParts.length === initialData.options.length) {
+          optionValues = titleParts.map((part, idx) => {
+            const opt = initialData.options![idx]
+            const matchedVal = opt.values?.find(
+              (val) => val.value?.trim().toLowerCase() === part.toLowerCase()
+            )
+            return {
+              optionId: opt.productOptionId ?? null,
+              optionName: opt.name || "",
+              optionValueId: matchedVal?.id ?? null,
+              value: part
+            }
+          })
+        }
+      }
 
       return {
         id: v.id,
@@ -280,6 +311,7 @@ export function getInitialProductFormValues(
 
 /**
  * Transforms ProductFormSchema values into ProductCreateRequest or ProductUpdateRequest payload.
+ * Adheres strictly to PRODUCT_API_INTEGRATION_GUIDE.md request schemas.
  */
 export function transformProductFormToPayload(
   values: ProductFormSchema,
@@ -319,6 +351,7 @@ export function transformProductFormToPayload(
           price: Number(values.variants[0]?.price ?? values.simplePrice) || 0,
           quantity: Number(values.variants[0]?.quantity ?? values.simpleQuantity) || 0,
           mediaId: values.variants[0]?.mediaId || null,
+          optionValues: [],
           attributeValues: []
         }
       ]
@@ -330,6 +363,53 @@ export function transformProductFormToPayload(
             value: a.value.trim()
           }))
 
+        // Resolve option values: use v.optionValues, or deduce from title if not set
+        let resolvedOptionValues = v.optionValues
+        if (
+          (!resolvedOptionValues || resolvedOptionValues.length === 0) &&
+          v.title &&
+          values.options?.length
+        ) {
+          const parts = v.title.split("/").map((p) => p.trim())
+          if (parts.length === values.options.length) {
+            resolvedOptionValues = parts.map((part, pIdx) => {
+              const opt = values.options[pIdx]
+              const optId = Number(opt.productOptionId ?? opt.id)
+              const foundVal = opt.values?.find(
+                (val) => val.value?.trim().toLowerCase() === part.toLowerCase()
+              )
+              return {
+                optionId: optId,
+                optionName: opt.name,
+                optionValueId: typeof foundVal?.id === "number" ? foundVal.id : null,
+                value: part
+              }
+            })
+          }
+        }
+
+        const optionValuesPayload =
+          mode === "create"
+            ? (resolvedOptionValues || [])
+                .filter((ov) => ov.value?.trim())
+                .map((ov) => ({
+                  productOptionId: Number(ov.optionId),
+                  value: ov.value.trim()
+                }))
+            : (resolvedOptionValues || [])
+                .filter((ov) => ov.value?.trim())
+                .map((ov) => {
+                  const valId =
+                    typeof ov.optionValueId === "number"
+                      ? ov.optionValueId
+                      : null
+                  return {
+                    ...(valId !== null ? { productOptionValueId: valId } : {}),
+                    productOptionId: Number(ov.optionId),
+                    value: ov.value.trim()
+                  }
+                })
+
         return {
           ...(mode === "edit" && typeof v.id === "number" ? { id: v.id } : {}),
           title: v.title?.trim() || "Default",
@@ -337,6 +417,7 @@ export function transformProductFormToPayload(
           price: Number(v.price) || 0,
           quantity: Number(v.quantity) || 0,
           mediaId: v.mediaId || null,
+          optionValues: optionValuesPayload,
           attributeValues: variantAttrs
         }
       })
