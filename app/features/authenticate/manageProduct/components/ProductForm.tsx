@@ -4,7 +4,8 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { useTranslation } from "react-i18next"
 import {
   productFormSchema,
-  type ProductFormSchema
+  type ProductFormSchema,
+  type ProductVariantOptionValueItem
 } from "~/features/authenticate/manageProduct/validator"
 import {
   getInitialProductFormValues,
@@ -68,7 +69,7 @@ const ProductForm = forwardRef<ProductFormHandle, ProductFormProps>(function Pro
   const initialVariants = useMemo(
     () =>
       (initialData?.variants || []).map((v) => {
-        const optionValues = (v.productOptionValueIds || []).map((valId) => {
+        let optionValues: ProductVariantOptionValueItem[] = (v.productOptionValueIds || []).map((valId) => {
           const opt = initialData?.options?.find((o) => o.values?.some((val) => val.id === valId))
           const val = opt?.values?.find((val) => val.id === valId)
           return {
@@ -78,6 +79,30 @@ const ProductForm = forwardRef<ProductFormHandle, ProductFormProps>(function Pro
             value: val?.value || ""
           }
         })
+
+        // Fallback: infer optionValues from title if productOptionValueIds was empty in database
+        if (
+          optionValues.length === 0 &&
+          v.title &&
+          initialData?.options &&
+          initialData.options.length > 0
+        ) {
+          const titleParts = v.title.split("/").map((p) => p.trim())
+          if (titleParts.length === initialData.options.length) {
+            optionValues = titleParts.map((part, idx) => {
+              const opt = initialData.options![idx]
+              const matchedVal = opt.values?.find(
+                (val) => val.value?.trim().toLowerCase() === part.toLowerCase()
+              )
+              return {
+                optionId: opt.productOptionId ?? null,
+                optionName: opt.name || "",
+                optionValueId: matchedVal?.id ?? null,
+                value: part
+              }
+            })
+          }
+        }
 
         return {
           id: v.id,

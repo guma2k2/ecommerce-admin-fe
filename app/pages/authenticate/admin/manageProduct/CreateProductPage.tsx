@@ -26,6 +26,7 @@ export default function CreateProductPage() {
 
   const handleSave = async () => {
     const payload = await formRef.current?.submit()
+    console.log("payload", payload);
     if (!payload) return
     try {
       setIsSubmitting(true)

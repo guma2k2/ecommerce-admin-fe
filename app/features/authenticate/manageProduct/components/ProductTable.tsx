@@ -37,8 +37,9 @@ export default function ProductTable({
               </TableHead>
               <TableHead className='w-[80px]'>Image</TableHead>
               <TableHead>Product Name</TableHead>
-              <TableHead className='w-[180px]'>Created At</TableHead>
-              <TableHead className='w-[180px]'>Updated At</TableHead>
+              <TableHead className='w-[110px] text-right'>Price ($)</TableHead>
+              <TableHead className='w-[160px]'>Created At</TableHead>
+              <TableHead className='w-[160px]'>Updated At</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -53,11 +54,14 @@ export default function ProductTable({
                 <TableCell>
                   <Skeleton className='h-5 w-48 rounded-md' />
                 </TableCell>
-                <TableCell>
-                  <Skeleton className='h-4 w-32 rounded-md' />
+                <TableCell className='text-right'>
+                  <Skeleton className='h-5 w-16 ml-auto rounded-md' />
                 </TableCell>
                 <TableCell>
-                  <Skeleton className='h-4 w-32 rounded-md' />
+                  <Skeleton className='h-4 w-28 rounded-md' />
+                </TableCell>
+                <TableCell>
+                  <Skeleton className='h-4 w-28 rounded-md' />
                 </TableCell>
               </TableRow>
             ))}
@@ -95,13 +99,15 @@ export default function ProductTable({
             </TableHead>
             <TableHead className='w-[80px]'>Image</TableHead>
             <TableHead>Product Name</TableHead>
-            <TableHead className='w-[180px]'>Created At</TableHead>
-            <TableHead className='w-[180px]'>Updated At</TableHead>
+            <TableHead className='w-[110px] text-right'>Price ($)</TableHead>
+            <TableHead className='w-[160px]'>Created At</TableHead>
+            <TableHead className='w-[160px]'>Updated At</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {products.map((product) => {
             const isSelected = selectedIds.includes(product.id)
+            const displayImage = product.thumbnailUrl || product.image
 
             return (
               <TableRow
@@ -122,9 +128,9 @@ export default function ProductTable({
                 </TableCell>
                 <TableCell>
                   <div className='h-12 w-12 rounded-md overflow-hidden bg-gray-100 dark:bg-zinc-800 border border-gray-100 dark:border-zinc-800 flex items-center justify-center shrink-0'>
-                    {product.image ? (
+                    {displayImage ? (
                       <img
-                        src={product.image}
+                        src={displayImage}
                         alt={product.name}
                         className='h-full w-full object-cover'
                         onError={(e) => {
@@ -154,11 +160,14 @@ export default function ProductTable({
                     {product.name}
                   </button>
                 </TableCell>
-                <TableCell className='text-xs text-gray-500 dark:text-gray-400 whitespace-nowrap'>
-                  {formatDateTime(product.createdAt)}
+                <TableCell className='text-xs font-semibold text-right text-gray-800 dark:text-gray-200 whitespace-nowrap'>
+                  {typeof product.price === "number" ? `$${product.price.toFixed(2)}` : "—"}
                 </TableCell>
                 <TableCell className='text-xs text-gray-500 dark:text-gray-400 whitespace-nowrap'>
-                  {formatDateTime(product.updatedAt)}
+                  {product.createdAt ? formatDateTime(product.createdAt) : "—"}
+                </TableCell>
+                <TableCell className='text-xs text-gray-500 dark:text-gray-400 whitespace-nowrap'>
+                  {product.updatedAt ? formatDateTime(product.updatedAt) : "—"}
                 </TableCell>
               </TableRow>
             )
