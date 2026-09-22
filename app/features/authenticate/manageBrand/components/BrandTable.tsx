@@ -81,7 +81,7 @@ export default function BrandTable({
         <TableHeader className='bg-gray-50/80 dark:bg-zinc-800/50'>
           <TableRow className='hover:bg-transparent'>
             {/* Checkbox Column */}
-            <TableHead className='w-[48px] px-4'>
+            <TableHead className='w-12 px-4'>
               <Checkbox
                 checked={isAllSelected ? true : isSomeSelected ? "indeterminate" : false}
                 onCheckedChange={() => onToggleSelectAll?.()}
@@ -90,7 +90,7 @@ export default function BrandTable({
             </TableHead>
 
             {/* Logo Column */}
-            <TableHead className='w-[80px] text-center font-semibold text-gray-700 dark:text-gray-200'>
+            <TableHead className='w-20 text-center font-semibold text-gray-700 dark:text-gray-200'>
               {t("brand.logo")}
             </TableHead>
 
@@ -142,8 +142,8 @@ export default function BrandTable({
           {isLoading ? (
             Array.from({ length: 5 }).map((_, idx) => (
               <TableRow key={`skeleton-${idx}`}>
-                <TableCell className='w-[48px] px-4 py-4'>
-                  <Skeleton className='h-4 w-4 rounded-[4px]' />
+                <TableCell className='w-12 px-4 py-4'>
+                  <Skeleton className='h-4 w-4 rounded-lg' />
                 </TableCell>
                 <TableCell className='py-4 text-center'>
                   <Skeleton className='size-10 rounded-lg mx-auto' />
@@ -191,7 +191,7 @@ export default function BrandTable({
                   )}
                 >
                   {/* Checkbox */}
-                  <TableCell className='w-[48px] px-4 py-3.5'>
+                  <TableCell className='w-12 px-4 py-3.5'>
                     <Checkbox
                       checked={isSelected}
                       onCheckedChange={() => onToggleSelect?.(brand.id)}
