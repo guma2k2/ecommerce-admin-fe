@@ -162,7 +162,7 @@ export function AccountDialog({ open, onOpenChange }: AccountDialogProps) {
           </div>
         </div>
 
-        <DialogFooter className='gap-2 sm:gap-0'>
+        <DialogFooter className='gap-2'>
           {isEditing ? (
             <div className='flex items-center justify-end gap-2 w-full'>
               <Button variant='outline' onClick={handleCancel} disabled={isSaving} className='cursor-pointer'>
