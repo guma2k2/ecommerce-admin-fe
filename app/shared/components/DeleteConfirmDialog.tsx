@@ -58,7 +58,7 @@ export default function DeleteConfirmDialog({
           </div>
         </DialogHeader>
 
-        <DialogFooter className='gap-2 sm:gap-0 mt-4'>
+        <DialogFooter className='gap-2 mt-4'>
           <Button type='button' variant='outline' onClick={() => onOpenChange(false)} disabled={isDeleting}>
             {t("button.cancel", "Cancel")}
           </Button>

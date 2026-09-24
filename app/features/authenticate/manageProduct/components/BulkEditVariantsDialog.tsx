@@ -117,7 +117,7 @@ export default function BulkEditVariantsDialog({
           </div>
         </div>
 
-        <DialogFooter className="gap-2 sm:gap-0 pt-2 border-t border-gray-100 dark:border-zinc-800">
+        <DialogFooter className="gap-2 pt-2 border-t border-gray-100 dark:border-zinc-800">
           <Button
             type="button"
             variant="outline"
