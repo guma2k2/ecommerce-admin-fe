@@ -24,6 +24,7 @@ export default [
       route("manage-product-attribute-template/create", "pages/authenticate/admin/manageProductAttributeTemplate/CreateProductAttributeTemplatePage.tsx"),
       route("manage-product-attribute-template/edit/:id", "pages/authenticate/admin/manageProductAttributeTemplate/UpdateProductAttributeTemplatePage.tsx"),
       route("manage-product-option", "pages/authenticate/admin/manageProductOption/ManageProductOptionPage.tsx"),
+      route("manage-inventory", "pages/authenticate/admin/manageInventory/ManageInventoryPage.tsx"),
       route("manage-media", "pages/authenticate/admin/manageMedia/ManageMediaPage.tsx"),
       route("account", "pages/authenticate/admin/manageAccount/ManageAccountPage.tsx")
     ])
