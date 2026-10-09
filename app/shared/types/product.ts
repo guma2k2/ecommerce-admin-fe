@@ -2,6 +2,14 @@ import type { PageResponse, SortDirection } from './pagination'
 import type { ProductVariant } from './productVariant'
 
 // ==========================================
+// Product Domain Primitives & Enums
+// ==========================================
+
+export type ProductStatus = 'DRAFT' | 'ACTIVE'
+
+export type ProductSortField = 'id' | 'name' | 'price' | 'status' | 'createdAt' | 'updatedAt'
+
+// ==========================================
 // Product Thumbnail & Listing Types
 // ==========================================
 
@@ -20,6 +28,9 @@ export interface ProductItem {
   image?: string
   thumbnailUrl?: string | null
   price?: number | null
+  status?: ProductStatus
+  brandName?: string | null
+  categoryName?: string | null
   createdAt?: string
   updatedAt?: string
 }
@@ -28,9 +39,10 @@ export interface GetProductsParams {
   pageNumber?: number
   pageSize?: number
   name?: string
+  status?: ProductStatus
   categoryId?: number
   brandId?: number
-  sortField?: string
+  sortField?: ProductSortField | string
   sortDir?: SortDirection
   search?: string
 }
@@ -134,6 +146,7 @@ export interface ProductCreateRequest {
   name: string
   slug: string
   description?: string | null
+  status?: ProductStatus
   metaTitle?: string | null
   metaKeyword?: string | null
   metaDescription?: string | null
@@ -149,6 +162,7 @@ export interface ProductUpdateRequest {
   name: string
   slug: string
   description?: string | null
+  status?: ProductStatus
   metaTitle?: string | null
   metaKeyword?: string | null
   metaDescription?: string | null
@@ -231,6 +245,7 @@ export interface ProductResponse {
   name: string
   description: string | null
   slug: string
+  status?: ProductStatus
   metaTitle: string | null
   metaKeyword: string | null
   metaDescription: string | null

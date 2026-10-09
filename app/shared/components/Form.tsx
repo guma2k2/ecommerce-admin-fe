@@ -97,14 +97,28 @@ export default function FormBase<
 
 export const FormInput: FormControlFunc<
   Omit<React.ComponentProps<typeof Input>, "name" | "value" | "defaultValue">
-> = ({ type, placeholder, ...props }) => {
+> = (props) => {
+  const { control, label, name, description, ...inputProps } = props
   return (
-    <FormBase {...props}>
+    <FormBase
+      control={control}
+      label={label}
+      name={name}
+      description={description}
+    >
       {(field) => (
         <Input
           {...field}
-          type={type}
-          placeholder={placeholder}
+          {...inputProps}
+          onChange={(e) => {
+            if (inputProps.type === "number") {
+              const val = e.target.value === "" ? 0 : Number(e.target.value)
+              field.onChange(val)
+            } else {
+              field.onChange(e)
+            }
+            inputProps.onChange?.(e)
+          }}
         />
       )}
     </FormBase>

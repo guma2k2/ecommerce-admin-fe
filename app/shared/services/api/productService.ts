@@ -68,7 +68,8 @@ export async function getProductsPage(
       pageSize,
       ...(nameQuery ? { name: nameQuery } : {}),
       ...(params.categoryId !== undefined ? { categoryId: params.categoryId } : {}),
-      ...(params.brandId !== undefined ? { brandId: params.brandId } : {})
+      ...(params.brandId !== undefined ? { brandId: params.brandId } : {}),
+      ...(params.status ? { status: params.status } : {})
     }
   })
 

@@ -191,7 +191,7 @@ export function getInitialProductFormValues(
     metaDescription: initialData.metaDescription || "",
     categoryId: initialData.category?.id ?? null,
     brandId: initialData.brand?.id ?? null,
-    status: "ACTIVE",
+    status: initialData.status || "ACTIVE",
     attributeTemplateId: null,
     medias: (initialData.medias || []).map((m) => ({
       mediaId: m.mediaId,
@@ -440,6 +440,7 @@ export function transformProductFormToPayload(
     name: values.name.trim(),
     slug: values.slug.trim(),
     description: values.description?.trim() || null,
+    status: values.status,
     metaTitle: values.metaTitle?.trim() || null,
     metaKeyword: values.metaKeyword?.trim() || null,
     metaDescription: values.metaDescription?.trim() || null,

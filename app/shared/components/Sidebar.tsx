@@ -1,5 +1,6 @@
 import {
   Award,
+  Boxes,
   ChevronRight,
   Component,
   Image,
@@ -88,6 +89,11 @@ export function AppSidebar() {
           title: t('label.product'),
           url: '/admin/manage-product',
           icon: Package
+        },
+        {
+          title: t('label.inventory'),
+          url: '/admin/manage-inventory',
+          icon: Boxes
         }
       ]
     },
