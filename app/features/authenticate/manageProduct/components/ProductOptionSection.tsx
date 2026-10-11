@@ -59,7 +59,7 @@ export default function ProductOptionSection({
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between">
-        <h4 className="text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">
+        <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
           Variation Axes (Options)
         </h4>
       </div>

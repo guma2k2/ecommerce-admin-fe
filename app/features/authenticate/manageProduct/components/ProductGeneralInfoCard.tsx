@@ -33,9 +33,6 @@ export default function ProductGeneralInfoCard() {
           <h3 className="text-base font-semibold text-gray-900 dark:text-gray-100">
             Basic Information
           </h3>
-          <p className="text-xs text-muted-foreground">
-            Core product details, URL handle, and marketing description.
-          </p>
         </div>
       </div>
 
@@ -57,7 +54,7 @@ export default function ProductGeneralInfoCard() {
             <label className="text-xs font-medium text-gray-700 dark:text-gray-300 flex items-center gap-1.5">
               URL Handle / Slug *
               {isSlugLocked && (
-                <span className="text-[11px] text-muted-foreground font-normal">
+                <span className="text-xs text-muted-foreground font-normal">
                   (Auto-synced with title)
                 </span>
               )}
@@ -68,7 +65,7 @@ export default function ProductGeneralInfoCard() {
                 variant="ghost"
                 size="sm"
                 onClick={handleManualRegenerate}
-                className="h-6 px-2 text-[11px] text-primary gap-1"
+                className="h-6 px-2 text-xs text-primary gap-1"
               >
                 <Sparkles className="size-3" />
                 Regenerate
@@ -78,7 +75,7 @@ export default function ProductGeneralInfoCard() {
                 variant="ghost"
                 size="sm"
                 onClick={() => setIsSlugLocked((prev) => !prev)}
-                className="h-6 px-2 text-[11px] text-gray-500 gap-1"
+                className="h-6 px-2 text-xs text-muted-foreground gap-1"
                 title={isSlugLocked ? "Unlock to edit manually" : "Lock to auto-sync"}
               >
                 {isSlugLocked ? (

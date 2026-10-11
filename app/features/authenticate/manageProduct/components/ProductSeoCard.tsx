@@ -46,7 +46,7 @@ export default function ProductSeoCard() {
 
       {/* Live Google Search Snippet Preview */}
       <div className="p-4 rounded-xl bg-gray-50/80 dark:bg-zinc-800/40 border border-gray-200/80 dark:border-zinc-700/60 space-y-1">
-        <span className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider block mb-1">
+        <span className="text-2xs font-semibold text-muted-foreground uppercase tracking-wider block mb-1">
           Google Search Listing Preview
         </span>
         <div className="text-xs text-emerald-700 dark:text-emerald-400 truncate font-mono">
@@ -66,7 +66,7 @@ export default function ProductSeoCard() {
           <div className="space-y-1.5">
             <div className="flex justify-between items-center text-xs">
               <label className="font-medium text-gray-700 dark:text-gray-300">Page Title</label>
-              <span className="text-[11px] text-muted-foreground">
+              <span className="text-xs text-muted-foreground">
                 {(metaTitle || "").length} / 70 characters
               </span>
             </div>
@@ -82,7 +82,7 @@ export default function ProductSeoCard() {
           <div className="space-y-1.5">
             <div className="flex justify-between items-center text-xs">
               <label className="font-medium text-gray-700 dark:text-gray-300">Meta Description</label>
-              <span className="text-[11px] text-muted-foreground">
+              <span className="text-xs text-muted-foreground">
                 {(metaDescription || "").length} / 160 characters
               </span>
             </div>

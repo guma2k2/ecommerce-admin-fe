@@ -67,7 +67,7 @@ export default function ProductActionHeader({
         </Button>
         <div>
           <div className="flex items-center gap-2">
-            <h1 className="text-xl font-bold tracking-tight text-gray-900 dark:text-gray-50 flex items-center gap-2">
+            <h1 className="text-2xl font-bold tracking-tight text-gray-900 dark:text-gray-50 flex items-center gap-2">
               {mode === "create" ? (
                 <>
                   <PackagePlus className="size-5 text-primary" />
@@ -87,7 +87,11 @@ export default function ProductActionHeader({
               </Badge>
             )}
             {isDirty && (
-              <Badge variant="outline" className="text-[10px] text-amber-600 border-amber-300">
+              <Badge
+                size="micro"
+                variant="outline"
+                className="text-amber-600 border-amber-300 bg-amber-50/50 dark:bg-amber-950/20"
+              >
                 {t("product.unsavedChanges")}
               </Badge>
             )}

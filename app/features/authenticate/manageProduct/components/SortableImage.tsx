@@ -1,8 +1,8 @@
 import { useSortable } from "@dnd-kit/sortable"
 import { CSS } from "@dnd-kit/utilities"
 import { Checkbox } from "~/core/components/shadcn/checkbox"
-import { Plus } from "lucide-react"
-import { cn } from "~/shared/utils/appUtils"
+import { Plus, Play } from "lucide-react"
+import { cn, isVideoUrl } from "~/shared/utils/appUtils"
 
 import type { UploadType, UploadStatus } from "~/shared/types"
 
@@ -74,7 +74,9 @@ export default function SortableImage({
     )
   }
 
-  // 4. Uploaded Image Card (Shopify Polaris style)
+  // 4. Uploaded Image / Video Card (Shopify Polaris style)
+  const isVideo = isVideoUrl(image.url)
+
   return (
     <div
       ref={setNodeRef}
@@ -87,11 +89,28 @@ export default function SortableImage({
         isDragging && "opacity-20 border-2 border-dashed border-blue-500 ring-0 z-50"
       )}
     >
-      <img src={image.url} alt="Media preview" className="w-full h-full object-cover rounded-lg pointer-events-none" />
+      {isVideo ? (
+        <div className="relative w-full h-full bg-black flex items-center justify-center">
+          <video
+            src={`${image.url}#t=0.001`}
+            preload="metadata"
+            muted
+            playsInline
+            className="w-full h-full object-cover rounded-lg pointer-events-none"
+          />
+          <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+            <div className="size-7 rounded-full bg-black/60 backdrop-blur-xs text-white flex items-center justify-center shadow-xs">
+              <Play className="size-3.5 fill-white ml-0.5" />
+            </div>
+          </div>
+        </div>
+      ) : (
+        <img src={image.url} alt="Media preview" className="w-full h-full object-cover rounded-lg pointer-events-none" />
+      )}
 
       {/* Cover Media Badge */}
       {isCover && (
-        <span className="absolute top-2 left-2 bg-black/75 text-white text-[10px] font-semibold px-2 py-0.5 rounded-md backdrop-blur-sm z-10 pointer-events-none shadow-sm">
+        <span className="absolute top-2 left-2 bg-black/75 text-white text-2xs font-semibold px-2 py-0.5 rounded-md backdrop-blur-sm z-10 pointer-events-none shadow-sm">
           Cover
         </span>
       )}

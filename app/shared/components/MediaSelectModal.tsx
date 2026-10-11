@@ -1,38 +1,23 @@
 import React, { useEffect, useRef, useState, useCallback } from "react"
-import {
-  Search,
-  ArrowUpDown,
-  LayoutGrid,
-  List,
-  Plus,
-  Sparkles,
-  UploadCloud,
-  Check,
-  FileImage,
-  Video,
-  FileText,
-  File as FileIcon,
-  X
-} from "lucide-react"
+import { UploadCloud, FileImage } from "lucide-react"
 import {
   Dialog,
   DialogContent,
   DialogHeader,
-  DialogTitle,
-  DialogFooter
+  DialogTitle
 } from "~/core/components/shadcn/dialog"
-import { Button } from "~/core/components/shadcn/button"
-import { Input } from "~/core/components/shadcn/input"
-import { Checkbox } from "~/core/components/shadcn/checkbox"
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger
-} from "~/core/components/shadcn/dropdown-menu"
 import { getMediaPage, uploadMedia } from "~/shared/services/api/mediaService"
 import type { MediaResponse } from "~/shared/types"
-import { cn, getFileExtension } from "~/shared/utils"
+import { isImageMedia, isVideoMedia } from "~/shared/utils"
+import {
+  MediaCardItem,
+  MediaListItem,
+  MediaFilterBar,
+  MediaDropzone,
+  MediaSelectFooter,
+  type SortOrderOption,
+  type ViewModeOption
+} from "./mediaSelect"
 
 export interface MediaSelectModalProps {
   open: boolean
@@ -55,24 +40,59 @@ export default function MediaSelectModal({
   const [isLoading, setIsLoading] = useState(false)
   const [searchQuery, setSearchQuery] = useState("")
   const [fileTypeFilter, setFileTypeFilter] = useState<string>("all")
-  const [sortOrder, setSortOrder] = useState<"newest" | "name" | "size">("newest")
-  const [viewMode, setViewMode] = useState<"grid" | "list">("grid")
+  const [fileSizeFilter, setFileSizeFilter] = useState<string>("all")
+  const [sortOrder, setSortOrder] = useState<SortOrderOption>("newest")
+  const [viewMode, setViewMode] = useState<ViewModeOption>("grid")
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
-  const [isDraggingOver, setIsDraggingOver] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const hasInitializedRef = useRef(false)
 
   const fetchMedia = useCallback(async () => {
     setIsLoading(true)
     try {
       const res = await getMediaPage({ pageSize: 100 })
       const items = res.content || []
-      setMediaList(items)
 
-      // Pre-select items if matching initialSelectedUrls
+      // Deduplicate fetched items by ID and URL to prevent duplicate rendering
+      const seenIds = new Set<string>()
+      const seenUrls = new Set<string>()
+      const uniqueItems: MediaResponse[] = []
+      items.forEach((item: MediaResponse) => {
+        if (!seenIds.has(item.id) && !seenUrls.has(item.url)) {
+          seenIds.add(item.id)
+          seenUrls.add(item.url)
+          uniqueItems.push(item)
+        }
+      })
+      setMediaList(uniqueItems)
+    } catch (err) {
+      console.error("Failed to load media list:", err)
+    } finally {
+      setIsLoading(false)
+    }
+  }, [])
+
+  // Fetch media from service when modal opens
+  useEffect(() => {
+    if (open) {
+      hasInitializedRef.current = false
+      fetchMedia()
+    } else {
+      setSelectedIds(new Set())
+      hasInitializedRef.current = false
+    }
+  }, [open, fetchMedia])
+
+  // Pre-select items once mediaList is loaded
+  const initialUrlsKey = initialSelectedUrls.join(",")
+  useEffect(() => {
+    if (open && mediaList.length > 0 && !hasInitializedRef.current) {
+      hasInitializedRef.current = true
       if (initialSelectedUrls.length > 0) {
+        const initialUrlsSet = new Set(initialSelectedUrls.filter(Boolean))
         const matchingIds = new Set<string>()
-        items.forEach((item: MediaResponse) => {
-          if (initialSelectedUrls.includes(item.url)) {
+        mediaList.forEach((item: MediaResponse) => {
+          if (initialUrlsSet.has(item.url)) {
             if (multiple) {
               matchingIds.add(item.id)
             } else if (matchingIds.size === 0) {
@@ -84,19 +104,8 @@ export default function MediaSelectModal({
       } else {
         setSelectedIds(new Set())
       }
-    } catch (err) {
-      console.error("Failed to load media list:", err)
-    } finally {
-      setIsLoading(false)
     }
-  }, [initialSelectedUrls, multiple])
-
-  // Fetch media from service when modal opens
-  useEffect(() => {
-    if (open) {
-      fetchMedia()
-    }
-  }, [open, fetchMedia])
+  }, [open, mediaList, initialUrlsKey, multiple, initialSelectedUrls])
 
   // Handle local file upload
   const handleUploadFiles = async (files: FileList | File[]) => {
@@ -108,7 +117,15 @@ export default function MediaSelectModal({
       const uploadPromises = fileArray.map((file) => uploadMedia(file))
       const newItems = await Promise.all(uploadPromises)
 
-      setMediaList((prev) => [...newItems, ...prev])
+      // Add newly uploaded items to state, deduplicated
+      setMediaList((prev) => {
+        const existingIds = new Set(prev.map((i) => i.id))
+        const existingUrls = new Set(prev.map((i) => i.url))
+        const uniqueNew = newItems.filter(
+          (i) => !existingIds.has(i.id) && !existingUrls.has(i.url)
+        )
+        return [...uniqueNew, ...prev]
+      })
 
       // Auto-select newly uploaded items
       setSelectedIds((prev) => {
@@ -134,8 +151,6 @@ export default function MediaSelectModal({
   }
 
   const handleDrop = (e: React.DragEvent) => {
-    e.preventDefault()
-    setIsDraggingOver(false)
     if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
       handleUploadFiles(e.dataTransfer.files)
     }
@@ -166,17 +181,33 @@ export default function MediaSelectModal({
     }
   }
 
+  const handleResetFilters = () => {
+    setSearchQuery("")
+    setFileTypeFilter("all")
+    setFileSizeFilter("all")
+  }
+
   // Filtered & Sorted Media items
   const filteredMedia = mediaList
     .filter((item) => {
       const matchesSearch = item.name.toLowerCase().includes(searchQuery.toLowerCase().trim())
       let matchesType = true
+      const isImg = isImageMedia(item)
+      const isVid = isVideoMedia(item)
       const typeStr = (item.type || item.fileType || "").toLowerCase()
-      if (fileTypeFilter === "image") matchesType = typeStr.startsWith("image")
-      else if (fileTypeFilter === "video") matchesType = typeStr.startsWith("video")
-      else if (fileTypeFilter === "document") matchesType = typeStr.includes("pdf") || typeStr.includes("text")
 
-      return matchesSearch && matchesType
+      if (fileTypeFilter === "image") matchesType = isImg
+      else if (fileTypeFilter === "video") matchesType = isVid
+      else if (fileTypeFilter === "document")
+        matchesType = typeStr.includes("pdf") || typeStr.includes("text")
+
+      let matchesSize = true
+      if (fileSizeFilter === "small") matchesSize = item.size < 1024 * 1024
+      else if (fileSizeFilter === "medium")
+        matchesSize = item.size >= 1024 * 1024 && item.size <= 5 * 1024 * 1024
+      else if (fileSizeFilter === "large") matchesSize = item.size > 5 * 1024 * 1024
+
+      return matchesSearch && matchesType && matchesSize
     })
     .sort((a, b) => {
       if (sortOrder === "name") return a.name.localeCompare(b.name)
@@ -199,7 +230,7 @@ export default function MediaSelectModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-4xl max-w-4xl w-[96vw] max-h-[85vh] flex flex-col p-0 overflow-hidden bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-800 rounded-xl shadow-2xl">
+      <DialogContent className="sm:max-w-4xl max-w-4xl w-[92vw] h-[82vh] max-h-[740px] flex flex-col p-0 overflow-hidden bg-white dark:bg-zinc-900 border-0 rounded-2xl shadow-2xl [&_[data-slot=dialog-close]]:top-4 [&_[data-slot=dialog-close]]:right-5 [&_[data-slot=dialog-close]]:size-7 [&_[data-slot=dialog-close]]:rounded-full [&_[data-slot=dialog-close]]:flex [&_[data-slot=dialog-close]]:items-center [&_[data-slot=dialog-close]]:justify-center [&_[data-slot=dialog-close]]:bg-gray-100/80 [&_[data-slot=dialog-close]]:hover:bg-gray-200 [&_[data-slot=dialog-close]]:text-gray-600 [&_[data-slot=dialog-close]]:opacity-100 [&_[data-slot=dialog-close]]:transition-colors">
         {/* Hidden file input */}
         <input
           ref={fileInputRef}
@@ -210,134 +241,35 @@ export default function MediaSelectModal({
           onChange={handleFileInputChange}
         />
 
-        {/* 1. Modal Header */}
-        <DialogHeader className="p-4 border-b border-gray-100 dark:border-zinc-800 flex flex-row items-center justify-between shrink-0">
-          <DialogTitle className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+        {/* 1. Modal Header (Clean borderless header) */}
+        <DialogHeader className="px-6 pt-5 pb-1 border-b-0 flex flex-row items-center justify-between shrink-0">
+          <DialogTitle className="text-foreground">
             {title}
           </DialogTitle>
         </DialogHeader>
 
         {/* 2. Top Filter Controls Bar */}
-        <div className="p-4 space-y-3 bg-gray-50/50 dark:bg-zinc-800/30 border-b border-gray-100 dark:border-zinc-800 shrink-0">
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            {/* Search Input */}
-            <div className="relative flex-1 min-w-[240px]">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-gray-400" />
-              <Input
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search files"
-                className="pl-9 bg-white dark:bg-zinc-900 h-9 border-gray-200 dark:border-zinc-700 text-sm focus-visible:ring-1"
-              />
-            </div>
-
-            {/* Sort & Layout Toggles */}
-            <div className="flex items-center gap-2">
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="outline" size="sm" className="h-9 gap-1.5 text-xs font-medium border-gray-200">
-                    <ArrowUpDown className="size-3.5 text-gray-500" />
-                    Sort
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuItem onClick={() => setSortOrder("newest")} className="text-xs">
-                    Newest first
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => setSortOrder("name")} className="text-xs">
-                    Name (A-Z)
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => setSortOrder("size")} className="text-xs">
-                    File size
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-
-              <div className="flex items-center border border-gray-200 dark:border-zinc-700 rounded-md bg-white dark:bg-zinc-900 p-0.5">
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className={cn("h-7 w-7 rounded-xs", viewMode === "grid" && "bg-gray-100 dark:bg-zinc-800 text-primary")}
-                  onClick={() => setViewMode("grid")}
-                  title="Grid view"
-                >
-                  <LayoutGrid className="size-3.5" />
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className={cn("h-7 w-7 rounded-xs", viewMode === "list" && "bg-gray-100 dark:bg-zinc-800 text-primary")}
-                  onClick={() => setViewMode("list")}
-                  title="List view"
-                >
-                  <List className="size-3.5" />
-                </Button>
-              </div>
-            </div>
-          </div>
-
-          {/* Filter Chips */}
-          <div className="flex flex-wrap items-center gap-2">
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="outline" size="sm" className="h-7 text-xs rounded-full border-dashed border-gray-300 bg-white dark:bg-zinc-800">
-                  File type {fileTypeFilter !== "all" && `(${fileTypeFilter})`} ▾
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent>
-                <DropdownMenuItem onClick={() => setFileTypeFilter("all")}>All Types</DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setFileTypeFilter("image")}>Images</DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setFileTypeFilter("video")}>Videos</DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setFileTypeFilter("document")}>Documents</DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-
-            {(searchQuery || fileTypeFilter !== "all") && (
-              <Button
-                variant="ghost"
-                size="sm"
-                className="h-7 text-xs text-gray-500 hover:text-gray-900"
-                onClick={() => {
-                  setSearchQuery("")
-                  setFileTypeFilter("all")
-                }}
-              >
-                Reset filters
-              </Button>
-            )}
-          </div>
-        </div>
+        <MediaFilterBar
+          searchQuery={searchQuery}
+          onSearchChange={setSearchQuery}
+          fileTypeFilter={fileTypeFilter}
+          onFileTypeChange={setFileTypeFilter}
+          fileSizeFilter={fileSizeFilter}
+          onFileSizeChange={setFileSizeFilter}
+          sortOrder={sortOrder}
+          onSortOrderChange={setSortOrder}
+          viewMode={viewMode}
+          onViewModeChange={setViewMode}
+          onResetFilters={handleResetFilters}
+        />
 
         {/* 3. Modal Main Scrollable Content */}
-        <div className="flex-1 min-h-0 overflow-y-auto p-4 space-y-4">
-          {/* Drag & Drop Upload Zone */}
-          <div
-            onDragOver={(e) => {
-              e.preventDefault()
-              setIsDraggingOver(true)
-            }}
-            onDragLeave={() => setIsDraggingOver(false)}
+        <div className="flex-1 min-h-0 overflow-y-auto px-6 py-2 space-y-3">
+          {/* Drag & Drop Upload Zone (Compact banner) */}
+          <MediaDropzone
             onDrop={handleDrop}
-            onClick={() => fileInputRef.current?.click()}
-            className={cn(
-              "group border-2 border-dashed rounded-xl p-4 text-center cursor-pointer transition-all flex flex-col items-center justify-center gap-1.5",
-              isDraggingOver
-                ? "border-primary bg-primary/5 dark:bg-primary/10 scale-[0.99]"
-                : "border-gray-200 dark:border-zinc-700 hover:border-gray-400 bg-gray-50/50 dark:bg-zinc-900/50 hover:bg-gray-50 dark:hover:bg-zinc-800/50"
-            )}
-          >
-            <div className="p-2 rounded-full bg-white dark:bg-zinc-800 shadow-xs group-hover:scale-105 transition-transform text-gray-600 dark:text-gray-300">
-              <UploadCloud className="size-5" />
-            </div>
-            <div>
-              <p className="text-xs font-semibold text-gray-800 dark:text-gray-200">
-                Click to upload or drag and drop
-              </p>
-              <p className="text-[11px] text-gray-400">
-                PNG, JPG, WEBP, MP4, or PDF up to 20MB
-              </p>
-            </div>
-          </div>
+            onOpenFilePicker={() => fileInputRef.current?.click()}
+          />
 
           {/* Media Items Presentation */}
           {isLoading && mediaList.length === 0 ? (
@@ -349,131 +281,46 @@ export default function MediaSelectModal({
             <div className="py-16 text-center text-xs text-gray-400 space-y-1">
               <FileImage className="size-8 mx-auto mb-2 opacity-40" />
               <p>No files found.</p>
-              <p className="text-[11px]">Try searching with a different keyword or upload new files.</p>
+              <p className="text-xs text-muted-foreground">
+                Try searching with a different keyword or upload new files.
+              </p>
             </div>
           ) : viewMode === "grid" ? (
-            /* Grid View */
-            <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-5 gap-3">
-              {filteredMedia.map((item) => {
-                const isSelected = selectedIds.has(item.id)
-                const ext = getFileExtension(item.name) || "FILE"
-                const isImage = (item.type || item.fileType || "").toLowerCase().startsWith("image")
-                const isVideo = (item.type || item.fileType || "").toLowerCase().startsWith("video")
-
-                return (
-                  <div
-                    key={item.id}
-                    onClick={() => toggleSelect(item.id)}
-                    onDoubleClick={() => handleItemDoubleClick(item)}
-                    className={cn(
-                      "group relative border rounded-lg p-2 transition-all cursor-pointer select-none bg-white dark:bg-zinc-900 flex flex-col justify-between",
-                      isSelected
-                        ? "bg-primary/5"
-                        : "border-gray-200 dark:border-zinc-800 hover:border-gray-300 hover:shadow-xs"
-                    )}
-                  >
-                    {/* Top Select Checkbox */}
-                    <div className="absolute top-2 left-2 z-10" onClick={(e) => e.stopPropagation()}>
-                      <Checkbox
-                        checked={isSelected}
-                        onCheckedChange={() => toggleSelect(item.id)}
-                        className="bg-white/90 border-gray-300 data-[state=checked]:bg-primary data-[state=checked]:border-primary shadow-xs"
-                      />
-                    </div>
-
-                    {/* Thumbnail Preview */}
-                    <div className="w-full h-24 flex items-center justify-center overflow-hidden rounded-md bg-gray-50 dark:bg-zinc-900 mt-4">
-                      {isImage ? (
-                        <img
-                          src={item.url}
-                          alt={item.name}
-                          className="w-full h-full object-contain group-hover:scale-105 transition-transform"
-                        />
-                      ) : isVideo ? (
-                        <Video className="size-8 text-purple-500" />
-                      ) : (
-                        <FileText className="size-8 text-gray-400" />
-                      )}
-                    </div>
-
-                    {/* File Meta Info */}
-                    <div className="mt-1 text-center">
-                      <p className="text-[11px] font-medium text-gray-700 dark:text-gray-300 truncate" title={item.name}>
-                        {item.name}
-                      </p>
-                    </div>
-                  </div>
-                )
-              })}
+            /* Grid View (6 Columns on desktop - Matching Image 2) */
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 lg:grid-cols-6 gap-2.5">
+              {filteredMedia.map((item) => (
+                <MediaCardItem
+                  key={item.id}
+                  item={item}
+                  isSelected={selectedIds.has(item.id)}
+                  onToggleSelect={toggleSelect}
+                  onDoubleClick={handleItemDoubleClick}
+                />
+              ))}
             </div>
           ) : (
             /* List View */
             <div className="divide-y border border-gray-200 dark:border-zinc-800 rounded-lg bg-white dark:bg-zinc-900 overflow-hidden">
-              {filteredMedia.map((item) => {
-                const isSelected = selectedIds.has(item.id)
-                const isImage = (item.type || item.fileType || "").toLowerCase().startsWith("image")
-
-                return (
-                  <div
-                    key={item.id}
-                    onClick={() => toggleSelect(item.id)}
-                    onDoubleClick={() => handleItemDoubleClick(item)}
-                    className={cn(
-                      "flex items-center gap-3 p-3 cursor-pointer transition-colors hover:bg-gray-50 dark:hover:bg-zinc-800",
-                      isSelected && "bg-primary/5"
-                    )}
-                  >
-                    <Checkbox
-                      checked={isSelected}
-                      onCheckedChange={() => toggleSelect(item.id)}
-                      onClick={(e) => e.stopPropagation()}
-                    />
-                    <div className="w-10 h-10 rounded border overflow-hidden bg-gray-100 shrink-0 flex items-center justify-center">
-                      {isImage ? (
-                        <img src={item.url} alt={item.name} className="w-full h-full object-cover" />
-                      ) : (
-                        <FileIcon className="size-5 text-gray-400" />
-                      )}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-xs font-medium text-gray-900 dark:text-gray-100 truncate">{item.name}</p>
-                    </div>
-                  </div>
-                )
-              })}
+              {filteredMedia.map((item) => (
+                <MediaListItem
+                  key={item.id}
+                  item={item}
+                  isSelected={selectedIds.has(item.id)}
+                  onToggleSelect={toggleSelect}
+                  onDoubleClick={handleItemDoubleClick}
+                />
+              ))}
             </div>
           )}
         </div>
 
-        {/* 4. Modal Footer */}
-        <DialogFooter className="p-4 border-t border-gray-100 dark:border-zinc-800 bg-white dark:bg-zinc-900 flex flex-row items-center justify-between sm:justify-between shrink-0">
-          <div className="text-xs text-gray-500 font-medium">
-            {selectedIds.size > 0 ? (
-              <span className="text-primary font-semibold">{selectedIds.size} file(s) selected</span>
-            ) : (
-              "No files selected"
-            )}
-          </div>
-
-          <div className="flex items-center gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => onOpenChange(false)}
-              className="h-9 px-4 text-xs font-medium border-gray-300"
-            >
-              Cancel
-            </Button>
-            <Button
-              size="sm"
-              disabled={selectedIds.size === 0}
-              onClick={handleDone}
-              className="h-9 px-5 text-xs font-medium bg-gray-900 text-white hover:bg-black dark:bg-white dark:text-black dark:hover:bg-gray-200"
-            >
-              Done
-            </Button>
-          </div>
-        </DialogFooter>
+        {/* 4. Modal Footer (Shopify Style) */}
+        <MediaSelectFooter
+          selectedCount={selectedIds.size}
+          onClearSelection={() => setSelectedIds(new Set())}
+          onCancel={() => onOpenChange(false)}
+          onDone={handleDone}
+        />
       </DialogContent>
     </Dialog>
   )

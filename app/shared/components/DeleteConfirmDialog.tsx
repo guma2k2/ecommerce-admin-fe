@@ -48,7 +48,7 @@ export default function DeleteConfirmDialog({
               <AlertTriangle className='size-5' />
             </div>
             <div>
-              <DialogTitle className='text-lg'>Delete</DialogTitle>
+              <DialogTitle>Delete</DialogTitle>
               <DialogDescription className='text-sm text-muted-foreground mt-0.5'>
                 Are you sure you want to delete{" "}
                 <span className='font-semibold text-gray-900 dark:text-white'>{selectedCount}</span> selected{" "}

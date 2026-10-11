@@ -128,7 +128,7 @@ export default function AddVariantDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-lg max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2 text-base font-semibold">
+          <DialogTitle className="flex items-center gap-2">
             <div className="size-7 rounded-lg bg-primary/10 text-primary flex items-center justify-center">
               <Plus className="size-4" />
             </div>
@@ -159,7 +159,7 @@ export default function AddVariantDialog({
                 <Layers className="size-3.5 text-primary" />
                 <span>Variant Attributes</span>
               </div>
-              <p className="text-[11px] text-muted-foreground">
+              <p className="text-xs text-muted-foreground">
                 Select from existing option values or enter a new value below.
               </p>
             </div>
@@ -195,7 +195,7 @@ export default function AddVariantDialog({
                     {/* Chips for existing values to quickly select */}
                     {existingValues.length > 0 && (
                       <div className="flex flex-wrap items-center gap-1.5">
-                        <span className="text-[10px] text-muted-foreground mr-1">Suggestions:</span>
+                        <span className="text-2xs text-muted-foreground mr-1">Suggestions:</span>
                         {existingValues.map((v) => {
                           const isSelected = currentVal.toLowerCase() === v.toLowerCase()
                           return (
@@ -203,7 +203,7 @@ export default function AddVariantDialog({
                               type="button"
                               key={v}
                               onClick={() => handleOptionValueChange(optName, v)}
-                              className={`px-2 py-0.5 rounded text-[11px] font-medium border transition-colors ${
+                              className={`px-2 py-0.5 rounded text-xs font-medium border transition-colors ${
                                 isSelected
                                   ? "bg-primary text-primary-foreground border-primary"
                                   : "bg-gray-100 dark:bg-zinc-800 text-gray-700 dark:text-gray-300 border-gray-200 dark:border-zinc-700 hover:bg-gray-200 dark:hover:bg-zinc-700"

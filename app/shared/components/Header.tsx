@@ -76,7 +76,7 @@ export function Header() {
           <DropdownMenuContent align='end' className='w-56 p-1.5 shadow-lg border border-gray-200 dark:border-zinc-800'>
             <DropdownMenuLabel className='font-normal px-2 py-1.5'>
               <div className='flex flex-col space-y-1'>
-                <p className='text-sm font-semibold leading-none text-gray-900 dark:text-gray-100 truncate'>
+                <p className='text-sm font-medium leading-none text-foreground truncate'>
                   {displayName}
                 </p>
                 <p className='text-xs leading-none text-muted-foreground truncate'>

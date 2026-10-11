@@ -165,8 +165,9 @@ export default function ProductOptionTable({
                       </button>
                       {["color", "size", "material", "storage", "style"].includes(option.name.toLowerCase()) && (
                         <Badge
+                          size='micro'
                           variant='outline'
-                          className='text-[10px] uppercase tracking-wider text-muted-foreground/80 py-0 px-1.5 h-4 flex items-center gap-1'
+                          className='text-muted-foreground/80 py-0 px-1.5 h-4 flex items-center gap-1'
                         >
                           <Sparkles className='size-2.5 text-amber-500' />
                           Standard

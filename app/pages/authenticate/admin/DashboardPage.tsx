@@ -63,7 +63,7 @@ export default function DashboardPage() {
             <Sparkles className='size-3.5 text-amber-400' />
             <span>Admin Overview</span>
           </div>
-          <h1 className='text-3xl font-bold tracking-tight'>
+          <h1 className='text-2xl font-bold tracking-tight'>
             Welcome back, {user?.name || 'Administrator'}!
           </h1>
           <p className='text-zinc-300 text-sm leading-relaxed'>
@@ -95,7 +95,7 @@ export default function DashboardPage() {
                     <Icon className='size-5' />
                   </div>
                   <div>
-                    <h3 className='font-semibold text-gray-900 dark:text-gray-100 group-hover:text-primary transition-colors'>
+                    <h3 className='text-base font-semibold text-foreground group-hover:text-primary transition-colors'>
                       {item.title}
                     </h3>
                     <p className='text-xs text-muted-foreground mt-1 leading-relaxed'>

@@ -60,7 +60,7 @@ export default function BulkEditVariantsDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2 text-base font-semibold">
+          <DialogTitle className="flex items-center gap-2">
             <div className="size-7 rounded-lg bg-primary/10 text-primary flex items-center justify-center">
               <Edit3 className="size-4" />
             </div>
@@ -83,7 +83,7 @@ export default function BulkEditVariantsDialog({
                 <DollarSign className="size-3.5 text-emerald-600" />
                 Price ($)
               </label>
-              <span className="text-[11px] text-muted-foreground">
+              <span className="text-xs text-muted-foreground">
                 Leave empty to keep current
               </span>
             </div>
@@ -102,7 +102,7 @@ export default function BulkEditVariantsDialog({
                 <Package className="size-3.5 text-blue-600" />
                 Available Stock
               </label>
-              <span className="text-[11px] text-muted-foreground">
+              <span className="text-xs text-muted-foreground">
                 Leave empty to keep current
               </span>
             </div>

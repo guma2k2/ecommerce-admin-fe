@@ -55,7 +55,7 @@ export default function MediaPreviewModal({ media, open, onOpenChange }: MediaPr
         {/* Header */}
         <div className='p-5 pb-4 bg-gray-50/80 dark:bg-zinc-900 border-b border-gray-200 dark:border-zinc-800'>
           <DialogHeader>
-            <DialogTitle className='text-lg font-bold flex items-center justify-between gap-4 pr-6'>
+            <DialogTitle className='flex items-center justify-between gap-4 pr-6'>
               <span className='truncate' title={media.name}>
                 {media.name}
               </span>
@@ -145,7 +145,7 @@ export default function MediaPreviewModal({ media, open, onOpenChange }: MediaPr
                 <HardDrive className='size-3.5 text-emerald-500' /> File Size
               </div>
               <p className='font-mono text-xs font-semibold text-gray-900 dark:text-gray-100'>
-                {formatFileSize(media.size)} <span className='text-[11px] font-normal text-muted-foreground'>({media.size.toLocaleString()} B)</span>
+                {formatFileSize(media.size)} <span className='text-xs font-normal text-muted-foreground'>({media.size.toLocaleString()} B)</span>
               </p>
             </div>
 

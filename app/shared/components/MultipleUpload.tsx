@@ -250,7 +250,7 @@ export default function Upload({ onChange, values }: UploadProps) {
               <div className="aspect-square w-32 rounded-lg overflow-hidden border-2 border-blue-500 shadow-2xl bg-white cursor-grabbing relative scale-105 z-50">
                 <img src={activeMedia.url} alt="Dragging preview" className="w-full h-full object-cover rounded-lg" />
                 {activeIndex === 0 && (
-                  <span className="absolute top-2 left-2 bg-black/75 text-white text-[10px] font-semibold px-2 py-0.5 rounded-md backdrop-blur-sm z-10">
+                  <span className="absolute top-2 left-2 bg-black/75 text-white text-2xs font-semibold px-2 py-0.5 rounded-md backdrop-blur-sm z-10">
                     Cover
                   </span>
                 )}

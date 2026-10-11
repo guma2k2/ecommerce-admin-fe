@@ -118,11 +118,8 @@ export default function ProductAttributesCard() {
         <div>
           <h3 className="text-base font-semibold text-gray-900 dark:text-gray-100 flex items-center gap-2">
             <Sliders className="size-4 text-primary" />
-            Attributes & Specifications
+            Attributes
           </h3>
-          <p className="text-xs text-muted-foreground">
-            Select an attribute template to attach specifications to the base product or variant combinations.
-          </p>
         </div>
 
         {/* Template Selector */}
@@ -143,7 +140,7 @@ export default function ProductAttributesCard() {
                 <SelectItem key={String(tmpl.id)} value={String(tmpl.id)} className="text-xs font-medium">
                   {tmpl.name}
                   {tmpl.attributes && tmpl.attributes.length > 0 && (
-                    <span className="text-muted-foreground ml-1.5 text-[11px]">
+                    <span className="text-muted-foreground ml-1.5 text-xs">
                       ({tmpl.attributes.length} {tmpl.attributes.length === 1 ? "attr" : "attrs"})
                     </span>
                   )}
@@ -176,9 +173,6 @@ export default function ProductAttributesCard() {
           <p className="text-xs font-medium text-gray-700 dark:text-gray-300">
             No attribute template selected
           </p>
-          <p className="text-[11px] text-muted-foreground max-w-sm mx-auto">
-            Choose an attribute template above to automatically load specifications (e.g. Dimensions, Material, Warranty) and assign them to the base product or variants.
-          </p>
         </div>
       ) : (
         <div className="space-y-3">
@@ -186,7 +180,7 @@ export default function ProductAttributesCard() {
             <span className="font-medium text-gray-700 dark:text-gray-300">
               Template: <span className="text-primary font-semibold">{selectedTemplate?.name || (formTemplateId ? `#${formTemplateId}` : "Custom / Loaded Attributes")}</span>
             </span>
-            <span className="text-[11px]">
+            <span className="text-xs">
               {attributes.filter((a) => a.applyTo !== "variant").length} Base Product •{" "}
               {attributes.filter((a) => a.applyTo === "variant").length} Variant-specific
             </span>
@@ -258,8 +252,8 @@ export default function ProductAttributesCard() {
                     ) : (
                       <div className="flex items-center gap-2 text-xs text-indigo-700 dark:text-indigo-300 bg-indigo-50/80 dark:bg-indigo-950/40 border border-indigo-200/80 dark:border-indigo-900/50 rounded-lg px-3 py-1.5">
                         <ArrowRight className="size-3.5 shrink-0 text-indigo-500" />
-                        <span className="text-[11px] font-medium">
-                          Configured per variant in the variants matrix below
+                        <span className="text-xs font-medium">
+                          Variant
                         </span>
                       </div>
                     )}
