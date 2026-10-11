@@ -22,6 +22,7 @@ import { MediaSelectModal } from "~/shared/components"
 import SortableImage from "./SortableImage"
 import type { ProductFormSchema } from "~/features/authenticate/manageProduct/validator"
 import type { UploadType } from "~/shared/types"
+import { isVideoUrl } from "~/shared/utils/appUtils"
 
 export default function ProductMediaCard() {
   const { control, setValue, getValues } = useFormContext<ProductFormSchema>()
@@ -59,6 +60,8 @@ export default function ProductMediaCard() {
 
   const checkedCount = medias.filter((m) => m.isChecked).length
 
+  const initialSelectedUrls = medias.map((m) => m.url || "").filter(Boolean)
+
   const handleDragStart = (e: DragStartEvent) => {
     setActiveDragId(e.active.id as string)
   }
@@ -91,14 +94,38 @@ export default function ProductMediaCard() {
 
   const handleSelectFromModal = (selectedFiles: { id: string; url: string; name: string }[]) => {
     const current = getValues("medias") || []
-    const newEntries = selectedFiles.map((file, i) => ({
-      mediaId: file.id,
-      position: current.length + i,
-      url: file.url,
-      isChecked: false
+    const selectedUrls = new Set(selectedFiles.map((f) => f.url).filter(Boolean))
+    const selectedIds = new Set(selectedFiles.map((f) => f.id).filter(Boolean))
+
+    // 1. Retain existing items that are still selected in the modal
+    const retained = current.filter((m) =>
+      (m.url && selectedUrls.has(m.url)) || (m.mediaId && selectedIds.has(m.mediaId))
+    )
+
+    const existingUrls = new Set(retained.map((m) => m.url).filter(Boolean))
+    const existingIds = new Set(retained.map((m) => m.mediaId).filter(Boolean))
+
+    // 2. Append newly selected items without duplicating
+    const newItems: { mediaId: string; position: number; url: string; isChecked: boolean }[] = []
+    selectedFiles.forEach((file) => {
+      if (!existingUrls.has(file.url) && !existingIds.has(file.id)) {
+        existingUrls.add(file.url)
+        existingIds.add(file.id)
+        newItems.push({
+          mediaId: file.id,
+          position: retained.length + newItems.length,
+          url: file.url,
+          isChecked: false
+        })
+      }
+    })
+
+    const updatedMedias = [...retained, ...newItems].map((item, index) => ({
+      ...item,
+      position: index
     }))
 
-    setValue("medias", [...current, ...newEntries], { shouldDirty: true })
+    setValue("medias", updatedMedias, { shouldDirty: true })
   }
 
   const handleToggleCheck = (index: number, checked: boolean) => {
@@ -127,9 +154,6 @@ export default function ProductMediaCard() {
             <ImagePlus className="size-4 text-primary" />
             Media Gallery
           </h3>
-          <p className="text-xs text-muted-foreground">
-            Add high-resolution photos, 3D assets, or videos. Drag to reorder.
-          </p>
         </div>
 
         <div className="flex items-center gap-2">
@@ -190,28 +214,32 @@ export default function ProductMediaCard() {
         <DragOverlay adjustScale dropAnimation={null}>
           {activeDragItem ? (
             <div className="w-24 h-24 rounded-lg overflow-hidden border-2 border-primary shadow-xl bg-white">
-              <img
-                src={activeDragItem.url}
-                alt="Drag preview"
-                className="w-full h-full object-cover"
-              />
+              {isVideoUrl(activeDragItem.url) ? (
+                <video
+                  src={`${activeDragItem.url}#t=0.001`}
+                  preload="metadata"
+                  muted
+                  playsInline
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <img
+                  src={activeDragItem.url}
+                  alt="Drag preview"
+                  className="w-full h-full object-cover"
+                />
+              )}
             </div>
           ) : null}
         </DragOverlay>
       </DndContext>
-
-      {/* Helper text */}
-      <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground pt-1">
-        <Star className="size-3 text-amber-500 fill-amber-500" />
-        <span>The first image is automatically used as the main product thumbnail and cover image.</span>
-      </div>
 
       {/* Media Selection Dialog */}
       <MediaSelectModal
         open={isModalOpen}
         onOpenChange={setIsModalOpen}
         onSelectMedia={handleSelectFromModal}
-        initialSelectedUrls={medias.map((m) => m.url || "").filter(Boolean)}
+        initialSelectedUrls={initialSelectedUrls}
       />
     </div>
   )

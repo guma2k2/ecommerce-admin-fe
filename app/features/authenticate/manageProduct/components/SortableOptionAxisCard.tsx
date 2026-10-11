@@ -297,7 +297,7 @@ function SortableOptionAxisCardComponent({
                     <Tag className="size-3.5 text-primary shrink-0" />
                     <span className="font-medium truncate">{item.name}</span>
                   </div>
-                  <span className="text-[11px] font-mono text-muted-foreground shrink-0 ml-2">
+                  <span className="text-xs font-mono text-muted-foreground shrink-0 ml-2">
                     {item.id}
                   </span>
                 </div>

@@ -117,31 +117,79 @@ export function formatDateTime(isoString?: string | null): string {
 }
 
 /**
+ * Checks if a URL or filename represents a video.
+ */
+export function isVideoUrl(url?: string): boolean {
+  if (!url) return false
+  const cleanUrl = url.split('?')[0].split('#')[0].toLowerCase()
+  return ['.mp4', '.mov', '.avi', '.mkv', '.flv', '.wmv', '.webm', '.m4v', '.3gp', '.ts', '.mpg', '.mpeg'].some(
+    (ext) => cleanUrl.endsWith(ext)
+  )
+}
+
+/**
+ * Format duration in seconds to mm:ss or hh:mm:ss.
+ */
+export function formatDuration(duration: number | string | null | undefined): string {
+  if (duration === null || duration === undefined) return ''
+  const sec = typeof duration === 'string' ? parseFloat(duration) : duration
+  if (isNaN(sec) || sec <= 0) {
+    if (typeof duration === 'string' && duration.includes(':')) return duration
+    return ''
+  }
+  const totalSeconds = Math.floor(sec)
+  const hours = Math.floor(totalSeconds / 3600)
+  const minutes = Math.floor((totalSeconds % 3600) / 60)
+  const seconds = totalSeconds % 60
+
+  if (hours > 0) {
+    return `${hours}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`
+  }
+  return `${minutes}:${seconds.toString().padStart(2, '0')}`
+}
+
+/**
  * Checks if media is an image.
  */
-export function isImageMedia(media: { type?: string; fileType?: string }): boolean {
+export function isImageMedia(media: { type?: string; fileType?: string; url?: string; name?: string }): boolean {
   if (!media) return false
   if (media.type === 'IMAGE') return true
   const mime = (media.type || '').toLowerCase()
   const ext = (media.fileType || '').toLowerCase()
-  return (
+  if (
     mime.startsWith('image/') ||
     ['png', 'jpg', 'jpeg', 'webp', 'svg', 'gif', 'bmp', 'ico', 'avif', 'heic', 'heif'].includes(ext)
-  )
+  ) {
+    return true
+  }
+  if (media.url) {
+    const cleanUrl = media.url.split('?')[0].split('#')[0].toLowerCase()
+    if (['.png', '.jpg', '.jpeg', '.webp', '.svg', '.gif', '.avif'].some((e) => cleanUrl.endsWith(e))) return true
+  }
+  if (media.name) {
+    const cleanName = media.name.toLowerCase()
+    if (['.png', '.jpg', '.jpeg', '.webp', '.svg', '.gif', '.avif'].some((e) => cleanName.endsWith(e))) return true
+  }
+  return false
 }
 
 /**
  * Checks if media is a video.
  */
-export function isVideoMedia(media: { type?: string; fileType?: string }): boolean {
+export function isVideoMedia(media: { type?: string; fileType?: string; url?: string; name?: string }): boolean {
   if (!media) return false
   if (media.type === 'VIDEO') return true
   const mime = (media.type || '').toLowerCase()
   const ext = (media.fileType || '').toLowerCase()
-  return (
+  if (
     mime.startsWith('video/') ||
     ['mp4', 'mov', 'avi', 'mkv', 'flv', 'wmv', 'webm', 'm4v', '3gp', 'ts', 'mpg', 'mpeg'].includes(ext)
-  )
+  ) {
+    return true
+  }
+  if (media.url && isVideoUrl(media.url)) return true
+  if (media.name && isVideoUrl(media.name)) return true
+  return false
 }
 
 /**

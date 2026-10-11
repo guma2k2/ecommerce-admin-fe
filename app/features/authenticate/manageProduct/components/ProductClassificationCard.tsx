@@ -53,7 +53,7 @@ export default function ProductClassificationCard({
     <div className="bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 p-5 space-y-5 shadow-xs">
       {/* 1. Status & Visibility */}
       <div className="space-y-2.5 pb-4 border-b border-gray-100 dark:border-zinc-800">
-        <h4 className="text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider flex items-center gap-1.5">
+        <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
           <Eye className="size-3.5 text-primary" />
           Status & Visibility
         </h4>
@@ -93,7 +93,7 @@ export default function ProductClassificationCard({
 
       {/* 2. Category Hierarchy */}
       <div className="space-y-2">
-        <label className="text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider flex items-center gap-1.5">
+        <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
           <FolderTree className="size-3.5 text-primary" />
           Category
         </label>
@@ -121,14 +121,11 @@ export default function ProductClassificationCard({
             })}
           </SelectContent>
         </Select>
-        <p className="text-[11px] text-muted-foreground">
-          Parent hierarchies are automatically associated on save.
-        </p>
       </div>
 
       {/* 3. Brand Selection */}
       <div className="space-y-2">
-        <label className="text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider flex items-center gap-1.5">
+        <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
           <Tag className="size-3.5 text-primary" />
           Brand
         </label>

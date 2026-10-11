@@ -137,7 +137,7 @@ export default function MediaUploadDialog({
     >
       <DialogContent className='sm:max-w-[540px]'>
         <DialogHeader>
-          <DialogTitle className='flex items-center gap-2 text-xl font-bold'>
+          <DialogTitle className='flex items-center gap-2'>
             <Upload className='size-5 text-primary' />
             {t('media.uploadNewMedia', 'Upload New Media')}
           </DialogTitle>
@@ -233,7 +233,7 @@ export default function MediaUploadDialog({
                   <Label htmlFor='media-alt-text' className='text-xs font-medium'>
                     {t('media.altTextLabel', 'Alt Text / Description (Optional)')}
                   </Label>
-                  <span className='text-[10px] text-muted-foreground'>
+                  <span className='text-2xs text-muted-foreground'>
                     {t('media.recommendedForSeo', 'Recommended for SEO')}
                   </span>
                 </div>

@@ -80,7 +80,7 @@ export default function AccountProfileForm({
     >
       <div className='flex items-center justify-between'>
         <div>
-          <h2 className='text-lg font-bold text-gray-900 dark:text-gray-100'>Profile Details</h2>
+          <h2 className='text-lg font-semibold tracking-tight text-foreground'>Profile Details</h2>
           <p className='text-xs text-muted-foreground mt-0.5'>
             Update your public display name and avatar URL.
           </p>

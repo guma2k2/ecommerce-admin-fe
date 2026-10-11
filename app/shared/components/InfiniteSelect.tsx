@@ -385,7 +385,7 @@ export default function InfiniteSelect<T extends Record<string, any>>({
 
                       <div className='flex items-center gap-1.5 shrink-0'>
                         {isItemDisabled && (
-                          <span className='text-[10px] uppercase font-semibold px-1.5 py-0.5 rounded bg-gray-100 dark:bg-zinc-800 text-muted-foreground'>
+                          <span className='text-2xs uppercase font-semibold px-1.5 py-0.5 rounded bg-gray-100 dark:bg-zinc-800 text-muted-foreground'>
                             {disabledOptionBadge || t('infiniteSelect.added', 'Added')}
                           </span>
                         )}
@@ -404,7 +404,7 @@ export default function InfiniteSelect<T extends Record<string, any>>({
                     </div>
                   )}
                   {!hasMore && items.length > pageSize && (
-                    <span className='text-[11px] text-muted-foreground/60'>
+                    <span className='text-xs text-muted-foreground/60'>
                       {t('infiniteSelect.allLoaded', 'All items loaded')}
                     </span>
                   )}

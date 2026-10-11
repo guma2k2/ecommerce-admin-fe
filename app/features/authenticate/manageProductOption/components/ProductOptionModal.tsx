@@ -87,7 +87,7 @@ export default function ProductOptionModal({
               <SlidersHorizontal className='size-5' />
             </div>
             <div>
-              <DialogTitle className='text-lg font-semibold'>
+              <DialogTitle>
                 {isEditing ? t('productOption.updateTitle') : t('productOption.addTitle')}
               </DialogTitle>
               <DialogDescription className='text-xs text-muted-foreground mt-0.5'>
@@ -135,7 +135,7 @@ export default function ProductOptionModal({
                   )
                 })}
               </div>
-              <p className='text-[11px] text-muted-foreground/80'>
+              <p className='text-xs text-muted-foreground/80'>
                 {t('productOption.presetHint')}
               </p>
             </div>

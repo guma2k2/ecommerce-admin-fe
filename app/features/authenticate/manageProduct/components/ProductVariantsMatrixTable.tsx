@@ -339,7 +339,7 @@ export default function ProductVariantsMatrixTable({
                               <span className="text-xs font-semibold text-gray-900 dark:text-gray-100">
                                 Specifications for {v.title || `Variant ${index + 1}`}
                               </span>
-                              <span className="text-[11px] text-muted-foreground font-mono">
+                              <span className="text-xs text-muted-foreground font-mono">
                                 ({configuredCount} of {totalAttrs} configured)
                               </span>
                             </div>
@@ -375,7 +375,7 @@ export default function ProductVariantsMatrixTable({
                                   key={attr.productAttributeId}
                                   className="space-y-1.5 p-2.5 rounded-lg bg-gray-50/70 dark:bg-zinc-800/40 border border-gray-200/80 dark:border-zinc-800"
                                 >
-                                  <div className="flex items-center justify-between text-[11px] font-medium text-gray-700 dark:text-gray-300">
+                                  <div className="flex items-center justify-between text-xs font-medium text-foreground">
                                     <label className="flex items-center gap-1.5 truncate" title={attr.name}>
                                       <Tag className="size-3 text-indigo-500 shrink-0" />
                                       <span className="truncate font-semibold">
@@ -383,7 +383,7 @@ export default function ProductVariantsMatrixTable({
                                       </span>
                                     </label>
                                     {val && (
-                                      <span className="flex items-center gap-0.5 text-[10px] text-emerald-600 dark:text-emerald-400 font-medium">
+                                      <span className="flex items-center gap-0.5 text-2xs text-emerald-600 dark:text-emerald-400 font-semibold">
                                         <Check className="size-2.5" />
                                         Set
                                       </span>

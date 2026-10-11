@@ -47,7 +47,7 @@ export default function MediaTable({ mediaList, isLoading, onPreview }: MediaTab
 
     if (isVid) {
       return (
-        <Badge variant='outline' className='gap-1 text-[11px] font-mono border-purple-300 dark:border-purple-800 text-purple-700 dark:text-purple-300 bg-purple-50 dark:bg-purple-950/40'>
+        <Badge variant='outline' className='gap-1 text-xs font-mono border-purple-300 dark:border-purple-800 text-purple-700 dark:text-purple-300 bg-purple-50 dark:bg-purple-950/40'>
           <Video className='size-3' />
           VIDEO {item.fileType ? `(${item.fileType.toUpperCase()})` : ''}
         </Badge>
@@ -56,7 +56,7 @@ export default function MediaTable({ mediaList, isLoading, onPreview }: MediaTab
 
     if (isImg) {
       return (
-        <Badge variant='outline' className='gap-1 text-[11px] font-mono border-blue-300 dark:border-blue-800 text-blue-700 dark:text-blue-300 bg-blue-50 dark:bg-blue-950/40'>
+        <Badge variant='outline' className='gap-1 text-xs font-mono border-blue-300 dark:border-blue-800 text-blue-700 dark:text-blue-300 bg-blue-50 dark:bg-blue-950/40'>
           <FileImage className='size-3' />
           IMAGE {item.fileType ? `(${item.fileType.toUpperCase()})` : ''}
         </Badge>
@@ -64,7 +64,7 @@ export default function MediaTable({ mediaList, isLoading, onPreview }: MediaTab
     }
 
     return (
-      <Badge variant='outline' className='gap-1 text-[11px] font-mono'>
+      <Badge variant='outline' className='gap-1 text-xs font-mono'>
         <File className='size-3 text-gray-500' />
         {item.type || item.fileType || 'MEDIA'}
       </Badge>
@@ -151,7 +151,13 @@ export default function MediaTable({ mediaList, isLoading, onPreview }: MediaTab
                     {isImg ? (
                       <img src={item.url} alt={item.altText || item.name} className='size-full object-cover group-hover:scale-110 transition-transform duration-200' />
                     ) : isVid ? (
-                      <Video className='size-5 text-purple-500' />
+                      <video
+                        src={`${item.url}#t=0.001`}
+                        preload='metadata'
+                        muted
+                        playsInline
+                        className='size-full object-cover group-hover:scale-110 transition-transform duration-200 pointer-events-none'
+                      />
                     ) : (
                       <File className='size-5 text-gray-500' />
                     )}
@@ -198,7 +204,7 @@ export default function MediaTable({ mediaList, isLoading, onPreview }: MediaTab
 
                 {/* Active Status */}
                 <TableCell className='whitespace-nowrap'>
-                  <Badge variant={item.active ? 'default' : 'secondary'} className='text-[10px] uppercase font-semibold'>
+                  <Badge size='micro' variant={item.active ? 'default' : 'secondary'}>
                     {item.active ? 'Active' : 'Inactive'}
                   </Badge>
                 </TableCell>

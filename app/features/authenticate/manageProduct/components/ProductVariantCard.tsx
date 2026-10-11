@@ -741,11 +741,9 @@ export default function ProductVariantCard({
         <div>
           <h3 className="text-base font-semibold text-gray-900 dark:text-gray-100 flex items-center gap-2">
             <Layers className="size-4 text-primary" />
-            Pricing & Variants
+            Variants
           </h3>
-          <p className="text-xs text-muted-foreground">
-            Configure standalone product pricing or multiple variant combinations (Size, Color, etc.).
-          </p>
+        
         </div>
 
         {/* Toggle Switch for Multi-variant */}
@@ -754,7 +752,7 @@ export default function ProductVariantCard({
             checked={hasOptions}
             onCheckedChange={(checked) => handleToggleHasOptions(!!checked)}
           />
-          <span>Multiple variations (Size, Color, etc.)</span>
+          <span>Multiple variations</span>
         </label>
       </div>
 

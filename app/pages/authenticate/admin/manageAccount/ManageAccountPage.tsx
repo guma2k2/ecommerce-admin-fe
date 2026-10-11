@@ -77,7 +77,7 @@ export default function ManageAccountPage() {
               <Sparkles className='size-3.5 text-amber-400' />
               <span>Admin Profile & Settings</span>
             </div>
-            <h1 className='text-2xl sm:text-3xl font-bold tracking-tight'>
+            <h1 className='text-2xl font-bold tracking-tight'>
               {t('label.accountTitle', { defaultValue: 'Account Management' })}
             </h1>
             <p className='text-zinc-300 text-sm leading-relaxed'>

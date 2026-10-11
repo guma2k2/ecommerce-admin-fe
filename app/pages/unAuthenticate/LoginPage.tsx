@@ -48,7 +48,7 @@ export default function LoginPage() {
     <div className='flex items-center justify-center w-full h-screen bg-gray-300'>
       <div className='w-md'>
         <FieldSet className='bg-white px-5 py-10 rounded-lg shadow-md'>
-          <div className='text-center text-2xl font-medium mb-4'>Login</div>
+          <h1 className='text-center text-2xl font-bold tracking-tight mb-4'>Login</h1>
           <form id='form-rhf-demo' onSubmit={form.handleSubmit(onSubmit)}>
             <FieldGroup>
               <FormInput control={control} name='email' label='Email' placeholder='admin@example.com' />

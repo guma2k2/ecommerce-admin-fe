@@ -73,7 +73,7 @@ export function AccountDialog({ open, onOpenChange }: AccountDialogProps) {
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className='sm:max-w-md'>
         <DialogHeader>
-          <DialogTitle className='flex items-center gap-2 text-xl font-semibold'>
+          <DialogTitle className='flex items-center gap-2'>
             <UserIcon className='w-5 h-5 text-primary' />
             {t('label.accountTitle')}
           </DialogTitle>
@@ -91,7 +91,7 @@ export function AccountDialog({ open, onOpenChange }: AccountDialogProps) {
               )}
             </div>
             <div className='flex flex-col gap-1 overflow-hidden'>
-              <h3 className='text-lg font-bold text-gray-900 dark:text-gray-100 truncate'>{user.name}</h3>
+              <h3 className='text-base font-semibold text-foreground truncate'>{user.name}</h3>
               <p className='text-xs text-muted-foreground truncate'>{user.email}</p>
               <div className='pt-1'>
                 <Badge variant='outline' className='text-xs uppercase tracking-wider font-semibold border-primary/30 text-primary bg-primary/5'>

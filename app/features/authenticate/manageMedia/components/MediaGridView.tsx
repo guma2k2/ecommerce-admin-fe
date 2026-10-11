@@ -3,7 +3,7 @@ import { Copy, Eye, MoreHorizontal, Video, FileImage, File, ExternalLink } from 
 import { showToast } from '~/shared/utils/toast'
 
 import type { MediaResponse } from '~/shared/types'
-import { formatFileSize, formatDateTime, isImageMedia, isVideoMedia } from '~/shared/utils'
+import { formatFileSize, formatDateTime, formatDuration, isImageMedia, isVideoMedia } from '~/shared/utils'
 import { Badge } from '~/core/components/shadcn/badge'
 import { Button } from '~/core/components/shadcn/button'
 import {
@@ -77,9 +77,18 @@ export default function MediaGridView({ mediaList, isLoading, onPreview }: Media
                   className='size-full object-cover group-hover:scale-105 transition-transform duration-300'
                 />
               ) : isVid ? (
-                <div className='flex flex-col items-center gap-2 text-purple-500'>
-                  <Video className='size-12' />
-                  <span className='text-xs font-medium'>Video {item.duration ? `(${item.duration}s)` : ''}</span>
+                <div className='relative size-full bg-black flex items-center justify-center'>
+                  <video
+                    src={`${item.url}#t=0.001`}
+                    preload='metadata'
+                    muted
+                    playsInline
+                    className='size-full object-cover group-hover:scale-105 transition-transform duration-300 pointer-events-none'
+                  />
+                  <div className='absolute bottom-2 left-2 bg-black/70 text-white text-2xs font-mono px-1.5 py-0.5 rounded pointer-events-none flex items-center gap-1'>
+                    <Video className='size-3' />
+                    <span>{formatDuration(item.duration) || 'Video'}</span>
+                  </div>
                 </div>
               ) : (
                 <div className='flex flex-col items-center gap-2 text-gray-500'>
@@ -100,10 +109,10 @@ export default function MediaGridView({ mediaList, isLoading, onPreview }: Media
 
               {/* Top Badges */}
               <div className='absolute top-2 left-2 right-2 flex items-center justify-between pointer-events-none'>
-                <Badge variant='secondary' className='text-[10px] font-mono bg-black/60 backdrop-blur-md text-white border-0'>
+                <Badge size='micro' variant='secondary' className='font-mono bg-black/60 backdrop-blur-md text-white border-0'>
                   {item.fileType?.toUpperCase() || item.type}
                 </Badge>
-                <Badge variant='secondary' className='text-[10px] font-mono bg-black/60 backdrop-blur-md text-white border-0'>
+                <Badge size='micro' variant='secondary' className='font-mono bg-black/60 backdrop-blur-md text-white border-0'>
                   {formatFileSize(item.size)}
                 </Badge>
               </div>
@@ -114,7 +123,7 @@ export default function MediaGridView({ mediaList, isLoading, onPreview }: Media
               <div className='space-y-1'>
                 <div className='flex items-start justify-between gap-2'>
                   <div className='min-w-0 flex-1'>
-                    <h3 className='text-sm font-semibold text-gray-900 dark:text-gray-100 truncate' title={item.name}>
+                    <h3 className='text-sm font-medium text-foreground truncate' title={item.name}>
                       {item.name}
                     </h3>
                     {item.altText && (
@@ -149,7 +158,7 @@ export default function MediaGridView({ mediaList, isLoading, onPreview }: Media
                 </div>
 
                 {/* ID Badge */}
-                <div className='flex items-center gap-1.5 text-[11px] text-muted-foreground font-mono pt-1'>
+                <div className='flex items-center gap-1.5 text-xs text-muted-foreground font-mono pt-1'>
                   <span>ID:</span>
                   <span className='px-1.5 py-0.5 bg-gray-100 dark:bg-zinc-800 rounded border border-gray-200 dark:border-zinc-700 text-gray-700 dark:text-zinc-300 truncate max-w-[170px]' title={item.id}>
                     {item.id}
@@ -158,7 +167,7 @@ export default function MediaGridView({ mediaList, isLoading, onPreview }: Media
               </div>
 
               {/* Dates */}
-              <div className='pt-2 border-t border-gray-100 dark:border-zinc-800/80 text-[10px] text-gray-500 flex flex-col gap-0.5 font-mono'>
+              <div className='pt-2 border-t border-gray-100 dark:border-zinc-800/80 text-2xs text-muted-foreground flex flex-col gap-0.5 font-mono'>
                 <div className='flex justify-between'>
                   <span>Type:</span>
                   <span className='font-semibold'>{item.type}</span>

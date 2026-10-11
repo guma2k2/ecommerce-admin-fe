@@ -87,7 +87,7 @@ export default function ProductVariantRow({
         <div className="flex flex-col">
           <span>{variant.title || `Variant ${index + 1}`}</span>
           {variant.id && (
-            <span className="text-[10px] text-muted-foreground font-mono">
+            <span className="text-2xs text-muted-foreground font-mono">
               #id:{variant.id}
             </span>
           )}

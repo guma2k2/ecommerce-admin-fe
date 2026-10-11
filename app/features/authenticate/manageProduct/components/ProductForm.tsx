@@ -178,7 +178,7 @@ const ProductForm = forwardRef<ProductFormHandle, ProductFormProps>(function Pro
             {/* Audit / Summary Card (in Edit Mode) */}
             {mode === "edit" && initialData && (
               <div className="bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 p-5 space-y-3 shadow-xs text-xs">
-                <h4 className="font-semibold text-gray-800 dark:text-gray-200">
+                <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                   {t("product.productMetadata")}
                 </h4>
                 <div className="space-y-2 text-muted-foreground">

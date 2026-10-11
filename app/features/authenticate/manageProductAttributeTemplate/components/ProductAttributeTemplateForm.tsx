@@ -96,7 +96,7 @@ function SortableAttributeItem({
           <GripVertical className='size-4' />
         </div>
 
-        <span className='size-5 rounded bg-gray-100 dark:bg-zinc-800 text-[11px] font-semibold text-muted-foreground flex items-center justify-center shrink-0'>
+        <span className='size-5 rounded bg-gray-100 dark:bg-zinc-800 text-xs font-semibold text-muted-foreground flex items-center justify-center shrink-0'>
           {index + 1}
         </span>
 
@@ -107,7 +107,7 @@ function SortableAttributeItem({
           </span>
         </div>
 
-        <Badge variant='outline' className='text-[10px] font-mono text-muted-foreground shrink-0'>
+        <Badge size='micro' variant='outline' className='font-mono text-muted-foreground shrink-0'>
           {id}
         </Badge>
       </div>
@@ -262,7 +262,7 @@ export default function ProductAttributeTemplateForm({
         <div className='space-y-4 pt-4 border-t border-gray-100 dark:border-zinc-800'>
           <div className='flex items-center justify-between'>
             <div>
-              <h3 className='text-sm font-semibold text-gray-900 dark:text-gray-100 flex items-center gap-2'>
+              <h3 className='text-base font-semibold text-foreground flex items-center gap-2'>
                 <SlidersHorizontal className='size-4 text-indigo-500' />
                 {t('productAttributeTemplate.attributesTitle')}
               </h3>
@@ -307,7 +307,7 @@ export default function ProductAttributeTemplateForm({
                       <Tag className='size-3.5 text-indigo-500 shrink-0' />
                       <span className='font-medium truncate'>{item.name}</span>
                     </div>
-                    <span className='text-[11px] font-mono text-muted-foreground shrink-0 ml-2'>
+                    <span className='text-xs font-mono text-muted-foreground shrink-0 ml-2'>
                       {item.id}
                     </span>
                   </div>
@@ -372,7 +372,7 @@ export default function ProductAttributeTemplateForm({
                     <div className='flex items-center justify-between gap-3 p-2.5 px-3 rounded-lg border-2 border-indigo-500 bg-white dark:bg-zinc-900 shadow-xl ring-4 ring-indigo-500/10 cursor-grabbing opacity-95'>
                       <div className='flex items-center gap-2.5 min-w-0'>
                         <GripVertical className='size-4 text-indigo-500' />
-                        <span className='size-5 rounded bg-indigo-50 dark:bg-indigo-950 text-[11px] font-semibold text-indigo-600 dark:text-indigo-400 flex items-center justify-center shrink-0'>
+                        <span className='size-5 rounded bg-indigo-50 dark:bg-indigo-950 text-xs font-semibold text-indigo-600 dark:text-indigo-400 flex items-center justify-center shrink-0'>
                           {attributeIds.indexOf(activeDragId) + 1}
                         </span>
                         <div className='flex items-center gap-2 min-w-0'>
@@ -381,7 +381,7 @@ export default function ProductAttributeTemplateForm({
                             {attributeDetailsMap[activeDragId]?.name || activeDragId}
                           </span>
                         </div>
-                        <Badge variant='outline' className='text-[10px] font-mono text-muted-foreground shrink-0'>
+                        <Badge size='micro' variant='outline' className='font-mono text-muted-foreground shrink-0'>
                           {activeDragId}
                         </Badge>
                       </div>

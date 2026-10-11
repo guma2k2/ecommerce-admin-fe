@@ -122,7 +122,7 @@ export function AppSidebar() {
           </div>
           <div className='flex flex-col overflow-hidden group-data-[collapsible=icon]:hidden'>
             <span className='font-bold text-sm text-sidebar-foreground truncate'>E-Commerce</span>
-            <span className='text-[11px] text-muted-foreground truncate'>Admin Dashboard</span>
+            <span className='text-xs text-muted-foreground truncate'>Admin Dashboard</span>
           </div>
         </Link>
       </SidebarHeader>

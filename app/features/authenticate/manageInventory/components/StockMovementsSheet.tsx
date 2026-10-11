@@ -72,32 +72,32 @@ export default function StockMovementsSheet({
     switch (type) {
       case 'ADJUSTMENT':
         return (
-          <Badge className='bg-blue-500/15 text-blue-700 dark:text-blue-400 border border-blue-500/20 text-[11px] px-2 py-0'>
+          <Badge className='bg-blue-500/15 text-blue-700 dark:text-blue-400 border border-blue-500/20 text-xs px-2 py-0.5'>
             {t('inventory.types.ADJUSTMENT')}
           </Badge>
         )
       case 'CYCLE_COUNT':
         return (
-          <Badge className='bg-purple-500/15 text-purple-700 dark:text-purple-400 border border-purple-500/20 text-[11px] px-2 py-0'>
+          <Badge className='bg-purple-500/15 text-purple-700 dark:text-purple-400 border border-purple-500/20 text-xs px-2 py-0.5'>
             {t('inventory.types.CYCLE_COUNT')}
           </Badge>
         )
       case 'ORDER_DEDUCTION':
         return (
-          <Badge className='bg-rose-500/15 text-rose-700 dark:text-rose-400 border border-rose-500/20 text-[11px] px-2 py-0'>
+          <Badge className='bg-rose-500/15 text-rose-700 dark:text-rose-400 border border-rose-500/20 text-xs px-2 py-0.5'>
             {t('inventory.types.ORDER_DEDUCTION')}
           </Badge>
         )
       case 'RESERVATION_RELEASE':
         return (
-          <Badge className='bg-amber-500/15 text-amber-700 dark:text-amber-400 border border-amber-500/20 text-[11px] px-2 py-0'>
+          <Badge className='bg-amber-500/15 text-amber-700 dark:text-amber-400 border border-amber-500/20 text-xs px-2 py-0.5'>
             {t('inventory.types.RESERVATION_RELEASE')}
           </Badge>
         )
       case 'INITIALIZATION':
       default:
         return (
-          <Badge className='bg-zinc-500/15 text-zinc-700 dark:text-zinc-400 border border-zinc-500/20 text-[11px] px-2 py-0'>
+          <Badge className='bg-zinc-500/15 text-zinc-700 dark:text-zinc-400 border border-zinc-500/20 text-xs px-2 py-0.5'>
             {t('inventory.types.INITIALIZATION')}
           </Badge>
         )
@@ -215,18 +215,18 @@ export default function StockMovementsSheet({
                   {(entry.referenceId || entry.note) && (
                     <div className='text-xs text-muted-foreground flex flex-wrap items-center gap-2'>
                       {entry.referenceId && (
-                        <span className='font-mono bg-gray-100 dark:bg-zinc-800 px-1.5 py-0.5 rounded text-[11px] text-gray-700 dark:text-gray-300'>
+                        <span className='font-mono bg-gray-100 dark:bg-zinc-800 px-1.5 py-0.5 rounded text-xs text-foreground'>
                           Ref: {entry.referenceId}
                         </span>
                       )}
                       {entry.note && (
-                        <span className='italic text-muted-foreground text-[11px]'>{entry.note}</span>
+                        <span className='italic text-muted-foreground text-xs'>{entry.note}</span>
                       )}
                     </div>
                   )}
 
                   {/* Footer: Performed By and Formatted Date */}
-                  <div className='flex items-center justify-between text-[11px] text-muted-foreground pt-1 border-t border-gray-100 dark:border-zinc-800/60'>
+                  <div className='flex items-center justify-between text-xs text-muted-foreground pt-1 border-t border-gray-100 dark:border-zinc-800/60'>
                     <span className='flex items-center gap-1 truncate max-w-[240px]'>
                       <User className='size-3' aria-hidden='true' />
                       {entry.performedBy || 'SYSTEM'}

@@ -81,7 +81,7 @@ export default function AccountProfileCard({
           </div>
 
           <div className='space-y-1 w-full'>
-            <h2 className='text-xl font-bold text-gray-900 dark:text-gray-100 truncate'>
+            <h2 className='text-lg font-semibold tracking-tight text-foreground truncate'>
               {userName}
             </h2>
             <p className='text-sm text-muted-foreground truncate'>{userEmail}</p>
