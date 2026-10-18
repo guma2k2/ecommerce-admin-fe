@@ -1,4 +1,4 @@
-import { SlidersHorizontal, ArrowUpDown, ArrowUp, ArrowDown, Sparkles } from "lucide-react"
+import { SlidersHorizontal, ArrowUpDown, ArrowUp, ArrowDown, Sparkles, Calendar } from "lucide-react"
 import { useTranslation } from "react-i18next"
 import type { ProductOptionResponse, SortDirection, ProductOptionSortField } from "~/shared/types"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "~/core/components/shadcn/table"
@@ -6,7 +6,7 @@ import { Checkbox } from "~/core/components/shadcn/checkbox"
 import { Button } from "~/core/components/shadcn/button"
 import { Badge } from "~/core/components/shadcn/badge"
 import { Skeleton } from "~/core/components/shadcn/skeleton"
-import { cn } from "~/shared/utils/appUtils"
+import { cn, formatDateParts } from "~/shared/utils/appUtils"
 
 export type { ProductOptionSortField }
 
@@ -88,6 +88,32 @@ export default function ProductOptionTable({
                 {renderSortIcon("name")}
               </Button>
             </TableHead>
+
+            {/* Created At Column */}
+            <TableHead className='w-[200px]'>
+              <Button
+                variant='ghost'
+                size='sm'
+                onClick={() => onSort("createdAt")}
+                className='-ml-2 h-8 font-semibold text-gray-700 dark:text-gray-200 hover:text-gray-900 dark:hover:text-white'
+              >
+                {t("productOption.createdAt")}
+                {renderSortIcon("createdAt")}
+              </Button>
+            </TableHead>
+
+            {/* Updated At Column */}
+            <TableHead className='w-[200px] hidden sm:table-cell'>
+              <Button
+                variant='ghost'
+                size='sm'
+                onClick={() => onSort("updatedAt")}
+                className='-ml-2 h-8 font-semibold text-gray-700 dark:text-gray-200 hover:text-gray-900 dark:hover:text-white'
+              >
+                {t("productOption.updatedAt")}
+                {renderSortIcon("updatedAt")}
+              </Button>
+            </TableHead>
           </TableRow>
         </TableHeader>
 
@@ -107,11 +133,17 @@ export default function ProductOptionTable({
                     <Skeleton className='h-4 w-32' />
                   </div>
                 </TableCell>
+                <TableCell className='py-4'>
+                  <Skeleton className='h-4 w-28' />
+                </TableCell>
+                <TableCell className='py-4 hidden sm:table-cell'>
+                  <Skeleton className='h-4 w-28' />
+                </TableCell>
               </TableRow>
             ))
           ) : options.length === 0 ? (
             <TableRow>
-              <TableCell colSpan={3} className='text-center py-12'>
+              <TableCell colSpan={5} className='text-center py-12'>
                 <div className='flex flex-col items-center justify-center gap-2'>
                   <div className='w-12 h-12 rounded-full bg-gray-100 dark:bg-zinc-800 flex items-center justify-center text-muted-foreground'>
                     <SlidersHorizontal className='size-6' />
@@ -126,6 +158,8 @@ export default function ProductOptionTable({
           ) : (
             options.map((option) => {
               const isSelected = selectedIds.includes(option.id)
+              const created = formatDateParts(option.createdAt)
+              const updated = formatDateParts(option.updatedAt)
 
               return (
                 <TableRow
@@ -172,6 +206,28 @@ export default function ProductOptionTable({
                           <Sparkles className='size-2.5 text-amber-500' />
                           Standard
                         </Badge>
+                      )}
+                    </div>
+                  </TableCell>
+
+                  {/* Created At */}
+                  <TableCell className='py-4 text-xs text-gray-600 dark:text-gray-400'>
+                    <div className='flex items-center gap-1.5'>
+                      <Calendar className='size-3.5 text-muted-foreground shrink-0' />
+                      <span>{created.dateStr}</span>
+                      {created.timeStr && (
+                        <span className='text-gray-400 dark:text-gray-500 font-mono'>{created.timeStr}</span>
+                      )}
+                    </div>
+                  </TableCell>
+
+                  {/* Updated At */}
+                  <TableCell className='py-4 text-xs text-gray-600 dark:text-gray-400 hidden sm:table-cell'>
+                    <div className='flex items-center gap-1.5'>
+                      <Calendar className='size-3.5 text-muted-foreground shrink-0' />
+                      <span>{updated.dateStr}</span>
+                      {updated.timeStr && (
+                        <span className='text-gray-400 dark:text-gray-500 font-mono'>{updated.timeStr}</span>
                       )}
                     </div>
                   </TableCell>
