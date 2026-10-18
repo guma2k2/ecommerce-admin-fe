@@ -151,8 +151,31 @@ export default function InventoryTable({
               <TableHead className='font-semibold text-center'>
                 {t('inventory.status')}
               </TableHead>
+              <TableHead className='font-semibold text-center hidden lg:table-cell'>
+                <div className='flex justify-center'>
+                  <Button
+                    variant='ghost'
+                    size='sm'
+                    onClick={() => onSort?.('createdAt')}
+                    className='h-8 font-semibold text-gray-700 dark:text-gray-200 hover:text-gray-900 dark:hover:text-white'
+                  >
+                    {t('inventory.createdAt')}
+                    {renderSortIcon('createdAt')}
+                  </Button>
+                </div>
+              </TableHead>
               <TableHead className='font-semibold text-center hidden md:table-cell'>
-                {t('inventory.lastUpdated')}
+                <div className='flex justify-center'>
+                  <Button
+                    variant='ghost'
+                    size='sm'
+                    onClick={() => onSort?.('updatedAt')}
+                    className='h-8 font-semibold text-gray-700 dark:text-gray-200 hover:text-gray-900 dark:hover:text-white'
+                  >
+                    {t('inventory.lastUpdated')}
+                    {renderSortIcon('updatedAt')}
+                  </Button>
+                </div>
               </TableHead>
               <TableHead className='font-semibold text-right pr-6'>
                 {t('inventory.actions')}
@@ -182,6 +205,9 @@ export default function InventoryTable({
                   <TableCell className='text-center'>
                     <Skeleton className='h-5 w-20 mx-auto rounded-full' />
                   </TableCell>
+                  <TableCell className='text-center hidden lg:table-cell'>
+                    <Skeleton className='h-4 w-28 mx-auto' />
+                  </TableCell>
                   <TableCell className='text-center hidden md:table-cell'>
                     <Skeleton className='h-4 w-28 mx-auto' />
                   </TableCell>
@@ -196,7 +222,7 @@ export default function InventoryTable({
               ))
             ) : inventories.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={7} className='h-48 text-center'>
+                <TableCell colSpan={8} className='h-48 text-center'>
                   <div className='flex flex-col items-center justify-center gap-2 text-muted-foreground'>
                     <PackageX className='size-9 stroke-[1.5]' aria-hidden='true' />
                     <p className='font-medium text-gray-900 dark:text-gray-100 text-sm'>
@@ -262,9 +288,14 @@ export default function InventoryTable({
                     {getStatusBadge(item)}
                   </TableCell>
 
+                  {/* Created At */}
+                  <TableCell className='text-center text-xs text-muted-foreground hidden lg:table-cell'>
+                    {formatDateTime(item.createdAt)}
+                  </TableCell>
+
                   {/* Last Updated */}
                   <TableCell className='text-center text-xs text-muted-foreground hidden md:table-cell'>
-                    {formatDateTime(item.updatedAt || item.createdAt)}
+                    {formatDateTime(item.updatedAt)}
                   </TableCell>
 
                   {/* Operational Action Buttons */}

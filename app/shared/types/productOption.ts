@@ -3,6 +3,8 @@ import type { PageResponse, SortDirection } from './pagination'
 export interface ProductOptionResponse {
   id: number
   name: string
+  createdAt?: string | null
+  updatedAt?: string | null
 }
 
 export interface ProductOptionCreateRequest {
@@ -31,4 +33,4 @@ export interface GetProductOptionsParams {
 
 export type PaginatedProductOptionsResponse = PageResponse<ProductOptionResponse>
 
-export type ProductOptionSortField = 'id' | 'name'
+export type ProductOptionSortField = 'id' | 'name' | 'createdAt' | 'updatedAt'

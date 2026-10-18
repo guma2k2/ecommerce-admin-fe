@@ -117,6 +117,30 @@ export function formatDateTime(isoString?: string | null): string {
 }
 
 /**
+ * Split ISO datetime into formatted date and time strings.
+ */
+export function formatDateParts(isoString?: string | null): { dateStr: string; timeStr: string } {
+  if (!isoString) return { dateStr: '-', timeStr: '' }
+  try {
+    const d = new Date(isoString)
+    if (isNaN(d.getTime())) return { dateStr: isoString, timeStr: '' }
+    const dateStr = d.toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: '2-digit'
+    })
+    const timeStr = d.toLocaleTimeString('en-US', {
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: true
+    })
+    return { dateStr, timeStr }
+  } catch {
+    return { dateStr: isoString, timeStr: '' }
+  }
+}
+
+/**
  * Checks if a URL or filename represents a video.
  */
 export function isVideoUrl(url?: string): boolean {

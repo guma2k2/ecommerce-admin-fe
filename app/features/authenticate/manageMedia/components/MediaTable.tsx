@@ -84,6 +84,7 @@ export default function MediaTable({ mediaList, isLoading, onPreview }: MediaTab
               <TableHead>Status</TableHead>
               <TableHead>URL</TableHead>
               <TableHead>Created At</TableHead>
+              <TableHead>Updated At</TableHead>
               <TableHead className='text-right'>Actions</TableHead>
             </TableRow>
           </TableHeader>
@@ -96,6 +97,7 @@ export default function MediaTable({ mediaList, isLoading, onPreview }: MediaTab
                 <TableCell><Skeleton className='h-5 w-16' /></TableCell>
                 <TableCell><Skeleton className='h-5 w-16' /></TableCell>
                 <TableCell><Skeleton className='h-5 w-32' /></TableCell>
+                <TableCell><Skeleton className='h-5 w-24' /></TableCell>
                 <TableCell><Skeleton className='h-5 w-24' /></TableCell>
                 <TableCell className='text-right'><Skeleton className='h-8 w-8 ml-auto rounded-full' /></TableCell>
               </TableRow>
@@ -131,7 +133,8 @@ export default function MediaTable({ mediaList, isLoading, onPreview }: MediaTab
             <TableHead className='font-semibold text-gray-700 dark:text-gray-200'>Size</TableHead>
             <TableHead className='font-semibold text-gray-700 dark:text-gray-200'>Status</TableHead>
             <TableHead className='font-semibold text-gray-700 dark:text-gray-200 min-w-[180px]'>URL</TableHead>
-            <TableHead className='font-semibold text-gray-700 dark:text-gray-200'>Created</TableHead>
+            <TableHead className='font-semibold text-gray-700 dark:text-gray-200 whitespace-nowrap'>Created At</TableHead>
+            <TableHead className='font-semibold text-gray-700 dark:text-gray-200 whitespace-nowrap'>Updated At</TableHead>
             <TableHead className='font-semibold text-gray-700 dark:text-gray-200 text-right pr-6'>Actions</TableHead>
           </TableRow>
         </TableHeader>
@@ -244,7 +247,12 @@ export default function MediaTable({ mediaList, isLoading, onPreview }: MediaTab
 
                 {/* Created At */}
                 <TableCell className='text-xs text-gray-600 dark:text-zinc-400 whitespace-nowrap font-mono'>
-                  {formatDateTime(item.createdAt)}
+                  {item.createdAt ? formatDateTime(item.createdAt) : '—'}
+                </TableCell>
+
+                {/* Updated At */}
+                <TableCell className='text-xs text-gray-600 dark:text-zinc-400 whitespace-nowrap font-mono'>
+                  {item.updatedAt ? formatDateTime(item.updatedAt) : '—'}
                 </TableCell>
 
                 {/* Actions */}
