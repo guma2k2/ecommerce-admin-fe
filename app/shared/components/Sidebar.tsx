@@ -11,12 +11,13 @@ import {
   Package,
   SlidersHorizontal,
   Store,
-  Tags
-} from 'lucide-react'
-import { useTranslation } from 'react-i18next'
-import { Link, useLocation } from 'react-router'
+  Tags,
+  TicketPercent
+} from "lucide-react"
+import { useTranslation } from "react-i18next"
+import { Link, useLocation } from "react-router"
 
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '~/core/components/shadcn/collapsible'
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "~/core/components/shadcn/collapsible"
 import {
   Sidebar,
   SidebarContent,
@@ -30,8 +31,8 @@ import {
   SidebarMenuSub,
   SidebarMenuSubButton,
   SidebarMenuSubItem
-} from '~/core/components/shadcn/sidebar'
-import { cn } from '~/shared/utils/appUtils'
+} from "~/core/components/shadcn/sidebar"
+import { cn } from "~/shared/utils/appUtils"
 
 interface NavSubItem {
   title: string
@@ -52,58 +53,63 @@ export function AppSidebar() {
 
   const navItems: NavItem[] = [
     {
-      title: t('label.dashboard'),
-      url: '/admin',
+      title: t("label.dashboard"),
+      url: "/admin",
       icon: LayoutDashboard
     },
     {
-      title: t('label.catalog'),
+      title: t("label.catalog"),
       icon: FolderKanban,
       items: [
         {
-          title: t('label.category'),
-          url: '/admin/manage-category',
+          title: t("label.category"),
+          url: "/admin/manage-category",
           icon: FolderTree
         },
         {
-          title: t('label.brand'),
-          url: '/admin/manage-brand',
+          title: t("label.brand"),
+          url: "/admin/manage-brand",
           icon: Award
         },
         {
-          title: t('label.productAttribute'),
-          url: '/admin/manage-product-attribute',
+          title: t("label.productAttribute"),
+          url: "/admin/manage-product-attribute",
           icon: Tags
         },
         {
-          title: t('label.productAttributeTemplate'),
-          url: '/admin/manage-product-attribute-template',
+          title: t("label.productAttributeTemplate"),
+          url: "/admin/manage-product-attribute-template",
           icon: SlidersHorizontal
         },
         {
-          title: t('label.productOption'),
-          url: '/admin/manage-product-option',
+          title: t("label.productOption"),
+          url: "/admin/manage-product-option",
           icon: Component
         },
         {
-          title: t('label.product'),
-          url: '/admin/manage-product',
+          title: t("label.product"),
+          url: "/admin/manage-product",
           icon: Package
         },
         {
-          title: t('label.inventory'),
-          url: '/admin/manage-inventory',
+          title: t("label.inventory"),
+          url: "/admin/manage-inventory",
           icon: Boxes
+        },
+        {
+          title: t("label.promotion", "Promotion"),
+          url: "/admin/manage-promotion",
+          icon: TicketPercent
         }
       ]
     },
     {
-      title: t('label.content'),
+      title: t("label.content"),
       icon: FileText,
       items: [
         {
-          title: t('label.media'),
-          url: '/admin/manage-media',
+          title: t("label.media"),
+          url: "/admin/manage-media",
           icon: Image
         }
       ]
@@ -129,7 +135,7 @@ export function AppSidebar() {
 
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel>{t('label.application')}</SidebarGroupLabel>
+          <SidebarGroupLabel>{t("label.application")}</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {navItems.map((item) => {
@@ -138,7 +144,7 @@ export function AppSidebar() {
                   return (
                     <SidebarMenuItem key={item.title}>
                       <SidebarMenuButton asChild isActive={isActive} tooltip={item.title}>
-                        <Link to={item.url || '#'}>
+                        <Link to={item.url || "#"}>
                           {item.icon && <item.icon />}
                           <span>{item.title}</span>
                         </Link>
@@ -148,7 +154,7 @@ export function AppSidebar() {
                 }
 
                 const isGroupActive = item.items.some(
-                  (sub) => location.pathname === sub.url || location.pathname.startsWith(sub.url + '/')
+                  (sub) => location.pathname === sub.url || location.pathname.startsWith(sub.url + "/")
                 )
 
                 return (
@@ -159,9 +165,9 @@ export function AppSidebar() {
                           tooltip={item.title}
                           isActive={isGroupActive}
                           className={cn(
-                            'transition-colors',
+                            "transition-colors",
                             isGroupActive &&
-                              'font-medium text-sidebar-foreground data-[active=true]:bg-transparent data-[active=true]:text-sidebar-foreground data-[active=true]:shadow-none data-[active=true]:[&>svg]:text-sidebar-foreground group-data-[collapsible=icon]:data-[active=true]:bg-primary group-data-[collapsible=icon]:data-[active=true]:text-primary-foreground group-data-[collapsible=icon]:data-[active=true]:[&>svg]:text-primary-foreground'
+                              "font-medium text-sidebar-foreground data-[active=true]:bg-transparent data-[active=true]:text-sidebar-foreground data-[active=true]:shadow-none data-[active=true]:[&>svg]:text-sidebar-foreground group-data-[collapsible=icon]:data-[active=true]:bg-primary group-data-[collapsible=icon]:data-[active=true]:text-primary-foreground group-data-[collapsible=icon]:data-[active=true]:[&>svg]:text-primary-foreground"
                           )}
                         >
                           {item.icon && <item.icon />}
@@ -173,7 +179,7 @@ export function AppSidebar() {
                         <SidebarMenuSub>
                           {item.items.map((subItem) => {
                             const isSubActive =
-                              location.pathname === subItem.url || location.pathname.startsWith(subItem.url + '/')
+                              location.pathname === subItem.url || location.pathname.startsWith(subItem.url + "/")
                             return (
                               <SidebarMenuSubItem key={subItem.title}>
                                 <SidebarMenuSubButton asChild isActive={isSubActive}>
