@@ -168,6 +168,7 @@ export default function ManagePromotionPage() {
             pageSize={pageSize}
             totalElements={totalElements}
             totalPages={totalPages}
+            itemLabel={t("promotion.managementTitle", "promotions").toLowerCase()}
             onPageChange={handlePageChange}
             onPageSizeChange={handlePageSizeChange}
           />

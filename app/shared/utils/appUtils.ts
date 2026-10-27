@@ -141,6 +141,99 @@ export function formatDateParts(isoString?: string | null): { dateStr: string; t
 }
 
 /**
+ * Formats a date range into a concise, readable string.
+ * Example: 'Oct 27, 2026 – Dec 12, 2026' or 'Oct 27 – Dec 12, 2026'
+ */
+export function formatDateRange(startDateStr?: string | null, endDateStr?: string | null): string {
+  if (!startDateStr && !endDateStr) return '-'
+  if (!startDateStr) return formatDateParts(endDateStr).dateStr
+  if (!endDateStr) return formatDateParts(startDateStr).dateStr
+
+  const start = new Date(startDateStr)
+  const end = new Date(endDateStr)
+
+  if (isNaN(start.getTime()) || isNaN(end.getTime())) {
+    return `${formatDateParts(startDateStr).dateStr} – ${formatDateParts(endDateStr).dateStr}`
+  }
+
+  const startYear = start.getFullYear()
+  const endYear = end.getFullYear()
+
+  if (startYear === endYear) {
+    const startMonthDay = start.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+    const endFull = end.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+    return `${startMonthDay} – ${endFull}`
+  }
+
+  const startFull = start.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+  const endFull = end.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+  return `${startFull} – ${endFull}`
+}
+
+export interface PromotionTimeStatus {
+  state: 'expired' | 'upcoming' | 'ending_today' | 'ending_tomorrow' | 'ending_soon' | 'active' | 'inactive'
+  daysRemaining?: number
+  daysUntilStart?: number
+  isExpired: boolean
+  isUpcoming: boolean
+}
+
+/**
+ * Calculates the relative time status of a promotion.
+ */
+export function getPromotionTimeStatus(
+  startDateStr?: string | null,
+  endDateStr?: string | null,
+  isActive: boolean = true
+): PromotionTimeStatus {
+  if (!startDateStr || !endDateStr) {
+    return { state: isActive ? 'active' : 'inactive', isExpired: false, isUpcoming: false }
+  }
+
+  const now = new Date()
+  const start = new Date(startDateStr)
+  const end = new Date(endDateStr)
+
+  if (isNaN(start.getTime()) || isNaN(end.getTime())) {
+    return { state: isActive ? 'active' : 'inactive', isExpired: false, isUpcoming: false }
+  }
+
+  if (end.getTime() < now.getTime()) {
+    return { state: 'expired', isExpired: true, isUpcoming: false }
+  }
+
+  if (start.getTime() > now.getTime()) {
+    const diffTime = start.getTime() - now.getTime()
+    const daysUntilStart = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
+    return {
+      state: 'upcoming',
+      daysUntilStart,
+      isExpired: false,
+      isUpcoming: true
+    }
+  }
+
+  if (!isActive) {
+    return { state: 'inactive', isExpired: false, isUpcoming: false }
+  }
+
+  const diffEnd = end.getTime() - now.getTime()
+  const daysRemaining = Math.ceil(diffEnd / (1000 * 60 * 60 * 24))
+
+  if (daysRemaining <= 0) {
+    return { state: 'ending_today', daysRemaining: 0, isExpired: false, isUpcoming: false }
+  }
+  if (daysRemaining === 1) {
+    return { state: 'ending_tomorrow', daysRemaining: 1, isExpired: false, isUpcoming: false }
+  }
+  if (daysRemaining <= 3) {
+    return { state: 'ending_soon', daysRemaining, isExpired: false, isUpcoming: false }
+  }
+
+  return { state: 'active', daysRemaining, isExpired: false, isUpcoming: false }
+}
+
+/**
  * Checks if a URL or filename represents a video.
  */
 export function isVideoUrl(url?: string): boolean {

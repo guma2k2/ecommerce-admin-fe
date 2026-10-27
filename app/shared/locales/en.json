@@ -64,6 +64,7 @@
     "uploadSuccess": "Successfully uploaded file",
     "uploadFailed": "Failed to upload file. Please try again.",
     "urlCopied": "Media URL copied to clipboard!",
+    "couponCopied": "Coupon code copied to clipboard!",
     "inventoryRefreshed": "Refreshed inventory list",
     "stockAdjusted": "Stock adjusted successfully",
     "cycleCountUpdated": "Physical cycle count recorded successfully"
@@ -300,7 +301,7 @@
     "added": "Added"
   },
   "pagination": {
-    "showing": "Showing {{start}} to {{end}} of {{total}} brands",
+    "showing": "Showing {{start}} to {{end}} of {{total}} items",
     "perPage": "Per page:"
   },
   "validation": {
@@ -464,12 +465,30 @@
     "usageSchedule": "Usage & Schedule",
     "createTitle": "Create Promotion",
     "editTitle": "Edit Promotion",
-    "description": "Description"
+    "description": "Description",
+    "redeemed": "redeemed",
+    "noLimit": "No limit",
+    "daysRemaining": "{{count}} days remaining",
+    "daysRemaining_one": "1 day remaining",
+    "daysLeft": "{{count}} days left",
+    "daysLeft_one": "1 day left",
+    "endsToday": "Ends today",
+    "endsTomorrow": "Ends tomorrow",
+    "startsIn": "Starts in {{count}} days",
+    "startsIn_one": "Starts in 1 day",
+    "startsTomorrow": "Starts tomorrow",
+    "scope": {
+      "order": "Entire Order",
+      "product": "Products",
+      "category": "Categories",
+      "brand": "Brands"
+    }
   },
   "status": {
     "active": "Active",
     "inactive": "Inactive",
-    "expired": "Expired"
+    "expired": "Expired",
+    "upcoming": "Upcoming"
   },
   "errors": {
     "coupon_code_already_exists": "Coupon code already exists",
