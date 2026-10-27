@@ -64,6 +64,7 @@
     "uploadSuccess": "Tải lên tệp thành công",
     "uploadFailed": "Tải lên tệp thất bại. Vui lòng thử lại.",
     "urlCopied": "Đã sao chép URL media vào khay nhớ tạm!",
+    "couponCopied": "Đã sao chép mã giảm giá vào khay nhớ tạm!",
     "inventoryRefreshed": "Đã làm mới danh sách kho hàng",
     "stockAdjusted": "Điều chỉnh tồn kho thành công",
     "cycleCountUpdated": "Ghi nhận kiểm kê thực tế thành công"
@@ -300,7 +301,7 @@
     "added": "Đã thêm"
   },
   "pagination": {
-    "showing": "Hiển thị {{start}} đến {{end}} trong tổng số {{total}} thương hiệu",
+    "showing": "Hiển thị {{start}} đến {{end}} trong tổng số {{total}} mục",
     "perPage": "Mỗi trang:"
   },
   "validation": {
@@ -464,12 +465,27 @@
     "usageSchedule": "Lượt dùng & Thời gian",
     "createTitle": "Tạo khuyến mãi",
     "editTitle": "Chỉnh sửa khuyến mãi",
-    "description": "Mô tả"
+    "description": "Mô tả",
+    "redeemed": "đã dùng",
+    "noLimit": "Không giới hạn",
+    "daysRemaining": "Còn {{count}} ngày",
+    "daysLeft": "Còn {{count}} ngày",
+    "endsToday": "Hết hạn hôm nay",
+    "endsTomorrow": "Hết hạn ngày mai",
+    "startsIn": "Bắt đầu sau {{count}} ngày",
+    "startsTomorrow": "Bắt đầu vào ngày mai",
+    "scope": {
+      "order": "Toàn bộ đơn",
+      "product": "Sản phẩm",
+      "category": "Danh mục",
+      "brand": "Thương hiệu"
+    }
   },
   "status": {
     "active": "Hoạt động",
     "inactive": "Tạm dừng",
-    "expired": "Hết hạn"
+    "expired": "Hết hạn",
+    "upcoming": "Sắp diễn ra"
   },
   "errors": {
     "coupon_code_already_exists": "Mã giảm giá đã tồn tại",
