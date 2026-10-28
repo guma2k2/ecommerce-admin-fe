@@ -142,7 +142,6 @@ export default function PromotionForm({
             control={control}
             name='name'
             label={t("promotion.name", "Promotion Name")}
-            placeholder='e.g. Summer Festival 2026'
           />
 
           <div className='space-y-1.5'>
@@ -159,7 +158,7 @@ export default function PromotionForm({
                 {t("button.generate", "Generate")}
               </Button>
             </div>
-            <FormInput control={control} name='slug' placeholder='summer-festival-2026' />
+            <FormInput control={control} name='slug' />
           </div>
         </div>
 
@@ -168,7 +167,6 @@ export default function PromotionForm({
             control={control}
             name='couponCode'
             label={t("promotion.couponCode", "Coupon Code")}
-            placeholder='SUMMER20'
             onChange={(e) => {
               setValue("couponCode", e.target.value.toUpperCase())
             }}
@@ -183,7 +181,6 @@ export default function PromotionForm({
           control={control}
           name='description'
           label={t("promotion.description", "Description")}
-          placeholder='Campaign notes...'
           rows={2}
         />
       </div>
@@ -229,7 +226,6 @@ export default function PromotionForm({
                 step='0.1'
                 min='0.01'
                 max='100'
-                placeholder='20'
               />
               <FormInput
                 control={control}
@@ -237,7 +233,6 @@ export default function PromotionForm({
                 label={t("promotion.maxDiscountAmount", "Max Discount Cap ($)")}
                 type='number'
                 step='0.01'
-                placeholder='50.00'
               />
             </>
           ) : (
@@ -248,7 +243,6 @@ export default function PromotionForm({
               type='number'
               step='0.01'
               min='0.01'
-              placeholder='15.00'
             />
           )}
 
@@ -258,7 +252,6 @@ export default function PromotionForm({
             label={t("promotion.minPurchase", "Minimum Purchase ($)")}
             type='number'
             step='0.01'
-            placeholder='75.00'
           />
         </div>
       </div>
@@ -299,7 +292,6 @@ export default function PromotionForm({
               label={t("promotion.usageLimit", "Total Limit")}
               type='number'
               min='1'
-              placeholder='500'
             />
           )}
 
@@ -309,7 +301,6 @@ export default function PromotionForm({
             label={t("promotion.limitPerCustomer", "Limit Per Customer")}
             type='number'
             min='1'
-            placeholder='1'
           />
         </div>
 

@@ -7,14 +7,14 @@ import {
   DollarSign,
   Edit2,
   FolderTree,
-  Infinity,
   Package,
   Percent,
   ShoppingCart,
   Tag,
   Ticket,
   Trash2,
-  Award
+  Award,
+  InfinityIcon
 } from "lucide-react"
 
 import type { PromotionListItem } from "~/shared/types"
@@ -155,7 +155,7 @@ export default function PromotionTable({
             <span className='text-2xs text-muted-foreground'>{t("promotion.redeemed", "redeemed")}</span>
           </div>
           <div className='inline-flex items-center gap-1 text-2xs text-muted-foreground/80 font-medium'>
-            <Infinity className='size-3 text-muted-foreground/70 shrink-0' />
+            <InfinityIcon className='size-3 text-muted-foreground/70 shrink-0' />
             <span>{t("promotion.noLimit", "No limit")}</span>
           </div>
         </div>
