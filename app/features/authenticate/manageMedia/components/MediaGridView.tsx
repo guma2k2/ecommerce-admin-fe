@@ -48,7 +48,6 @@ export default function MediaGridView({ mediaList, isLoading, onPreview }: Media
         </div>
         <div className='space-y-1'>
           <p className='text-base font-semibold text-gray-900 dark:text-gray-100'>No media files found</p>
-          <p className='text-sm text-muted-foreground'>Try adjusting your search query or upload a new image or video.</p>
         </div>
       </div>
     )
