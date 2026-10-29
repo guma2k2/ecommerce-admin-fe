@@ -124,9 +124,6 @@ export default function ManageMediaPage() {
               <RefreshCw className='size-3.5 text-muted-foreground animate-spin' />
             )}
           </div>
-          <p className='text-sm text-muted-foreground'>
-            Upload, organize, inspect specifications, and manage digital media assets (images & videos).
-          </p>
         </div>
 
         <div className='flex items-center gap-2 self-start sm:self-auto'>
