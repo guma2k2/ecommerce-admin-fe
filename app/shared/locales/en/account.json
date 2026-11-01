@@ -1,0 +1,40 @@
+{
+  "title": "Account Management",
+  "subtitle": "Manage your administrator account credentials, personal information, and session details.",
+  "badge": "Admin Profile & Settings",
+  "refresh": "Refresh",
+  "saving": "Saving...",
+  "saveChanges": "Save Changes",
+  "profileDetails": "Profile Details",
+  "profileDetailsDesc": "Update your public display name and avatar URL.",
+  "avatarUrl": "Avatar Image URL",
+  "avatarUrlPlaceholder": "https://images.unsplash.com/...",
+  "avatarUrlDesc": "Provide a direct HTTPS link to an image (PNG, JPG, SVG, WebP).",
+  "namePlaceholder": "e.g. John Doe",
+  "nameDesc": "This name will appear in top navigation, activity records, and greeting headers.",
+  "emailDesc": "Email address is linked to your primary login credentials and cannot be changed here.",
+  "required": "Required",
+  "optional": "Optional",
+  "readOnly": "Read-only",
+  "reset": "Reset",
+  "security": {
+    "title": "Authentication & Security",
+    "jwtTitle": "JWT Access Token",
+    "jwtDesc": "Attached to API requests via Bearer authorization.",
+    "cookieTitle": "HttpOnly Cookie",
+    "cookieDesc": "Refresh token is stored in a secure browser cookie.",
+    "refreshTitle": "Silent Token Refresh",
+    "refreshDesc": "Automatically re-authenticates expired sessions."
+  },
+  "toasts": {
+    "copiedId": "User ID copied to clipboard",
+    "copyFailed": "Failed to copy ID",
+    "refreshed": "Profile data refreshed",
+    "updated": "Profile updated successfully",
+    "updateFailed": "Failed to update profile"
+  },
+  "tooltips": {
+    "copyUserId": "Copy User ID"
+  }
+}
+

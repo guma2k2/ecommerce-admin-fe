@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react"
+import { useTranslation } from "react-i18next"
 import { useFormContext, useWatch } from "react-hook-form"
 import { Sliders, Layers, Box, Sparkles, X, ArrowRight } from "lucide-react"
 import { Button } from "~/core/components/shadcn/button"
@@ -17,6 +18,7 @@ import type { ProductFormSchema } from "~/features/authenticate/manageProduct/va
 import { cn } from "~/shared/utils/appUtils"
 
 export default function ProductAttributesCard() {
+  const { t } = useTranslation()
   const { control, setValue, getValues } = useFormContext<ProductFormSchema>()
   const attributes = useWatch({ control, name: "attributes" }) || []
   const formTemplateId = useWatch({ control, name: "attributeTemplateId" })
@@ -118,7 +120,7 @@ export default function ProductAttributesCard() {
         <div>
           <h3 className="text-base font-semibold text-gray-900 dark:text-gray-100 flex items-center gap-2">
             <Sliders className="size-4 text-primary" />
-            Attributes
+            {t("product.attributes.title")}
           </h3>
         </div>
 
@@ -130,11 +132,11 @@ export default function ProductAttributesCard() {
             disabled={isLoadingTemplates}
           >
             <SelectTrigger className="h-8.5 min-w-[210px] bg-gray-50 dark:bg-zinc-800/80 text-xs border-gray-200 dark:border-zinc-700">
-              <SelectValue placeholder={isLoadingTemplates ? "Loading templates..." : "Select Attribute Template"} />
+              <SelectValue placeholder={isLoadingTemplates ? t("product.attributes.loadingTemplates") : t("product.attributes.selectTemplate")} />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="none" className="text-xs text-muted-foreground">
-                — No Template (None) —
+                {t("product.attributes.noTemplate")}
               </SelectItem>
               {templates.map((tmpl) => (
                 <SelectItem key={String(tmpl.id)} value={String(tmpl.id)} className="text-xs font-medium">
@@ -156,7 +158,7 @@ export default function ProductAttributesCard() {
               size="sm"
               onClick={handleClearTemplate}
               className="h-8.5 px-2 text-xs text-muted-foreground hover:text-red-500"
-              title="Clear template"
+              title={t("product.attributes.clearTemplateTooltip")}
             >
               <X className="size-3.5" />
             </Button>
@@ -171,18 +173,20 @@ export default function ProductAttributesCard() {
             <Sparkles className="size-5" />
           </div>
           <p className="text-xs font-medium text-gray-700 dark:text-gray-300">
-            No attribute template selected
+            {t("product.attributes.noTemplateSelected")}
           </p>
         </div>
       ) : (
         <div className="space-y-3">
           <div className="flex items-center justify-between text-xs text-muted-foreground pb-1 px-1">
             <span className="font-medium text-gray-700 dark:text-gray-300">
-              Template: <span className="text-primary font-semibold">{selectedTemplate?.name || (formTemplateId ? `#${formTemplateId}` : "Custom / Loaded Attributes")}</span>
+              Template: <span className="text-primary font-semibold">{selectedTemplate?.name || (formTemplateId ? `#${formTemplateId}` : t("product.attributes.customLoaded"))}</span>
             </span>
             <span className="text-xs">
-              {attributes.filter((a) => a.applyTo !== "variant").length} Base Product •{" "}
-              {attributes.filter((a) => a.applyTo === "variant").length} Variant-specific
+              {t("product.attributes.summary", {
+                baseCount: attributes.filter((a) => a.applyTo !== "variant").length,
+                variantCount: attributes.filter((a) => a.applyTo === "variant").length
+              })}
             </span>
           </div>
 
@@ -224,7 +228,7 @@ export default function ProductAttributesCard() {
                       onClick={() => handleToggleApplyTo(index, "base")}
                     >
                       <Box className="size-3 text-emerald-600 dark:text-emerald-400" />
-                      <span>Base Product</span>
+                      <span>{t("product.attributes.baseProduct")}</span>
                     </Button>
                     <Button
                       type="button"
@@ -234,7 +238,7 @@ export default function ProductAttributesCard() {
                       onClick={() => handleToggleApplyTo(index, "variant")}
                     >
                       <Layers className="size-3 text-indigo-600 dark:text-indigo-400" />
-                      <span>Variant</span>
+                      <span>{t("product.attributes.variantSpecific")}</span>
                     </Button>
                   </div>
 

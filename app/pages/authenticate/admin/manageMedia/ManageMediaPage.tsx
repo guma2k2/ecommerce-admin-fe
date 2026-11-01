@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useSearchParams } from 'react-router'
 import { Image, Plus, RefreshCw, AlertCircle } from 'lucide-react'
 
@@ -14,7 +15,7 @@ import { Button } from '~/core/components/shadcn/button'
 import { Badge } from '~/core/components/shadcn/badge'
 
 export default function ManageMediaPage() {
-
+  const { t } = useTranslation()
   const [searchParams, setSearchParams] = useSearchParams()
 
   // Extract query parameters (UI uses 1-based pageNumber)
@@ -115,10 +116,10 @@ export default function ManageMediaPage() {
           <div className='flex items-center gap-2.5'>
             <Image className='size-7 text-primary' />
             <h1 className='text-2xl font-bold tracking-tight text-gray-900 dark:text-gray-50'>
-              Media Management
+              {t('media.title')}
             </h1>
             <Badge variant='secondary' className='ml-1 font-semibold text-xs'>
-              {totalElements} Assets
+              {t('media.assetsCount', { count: totalElements })}
             </Badge>
             {isFetching && !isLoading && (
               <RefreshCw className='size-3.5 text-muted-foreground animate-spin' />
@@ -135,7 +136,7 @@ export default function ManageMediaPage() {
             className='gap-1.5 h-9'
           >
             <RefreshCw className={`size-3.5 ${isFetching ? 'animate-spin' : ''}`} />
-            Refresh
+            {t('button.refresh', { defaultValue: 'Refresh' })}
           </Button>
           <Button
             onClick={() => setUploadDialogOpen(true)}
@@ -143,7 +144,7 @@ export default function ManageMediaPage() {
             className='shadow-xs gap-1.5'
           >
             <Plus className='size-4' />
-            Upload Media
+            {t('media.uploadMedia')}
           </Button>
         </div>
       </div>
@@ -153,10 +154,10 @@ export default function ManageMediaPage() {
         <div className='p-4 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900 rounded-lg text-sm text-red-800 dark:text-red-300 flex items-center justify-between gap-4'>
           <div className='flex items-center gap-2'>
             <AlertCircle className='size-4 text-red-600 shrink-0' />
-            <span>{error?.message || 'Could not fetch media list from server.'}</span>
+            <span>{error?.message || t('media.fetchError')}</span>
           </div>
           <Button variant='outline' size='sm' onClick={() => refetch()} className='h-7 text-xs border-red-300 dark:border-red-800 bg-white dark:bg-zinc-900'>
-            Try Again
+            {t('media.tryAgain')}
           </Button>
         </div>
       )}

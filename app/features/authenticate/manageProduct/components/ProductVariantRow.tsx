@@ -1,4 +1,5 @@
 import React from "react"
+import { useTranslation } from "react-i18next"
 import { Tag, ChevronDown, Trash2 } from "lucide-react"
 import { Checkbox } from "~/core/components/shadcn/checkbox"
 import { Button } from "~/core/components/shadcn/button"
@@ -51,6 +52,7 @@ export default function ProductVariantRow({
   onQuantityChange,
   onDelete
 }: ProductVariantRowProps) {
+  const { t } = useTranslation()
   const totalAttrs = variantAttributes.length
   const configuredCount = variantAttributes.filter((va) => {
     const found = variant.attributes?.find(
@@ -126,12 +128,14 @@ export default function ProductVariantRow({
                 : "text-muted-foreground hover:text-indigo-600 hover:bg-indigo-50/50 dark:hover:bg-indigo-950/30 border border-dashed border-gray-200 dark:border-zinc-700",
               isExpanded && "ring-1 ring-indigo-500 border-indigo-300 bg-indigo-50 dark:bg-indigo-950/70"
             )}
-            title="Click to view and edit specifications"
+            title={t("product.variants.specsTooltip")}
           >
             <span className="flex items-center gap-1.5 truncate">
               <Tag className="size-3 text-indigo-500 shrink-0" />
               <span className="truncate">
-                {configuredCount > 0 ? `${configuredCount}/${totalAttrs} set` : `Specs (${totalAttrs})`}
+                {configuredCount > 0
+                  ? t("product.variants.setSpecs", { setCount: configuredCount, totalCount: totalAttrs })
+                  : t("product.variants.specsCount", { count: totalAttrs })}
               </span>
             </span>
             <ChevronDown
@@ -154,7 +158,7 @@ export default function ProductVariantRow({
             disabled={canDelete === false}
             onClick={onDelete}
             className="h-7 w-7 p-0 text-muted-foreground hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30 rounded-md transition-colors"
-            title="Delete variant"
+            title={t("product.variants.deleteVariantTooltip")}
           >
             <Trash2 className="size-3.5" />
           </Button>

@@ -1,3 +1,4 @@
+import { useTranslation, Trans } from 'react-i18next'
 import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from 'lucide-react'
 
 import { Button } from '~/core/components/shadcn/button'
@@ -26,6 +27,7 @@ export default function MediaPagination({
   onPageChange,
   onPageSizeChange
 }: MediaPaginationProps) {
+  const { t } = useTranslation()
   const startItem = totalElements === 0 ? 0 : (pageNumber - 1) * pageSize + 1
   const endItem = Math.min(pageNumber * pageSize, totalElements)
 
@@ -33,16 +35,22 @@ export default function MediaPagination({
     <div className='flex flex-col sm:flex-row items-center justify-between gap-4 px-3 py-2 bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 rounded-lg shadow-2xs text-xs'>
       {/* Total items info */}
       <div className='text-muted-foreground font-mono'>
-        Showing <span className='font-semibold text-gray-900 dark:text-gray-100'>{startItem}</span> to{' '}
-        <span className='font-semibold text-gray-900 dark:text-gray-100'>{endItem}</span> of{' '}
-        <span className='font-semibold text-gray-900 dark:text-gray-100'>{totalElements}</span> items
+        <Trans
+          i18nKey='media.showingItems'
+          values={{ start: startItem, end: endItem, total: totalElements }}
+          components={{
+            1: <span className='font-semibold text-gray-900 dark:text-gray-100' />,
+            3: <span className='font-semibold text-gray-900 dark:text-gray-100' />,
+            5: <span className='font-semibold text-gray-900 dark:text-gray-100' />
+          }}
+        />
       </div>
 
       {/* Right side controls */}
       <div className='flex items-center gap-6'>
         {/* Limit selector */}
         <div className='flex items-center gap-2'>
-          <span className='text-muted-foreground whitespace-nowrap'>Rows per page:</span>
+          <span className='text-muted-foreground whitespace-nowrap'>{t('media.rowsPerPage')}</span>
           <Select value={String(pageSize)} onValueChange={(val) => onPageSizeChange(Number(val))}>
             <SelectTrigger className='h-8 w-[70px] text-xs bg-gray-50/50 dark:bg-zinc-800/50 border-gray-200 dark:border-zinc-700'>
               <SelectValue />
@@ -59,7 +67,7 @@ export default function MediaPagination({
         {/* Page controls */}
         <div className='flex items-center gap-1'>
           <span className='mr-2 text-muted-foreground font-mono'>
-            Page {pageNumber} of {totalPages}
+            {t('media.pageOf', { page: pageNumber, total: totalPages })}
           </span>
           <Button
             variant='outline'

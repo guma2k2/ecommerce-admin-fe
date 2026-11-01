@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react"
+import { useTranslation } from "react-i18next"
 import { useFormContext, useWatch } from "react-hook-form"
 import { Lock, Unlock, Sparkles } from "lucide-react"
 import { FormInput, FormTextEditor } from "~/shared/components/Form"
@@ -7,6 +8,7 @@ import { generateSlug } from "~/shared/utils"
 import type { ProductFormSchema } from "~/features/authenticate/manageProduct/validator"
 
 export default function ProductGeneralInfoCard() {
+  const { t } = useTranslation()
   const { control, setValue, getValues } = useFormContext<ProductFormSchema>()
   const [isSlugLocked, setIsSlugLocked] = useState(true)
   const name = useWatch({ control, name: "name" })
@@ -31,7 +33,7 @@ export default function ProductGeneralInfoCard() {
       <div className="flex items-center justify-between pb-2 border-b border-gray-100 dark:border-zinc-800">
         <div>
           <h3 className="text-base font-semibold text-gray-900 dark:text-gray-100">
-            Basic Information
+            {t("product.basicInfo.title")}
           </h3>
         </div>
       </div>
@@ -42,8 +44,8 @@ export default function ProductGeneralInfoCard() {
           <FormInput
             control={control}
             name="name"
-            label="Product Title *"
-            placeholder="e.g. Nike Air Max 270 React"
+            label={t("product.basicInfo.productTitleLabel")}
+            placeholder={t("product.basicInfo.productTitlePlaceholder")}
             className="text-base font-medium"
           />
         </div>
@@ -52,10 +54,10 @@ export default function ProductGeneralInfoCard() {
         <div className="space-y-1.5">
           <div className="flex items-center justify-between">
             <label className="text-xs font-medium text-gray-700 dark:text-gray-300 flex items-center gap-1.5">
-              URL Handle / Slug *
+              {t("product.basicInfo.slugLabel")}
               {isSlugLocked && (
                 <span className="text-xs text-muted-foreground font-normal">
-                  (Auto-synced with title)
+                  {t("product.basicInfo.slugAutoSynced")}
                 </span>
               )}
             </label>
@@ -68,7 +70,7 @@ export default function ProductGeneralInfoCard() {
                 className="h-6 px-2 text-xs text-primary gap-1"
               >
                 <Sparkles className="size-3" />
-                Regenerate
+                {t("product.basicInfo.regenerate")}
               </Button>
               <Button
                 type="button"
@@ -76,17 +78,17 @@ export default function ProductGeneralInfoCard() {
                 size="sm"
                 onClick={() => setIsSlugLocked((prev) => !prev)}
                 className="h-6 px-2 text-xs text-muted-foreground gap-1"
-                title={isSlugLocked ? "Unlock to edit manually" : "Lock to auto-sync"}
+                title={isSlugLocked ? t("product.basicInfo.unlockTooltip") : t("product.basicInfo.lockTooltip")}
               >
                 {isSlugLocked ? (
                   <>
                     <Lock className="size-3 text-amber-500" />
-                    Locked
+                    {t("product.basicInfo.locked")}
                   </>
                 ) : (
                   <>
                     <Unlock className="size-3 text-emerald-500" />
-                    Custom
+                    {t("product.basicInfo.custom")}
                   </>
                 )}
               </Button>
@@ -107,7 +109,7 @@ export default function ProductGeneralInfoCard() {
                   shouldDirty: true
                 })
               }}
-              placeholder="product-slug-handle"
+              placeholder={t("product.basicInfo.slugPlaceholder")}
               className="w-full bg-transparent text-xs font-mono text-gray-800 dark:text-gray-200 outline-none disabled:opacity-75 disabled:cursor-not-allowed"
             />
           </div>
@@ -117,8 +119,8 @@ export default function ProductGeneralInfoCard() {
         <FormTextEditor
           control={control}
           name="description"
-          label="Description"
-          placeholder="Detailed product description, key features, and specifications..."
+          label={t("product.basicInfo.descriptionLabel")}
+          placeholder={t("product.basicInfo.descriptionPlaceholder")}
         />
       </div>
     </div>

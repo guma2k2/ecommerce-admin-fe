@@ -1,0 +1,40 @@
+{
+  "title": "Quản lý tài khoản",
+  "subtitle": "Quản lý thông tin xác thực quản trị viên, thông tin cá nhân và chi tiết phiên đăng nhập.",
+  "badge": "Hồ sơ & Cài đặt quản trị",
+  "refresh": "Làm mới",
+  "saving": "Đang lưu...",
+  "saveChanges": "Lưu thay đổi",
+  "profileDetails": "Thông tin hồ sơ",
+  "profileDetailsDesc": "Cập nhật tên hiển thị công khai và đường dẫn ảnh đại diện.",
+  "avatarUrl": "Đường dẫn ảnh đại diện",
+  "avatarUrlPlaceholder": "https://images.unsplash.com/...",
+  "avatarUrlDesc": "Cung cấp liên kết HTTPS trực tiếp đến hình ảnh (PNG, JPG, SVG, WebP).",
+  "namePlaceholder": "vd: Nguyễn Văn A",
+  "nameDesc": "Tên này sẽ hiển thị ở thanh điều hướng, nhật ký hoạt động và lời chào.",
+  "emailDesc": "Địa chỉ email được liên kết với thông tin đăng nhập chính và không thể thay đổi tại đây.",
+  "required": "Bắt buộc",
+  "optional": "Tùy chọn",
+  "readOnly": "Chỉ đọc",
+  "reset": "Đặt lại",
+  "security": {
+    "title": "Xác thực & Bảo mật",
+    "jwtTitle": "JWT Access Token",
+    "jwtDesc": "Được đính kèm vào yêu cầu API qua ủy quyền Bearer.",
+    "cookieTitle": "HttpOnly Cookie",
+    "cookieDesc": "Mã làm mới (refresh token) được lưu trong cookie trình duyệt an toàn.",
+    "refreshTitle": "Làm mới phiên tự động",
+    "refreshDesc": "Tự động xác thực lại khi phiên làm việc hết hạn."
+  },
+  "toasts": {
+    "copiedId": "Đã sao chép ID người dùng vào clipboard",
+    "copyFailed": "Không thể sao chép ID",
+    "refreshed": "Đã làm mới dữ liệu hồ sơ",
+    "updated": "Cập nhật hồ sơ thành công",
+    "updateFailed": "Không thể cập nhật hồ sơ"
+  },
+  "tooltips": {
+    "copyUserId": "Sao chép ID người dùng"
+  }
+}
+

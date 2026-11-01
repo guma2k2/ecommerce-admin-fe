@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next"
 import { useSortable } from "@dnd-kit/sortable"
 import { CSS } from "@dnd-kit/utilities"
 import { Checkbox } from "~/core/components/shadcn/checkbox"
@@ -23,6 +24,7 @@ export default function SortableImage({
   onCheckedChange,
   isDraggingAny = false
 }: SortableImageProps) {
+  const { t } = useTranslation()
   const isUploadButton = !image.url && image.file === null
 
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
@@ -48,7 +50,7 @@ export default function SortableImage({
         <div className="w-8 h-8 rounded-full bg-white shadow-sm border border-gray-200 flex items-center justify-center group-hover:scale-110 transition-transform">
           <Plus className="w-5 h-5 text-gray-600" />
         </div>
-        <span className="text-xs font-medium text-gray-500 group-hover:text-gray-700">Add media</span>
+        <span className="text-xs font-medium text-gray-500 group-hover:text-gray-700">{t("product.media.addMedia")}</span>
       </div>
     )
   }
@@ -57,7 +59,7 @@ export default function SortableImage({
   if (image.status === "uploading") {
     return (
       <div className="relative w-full aspect-square rounded-lg border border-gray-200 bg-gray-50 flex flex-col items-center justify-center p-3 text-center select-none">
-        <span className="text-xs text-gray-500 font-medium mb-2">Uploading...</span>
+        <span className="text-xs text-gray-500 font-medium mb-2">{t("product.media.uploading")}</span>
         <div className="w-full bg-gray-200 rounded-full h-1.5 overflow-hidden">
           <div className="bg-blue-600 h-1.5 rounded-full transition-all duration-300" style={{ width: `${image.progress}%` }} />
         </div>
@@ -69,7 +71,7 @@ export default function SortableImage({
   if (image.status === "error") {
     return (
       <div className="relative w-full aspect-square rounded-lg border border-red-300 bg-red-50 flex flex-col items-center justify-center p-2 text-center select-none">
-        <span className="text-xs text-red-500 font-medium">Upload Error</span>
+        <span className="text-xs text-red-500 font-medium">{t("product.media.uploadError")}</span>
       </div>
     )
   }
@@ -111,7 +113,7 @@ export default function SortableImage({
       {/* Cover Media Badge */}
       {isCover && (
         <span className="absolute top-2 left-2 bg-black/75 text-white text-2xs font-semibold px-2 py-0.5 rounded-md backdrop-blur-sm z-10 pointer-events-none shadow-sm">
-          Cover
+          {t("product.media.cover")}
         </span>
       )}
 

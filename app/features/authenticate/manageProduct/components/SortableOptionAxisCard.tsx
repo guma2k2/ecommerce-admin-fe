@@ -1,4 +1,5 @@
 import React, { useState } from "react"
+import { useTranslation } from "react-i18next"
 import {
   closestCenter,
   DndContext,
@@ -95,6 +96,7 @@ function SortableOptionAxisCardComponent({
   onDone,
   disabledOptionNames
 }: SortableOptionAxisCardProps) {
+  const { t } = useTranslation()
   const [newValInput, setNewValInput] = useState("")
   const [activeValueId, setActiveValueId] = useState<string | null>(null)
 
@@ -192,14 +194,14 @@ function SortableOptionAxisCardComponent({
             {...listeners}
             onClick={(e) => e.stopPropagation()}
             className="text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300 cursor-grab active:cursor-grabbing hover:bg-transparent -ml-1 shrink-0 touch-none select-none"
-            title="Drag to reorder option"
+            title={t("product.variants.dragOptionTooltip")}
           >
             <GripVertical className="size-4" />
           </Button>
 
           <div className="space-y-1.5 min-w-0 flex-1">
             <div className="text-sm font-semibold text-gray-900 dark:text-gray-100 truncate group-hover:text-primary transition-colors">
-              {option.name || "Untitled Option"}
+              {option.name || t("product.variants.optionName")}
             </div>
 
             <div className="flex flex-wrap items-center gap-1.5">
@@ -228,7 +230,7 @@ function SortableOptionAxisCardComponent({
                   )
                 })}
               {(!option.values || option.values.filter((v) => v.value && v.value.trim()).length === 0) && (
-                <span className="text-xs text-muted-foreground italic">No values configured</span>
+                <span className="text-xs text-muted-foreground italic">{t("product.variants.noValuesConfigured")}</span>
               )}
             </div>
           </div>
@@ -257,7 +259,7 @@ function SortableOptionAxisCardComponent({
       <div className="space-y-1.5">
         <div className="flex items-center justify-between">
           <label className="text-xs font-medium text-gray-700 dark:text-gray-300">
-            Option name
+            {t("product.variants.optionName")}
           </label>
           <div className="size-7 rounded-md flex items-center justify-center text-blue-500 bg-blue-50/80 dark:bg-blue-950/40 border border-blue-100 dark:border-blue-900/30">
             <Database className="size-3.5" />
@@ -272,7 +274,7 @@ function SortableOptionAxisCardComponent({
             {...attributes}
             {...listeners}
             className="text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300 cursor-grab active:cursor-grabbing hover:bg-transparent -ml-1 shrink-0 touch-none select-none"
-            title="Drag to reorder option"
+            title={t("product.variants.dragOptionTooltip")}
           >
             <GripVertical className="size-4" />
           </Button>
@@ -288,8 +290,8 @@ function SortableOptionAxisCardComponent({
               getOptionLabel={(item) => item.name}
               disabledOptionIds={disabledOptionNames}
               disabledOptionBadge="Added"
-              placeholder="Select option (e.g. Size, Color, Material)"
-              searchPlaceholder="Search option name..."
+              placeholder={t("product.variants.selectOptionPlaceholder")}
+              searchPlaceholder={t("product.variants.searchOptionPlaceholder")}
               triggerClassName="h-9 text-xs"
               renderOption={(item) => (
                 <div className="flex items-center justify-between w-full pr-2">
@@ -310,7 +312,7 @@ function SortableOptionAxisCardComponent({
       {/* Option Values Section */}
       <div className="space-y-2 pt-1">
         <label className="text-xs font-medium text-gray-700 dark:text-gray-300 block">
-          Option values
+          {t("product.variants.optionValues")}
         </label>
 
         {/* Sortable List of Values */}
@@ -366,7 +368,11 @@ function SortableOptionAxisCardComponent({
               }
             }}
             onBlur={handleAddNewValue}
-            placeholder={valueItems.length === 0 ? "Add value (e.g. S, Red)" : "Add another value"}
+            placeholder={
+              valueItems.length === 0
+                ? t("product.variants.addValuePlaceholder")
+                : t("product.variants.addAnotherValue")
+            }
             className="h-9 w-full bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-700 rounded-lg text-sm text-gray-900 dark:text-gray-100 placeholder:text-gray-400 shadow-2xs focus-visible:ring-1"
           />
         </div>
@@ -385,7 +391,7 @@ function SortableOptionAxisCardComponent({
           onClick={onRemoveOption}
           className="text-red-600 dark:text-red-400 border-gray-200 dark:border-zinc-700 hover:bg-red-50 dark:hover:bg-red-950/30 hover:border-red-200 dark:hover:border-red-900 rounded-lg px-4 h-8 text-xs font-semibold"
         >
-          Delete
+          {t("button.delete")}
         </Button>
 
         <Button
@@ -398,7 +404,7 @@ function SortableOptionAxisCardComponent({
           onClick={handleDone}
           className="bg-zinc-900 hover:bg-black text-white dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-200 rounded-lg px-5 h-8 text-xs font-semibold shadow-xs"
         >
-          Done
+          {t("product.variants.done")}
         </Button>
       </div>
     </div>

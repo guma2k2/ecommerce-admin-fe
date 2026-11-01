@@ -50,10 +50,10 @@ export default function AccountProfileCard({
     try {
       await navigator.clipboard.writeText(userId)
       setCopied(true)
-      showToast('info', 'User ID copied to clipboard')
+      showToast('info', t('account.toasts.copiedId'))
       setTimeout(() => setCopied(false), 2000)
     } catch {
-      showToast('error', 'Failed to copy ID')
+      showToast('error', t('account.toasts.copyFailed'))
     }
   }
 
@@ -93,7 +93,7 @@ export default function AccountProfileCard({
                 {userRole}
               </Badge>
               <span className='inline-flex items-center gap-1 text-xs font-medium text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40 px-2 py-0.5 rounded-full border border-emerald-200 dark:border-emerald-800/50'>
-                <CheckCircle2 className='size-3' /> Active
+                <CheckCircle2 className='size-3' /> {t('status.active')}
               </span>
             </div>
           </div>
@@ -118,7 +118,7 @@ export default function AccountProfileCard({
                 size='icon-xs'
                 onClick={handleCopyId}
                 className='text-muted-foreground hover:text-gray-900 dark:hover:text-white cursor-pointer'
-                title='Copy User ID'
+                title={t('account.tooltips.copyUserId')}
               >
                 {copied ? <Check className='size-3.5 text-emerald-600' /> : <Copy className='size-3.5' />}
               </Button>
@@ -149,29 +149,26 @@ export default function AccountProfileCard({
       <div className='rounded-2xl border border-gray-200/80 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-6 shadow-xs space-y-4'>
         <div className='flex items-center gap-2.5 text-gray-900 dark:text-gray-100 font-semibold text-sm'>
           <Lock className='size-4 text-primary' />
-          <span>Authentication & Security</span>
+          <span>{t('account.security.title')}</span>
         </div>
 
         <div className='space-y-3 text-xs text-muted-foreground'>
           <div className='flex items-start gap-2.5'>
             <CheckCircle2 className='size-4 text-emerald-500 shrink-0 mt-0.5' />
             <span>
-              <strong className='text-gray-800 dark:text-gray-200 font-medium'>JWT Access Token</strong>: Attached
-              to API requests via Bearer authorization.
+              <strong className='text-gray-800 dark:text-gray-200 font-medium'>{t('account.security.jwtTitle')}</strong>: {t('account.security.jwtDesc')}
             </span>
           </div>
           <div className='flex items-start gap-2.5'>
             <CheckCircle2 className='size-4 text-emerald-500 shrink-0 mt-0.5' />
             <span>
-              <strong className='text-gray-800 dark:text-gray-200 font-medium'>HttpOnly Cookie</strong>: Refresh
-              token is stored in a secure browser cookie.
+              <strong className='text-gray-800 dark:text-gray-200 font-medium'>{t('account.security.cookieTitle')}</strong>: {t('account.security.cookieDesc')}
             </span>
           </div>
           <div className='flex items-start gap-2.5'>
             <CheckCircle2 className='size-4 text-emerald-500 shrink-0 mt-0.5' />
             <span>
-              <strong className='text-gray-800 dark:text-gray-200 font-medium'>Silent Token Refresh</strong>:
-              Automatically re-authenticates expired sessions.
+              <strong className='text-gray-800 dark:text-gray-200 font-medium'>{t('account.security.refreshTitle')}</strong>: {t('account.security.refreshDesc')}
             </span>
           </div>
         </div>

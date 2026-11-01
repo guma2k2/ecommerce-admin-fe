@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react"
+import { useTranslation } from "react-i18next"
 import { useFormContext, useWatch } from "react-hook-form"
 import { FolderTree, Tag, Eye } from "lucide-react"
 import { Button } from "~/core/components/shadcn/button"
@@ -24,6 +25,7 @@ export default function ProductClassificationCard({
   categories: initialCategories,
   brands: initialBrands
 }: ProductClassificationCardProps) {
+  const { t } = useTranslation()
   const { control, setValue } = useFormContext<ProductFormSchema>()
   const selectedCategoryId = useWatch({ control, name: "categoryId" })
   const selectedBrandId = useWatch({ control, name: "brandId" })
@@ -55,7 +57,7 @@ export default function ProductClassificationCard({
       <div className="space-y-2.5 pb-4 border-b border-gray-100 dark:border-zinc-800">
         <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
           <Eye className="size-3.5 text-primary" />
-          Status & Visibility
+          {t("product.classification.statusVisibility")}
         </h4>
 
         <div className="grid grid-cols-2 gap-2">
@@ -71,7 +73,7 @@ export default function ProductClassificationCard({
             )}
           >
             <span className="w-2 h-2 rounded-full bg-emerald-500" />
-            Active
+            {t("status.active")}
           </Button>
 
           <Button
@@ -86,7 +88,7 @@ export default function ProductClassificationCard({
             )}
           >
             <span className="w-2 h-2 rounded-full bg-amber-500" />
-            Draft
+            {t("status.draft")}
           </Button>
         </div>
       </div>
@@ -95,7 +97,7 @@ export default function ProductClassificationCard({
       <div className="space-y-2">
         <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
           <FolderTree className="size-3.5 text-primary" />
-          Category
+          {t("product.classification.category")}
         </label>
         <Select
           value={selectedCategoryId ? String(selectedCategoryId) : "none"}
@@ -105,11 +107,11 @@ export default function ProductClassificationCard({
           }}
         >
           <SelectTrigger className="w-full h-9 bg-gray-50/50 dark:bg-zinc-800/40 text-xs">
-            <SelectValue placeholder="Select Category" />
+            <SelectValue placeholder={t("product.classification.selectCategory")} />
           </SelectTrigger>
           <SelectContent className="max-h-60">
             <SelectItem value="none" className="text-xs text-muted-foreground">
-              -- None (Uncategorized) --
+              {t("product.classification.noCategory")}
             </SelectItem>
             {categories.map((cat) => {
               const hierarchyLabel = cat.parent ? `${cat.parent.name} › ${cat.name}` : cat.name
@@ -127,7 +129,7 @@ export default function ProductClassificationCard({
       <div className="space-y-2">
         <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
           <Tag className="size-3.5 text-primary" />
-          Brand
+          {t("product.classification.brand")}
         </label>
         <Select
           value={selectedBrandId ? String(selectedBrandId) : "none"}
@@ -137,11 +139,11 @@ export default function ProductClassificationCard({
           }}
         >
           <SelectTrigger className="w-full h-9 bg-gray-50/50 dark:bg-zinc-800/40 text-xs">
-            <SelectValue placeholder="Select Brand" />
+            <SelectValue placeholder={t("product.classification.selectBrand")} />
           </SelectTrigger>
           <SelectContent className="max-h-60">
             <SelectItem value="none" className="text-xs text-muted-foreground">
-              -- None (No Brand) --
+              {t("product.classification.noBrand")}
             </SelectItem>
             {brands.map((brand) => (
               <SelectItem key={brand.id} value={String(brand.id)} className="text-xs">

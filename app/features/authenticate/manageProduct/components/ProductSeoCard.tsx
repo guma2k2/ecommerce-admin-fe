@@ -1,4 +1,5 @@
 import React, { useState } from "react"
+import { useTranslation } from "react-i18next"
 import { useFormContext, useWatch } from "react-hook-form"
 import { Globe, ChevronDown, ChevronUp } from "lucide-react"
 import { Input } from "~/core/components/shadcn/input"
@@ -6,18 +7,19 @@ import { Button } from "~/core/components/shadcn/button"
 import type { ProductFormSchema } from "~/features/authenticate/manageProduct/validator"
 
 export default function ProductSeoCard() {
+  const { t } = useTranslation()
   const { control, setValue } = useFormContext<ProductFormSchema>()
   const [isOpen, setIsOpen] = useState(true)
 
-  const name = useWatch({ control, name: "name" }) || "Product Title"
+  const name = useWatch({ control, name: "name" }) || t("product.seo.pageTitle")
   const slug = useWatch({ control, name: "slug" }) || "product-handle"
   const metaTitle = useWatch({ control, name: "metaTitle" })
   const metaDescription = useWatch({ control, name: "metaDescription" })
   const metaKeyword = useWatch({ control, name: "metaKeyword" })
 
-  const displayTitle = metaTitle || name || "Product Title"
+  const displayTitle = metaTitle || name || t("product.seo.pageTitle")
   const displayDescription =
-    metaDescription || "Add a description to see how this product will appear in search engine listings."
+    metaDescription || t("product.seo.subtitle")
   const displayUrl = `https://store.com/products/${slug}`
 
   return (
@@ -26,10 +28,10 @@ export default function ProductSeoCard() {
         <div>
           <h3 className="text-base font-semibold text-gray-900 dark:text-gray-100 flex items-center gap-2">
             <Globe className="size-4 text-primary" />
-            Search Engine Optimization (SEO)
+            {t("product.seo.title")}
           </h3>
           <p className="text-xs text-muted-foreground">
-            Preview and customize how this product appears on Google and social search results.
+            {t("product.seo.subtitle")}
           </p>
         </div>
 
@@ -47,7 +49,7 @@ export default function ProductSeoCard() {
       {/* Live Google Search Snippet Preview */}
       <div className="p-4 rounded-xl bg-gray-50/80 dark:bg-zinc-800/40 border border-gray-200/80 dark:border-zinc-700/60 space-y-1">
         <span className="text-2xs font-semibold text-muted-foreground uppercase tracking-wider block mb-1">
-          Google Search Listing Preview
+          {t("product.seo.preview")}
         </span>
         <div className="text-xs text-emerald-700 dark:text-emerald-400 truncate font-mono">
           {displayUrl}
@@ -65,13 +67,13 @@ export default function ProductSeoCard() {
           {/* Page Meta Title */}
           <div className="space-y-1.5">
             <div className="flex justify-between items-center text-xs">
-              <label className="font-medium text-gray-700 dark:text-gray-300">Page Title</label>
+              <label className="font-medium text-gray-700 dark:text-gray-300">{t("product.seo.pageTitle")}</label>
               <span className="text-xs text-muted-foreground">
-                {(metaTitle || "").length} / 70 characters
+                {t("product.seo.characters", { count: (metaTitle || "").length, max: 70 })}
               </span>
             </div>
             <Input
-              placeholder={name || "Enter SEO meta title"}
+              placeholder={name || t("product.seo.pageTitlePlaceholder")}
               value={metaTitle || ""}
               onChange={(e) => setValue("metaTitle", e.target.value, { shouldDirty: true })}
               className="bg-gray-50/50 dark:bg-zinc-800/40 text-xs"
@@ -81,14 +83,14 @@ export default function ProductSeoCard() {
           {/* Meta Description */}
           <div className="space-y-1.5">
             <div className="flex justify-between items-center text-xs">
-              <label className="font-medium text-gray-700 dark:text-gray-300">Meta Description</label>
+              <label className="font-medium text-gray-700 dark:text-gray-300">{t("product.seo.metaDescription")}</label>
               <span className="text-xs text-muted-foreground">
-                {(metaDescription || "").length} / 160 characters
+                {t("product.seo.characters", { count: (metaDescription || "").length, max: 160 })}
               </span>
             </div>
             <textarea
               rows={3}
-              placeholder="Enter a brief summary for search engines"
+              placeholder={t("product.seo.metaDescriptionPlaceholder")}
               value={metaDescription || ""}
               onChange={(e) => setValue("metaDescription", e.target.value, { shouldDirty: true })}
               className="w-full rounded-md border border-gray-200 dark:border-zinc-700 bg-gray-50/50 dark:bg-zinc-800/40 p-2.5 text-xs text-gray-900 dark:text-gray-100 outline-none focus:ring-1 focus:ring-primary"
@@ -98,10 +100,10 @@ export default function ProductSeoCard() {
           {/* Meta Keywords */}
           <div className="space-y-1.5">
             <label className="text-xs font-medium text-gray-700 dark:text-gray-300">
-              Keywords (comma-separated)
+              {t("product.seo.metaKeywords")}
             </label>
             <Input
-              placeholder="e.g. nike, air max 270, running shoes, sneakers"
+              placeholder={t("product.seo.metaKeywordsPlaceholder")}
               value={metaKeyword || ""}
               onChange={(e) => setValue("metaKeyword", e.target.value, { shouldDirty: true })}
               className="bg-gray-50/50 dark:bg-zinc-800/40 text-xs"
