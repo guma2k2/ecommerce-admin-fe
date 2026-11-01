@@ -1,4 +1,5 @@
 import * as React from 'react'
+import { useTranslation } from 'react-i18next'
 import { Copy, Eye, MoreHorizontal, Video, FileImage, File, ExternalLink } from 'lucide-react'
 import { showToast } from '~/shared/utils/toast'
 
@@ -21,6 +22,7 @@ interface MediaGridViewProps {
 }
 
 export default function MediaGridView({ mediaList, isLoading, onPreview }: MediaGridViewProps) {
+  const { t } = useTranslation()
   const handleCopyUrl = (url: string) => {
     navigator.clipboard.writeText(url)
     showToast('success', 'toasts.urlCopied')
@@ -47,7 +49,7 @@ export default function MediaGridView({ mediaList, isLoading, onPreview }: Media
           <FileImage className='size-8' />
         </div>
         <div className='space-y-1'>
-          <p className='text-base font-semibold text-gray-900 dark:text-gray-100'>No media files found</p>
+          <p className='text-base font-semibold text-gray-900 dark:text-gray-100'>{t('media.empty')}</p>
         </div>
       </div>
     )
@@ -86,23 +88,23 @@ export default function MediaGridView({ mediaList, isLoading, onPreview }: Media
                   />
                   <div className='absolute bottom-2 left-2 bg-black/70 text-white text-2xs font-mono px-1.5 py-0.5 rounded pointer-events-none flex items-center gap-1'>
                     <Video className='size-3' />
-                    <span>{formatDuration(item.duration) || 'Video'}</span>
+                    <span>{formatDuration(item.duration) || t('media.video')}</span>
                   </div>
                 </div>
               ) : (
                 <div className='flex flex-col items-center gap-2 text-gray-500'>
                   <File className='size-12' />
-                  <span className='text-xs font-medium'>Media File</span>
+                  <span className='text-xs font-medium'>{t('media.mediaFile')}</span>
                 </div>
               )}
 
               {/* Hover Action Overlay */}
               <div className='absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2'>
                 <Button size='sm' variant='secondary' className='h-8 shadow-sm gap-1' onClick={(e) => { e.stopPropagation(); onPreview(item) }}>
-                  <Eye className='size-3.5' /> Preview
+                  <Eye className='size-3.5' /> {t('media.preview')}
                 </Button>
                 <Button size='sm' variant='secondary' className='h-8 shadow-sm gap-1' onClick={(e) => { e.stopPropagation(); handleCopyUrl(item.url) }}>
-                  <Copy className='size-3.5' /> Copy
+                  <Copy className='size-3.5' /> {t('media.copy')}
                 </Button>
               </div>
 
@@ -140,16 +142,16 @@ export default function MediaGridView({ mediaList, isLoading, onPreview }: Media
                     <DropdownMenuContent align='end' className='w-40'>
                       <DropdownMenuItem onClick={() => onPreview(item)} className='cursor-pointer gap-2'>
                         <Eye className='size-4 text-blue-500' />
-                        Preview
+                        {t('media.preview')}
                       </DropdownMenuItem>
                       <DropdownMenuItem onClick={() => handleCopyUrl(item.url)} className='cursor-pointer gap-2'>
                         <Copy className='size-4 text-emerald-500' />
-                        Copy Link
+                        {t('media.copyLink')}
                       </DropdownMenuItem>
                       <DropdownMenuItem asChild className='cursor-pointer gap-2'>
                         <a href={item.url} target='_blank' rel='noreferrer'>
                           <ExternalLink className='size-4 text-purple-500' />
-                          Open File
+                          {t('media.openFile')}
                         </a>
                       </DropdownMenuItem>
                     </DropdownMenuContent>
@@ -168,11 +170,11 @@ export default function MediaGridView({ mediaList, isLoading, onPreview }: Media
               {/* Dates */}
               <div className='pt-2 border-t border-gray-100 dark:border-zinc-800/80 text-2xs text-muted-foreground flex flex-col gap-0.5 font-mono'>
                 <div className='flex justify-between'>
-                  <span>Type:</span>
+                  <span>{t('media.type')}:</span>
                   <span className='font-semibold'>{item.type}</span>
                 </div>
                 <div className='flex justify-between'>
-                  <span>Created:</span>
+                  <span>{t('media.createdAt')}:</span>
                   <span>{formatDateTime(item.createdAt)}</span>
                 </div>
               </div>

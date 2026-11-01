@@ -1,4 +1,5 @@
 import React from "react"
+import { useTranslation } from "react-i18next"
 import { useSortable } from "@dnd-kit/sortable"
 import { CSS } from "@dnd-kit/utilities"
 import { GripVertical, Trash2 } from "lucide-react"
@@ -21,6 +22,7 @@ function SortableOptionValueItemComponent({
   onChange,
   onRemove
 }: SortableOptionValueItemProps) {
+  const { t } = useTranslation()
   const [localVal, setLocalVal] = React.useState(value)
 
   React.useEffect(() => {
@@ -54,7 +56,7 @@ function SortableOptionValueItemComponent({
         {...attributes}
         {...listeners}
         className="text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300 cursor-grab active:cursor-grabbing hover:bg-transparent shrink-0 touch-none select-none"
-        title="Drag to reorder value"
+        title={t("product.variants.dragValueTooltip")}
       >
         <GripVertical className="size-4" />
       </Button>
@@ -69,7 +71,7 @@ function SortableOptionValueItemComponent({
             setLocalVal(next)
             onChange(next)
           }}
-          placeholder="Value (e.g. S, M, Red)"
+          placeholder={t("product.variants.valueItemPlaceholder")}
           className="h-9 w-full bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-700 rounded-lg text-sm pr-9 text-gray-900 dark:text-gray-100 shadow-2xs focus-visible:ring-1"
         />
         <Button
@@ -78,7 +80,7 @@ function SortableOptionValueItemComponent({
           size="icon-xs"
           onClick={onRemove}
           className="absolute right-2 text-gray-400 hover:text-red-500 dark:hover:text-red-400 hover:bg-transparent"
-          title="Delete value"
+          title={t("product.variants.deleteValueTooltip")}
         >
           <Trash2 className="size-4" />
         </Button>

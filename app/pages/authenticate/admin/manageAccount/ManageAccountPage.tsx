@@ -34,7 +34,7 @@ export default function ManageAccountPage() {
       const freshProfile = await getAdminProfile()
       setUser(freshProfile)
       setAvatarPreview(freshProfile.avatar || '')
-      showToast('success', 'Profile data refreshed')
+      showToast('success', t('account.toasts.refreshed'))
     } catch (error) {
       console.error('Refresh profile error:', error)
     } finally {
@@ -59,9 +59,10 @@ export default function ManageAccountPage() {
       })
       setUser(updated)
       setAvatarPreview(updated.avatar || '')
-      showToast('success', t('toasts.updatedSuccess', { defaultValue: 'Profile updated successfully' }))
+      showToast('success', t('account.toasts.updated'))
     } catch (error) {
       console.error('Update profile error:', error)
+      showToast('error', t('account.toasts.updateFailed'))
     } finally {
       setIsSaving(false)
     }
@@ -75,15 +76,13 @@ export default function ManageAccountPage() {
           <div className='space-y-2 max-w-2xl'>
             <div className='inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 text-xs font-medium text-white backdrop-blur'>
               <Sparkles className='size-3.5 text-amber-400' />
-              <span>Admin Profile & Settings</span>
+              <span>{t('account.badge')}</span>
             </div>
             <h1 className='text-2xl font-bold tracking-tight'>
-              {t('label.accountTitle', { defaultValue: 'Account Management' })}
+              {t('account.title')}
             </h1>
             <p className='text-zinc-300 text-sm leading-relaxed'>
-              {t('label.accountSubtitle', {
-                defaultValue: 'Manage your administrator account credentials, personal information, and session details.'
-              })}
+              {t('account.subtitle')}
             </p>
           </div>
 
@@ -94,7 +93,7 @@ export default function ManageAccountPage() {
             className='self-start sm:self-center bg-white/10 hover:bg-white/20 text-white border-white/20 hover:border-white/30 backdrop-blur cursor-pointer'
           >
             <RefreshCw className={`size-4 mr-2 ${isRefreshing ? 'animate-spin' : ''}`} />
-            Refresh
+            {t('account.refresh')}
           </Button>
         </div>
       </div>

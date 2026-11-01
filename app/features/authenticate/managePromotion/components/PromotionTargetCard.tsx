@@ -115,7 +115,7 @@ export default function PromotionTargetCard({ form }: PromotionTargetCardProps) 
               }}
               className='capitalize'
             >
-              {type.toLowerCase()}
+              {t(`promotion.scope.${type.toLowerCase() as "order" | "product" | "category" | "brand"}`)}
             </Button>
           )
         })}

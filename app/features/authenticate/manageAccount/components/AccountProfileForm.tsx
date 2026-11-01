@@ -80,9 +80,9 @@ export default function AccountProfileForm({
     >
       <div className='flex items-center justify-between'>
         <div>
-          <h2 className='text-lg font-semibold tracking-tight text-foreground'>Profile Details</h2>
+          <h2 className='text-lg font-semibold tracking-tight text-foreground'>{t('account.profileDetails')}</h2>
           <p className='text-xs text-muted-foreground mt-0.5'>
-            Update your public display name and avatar URL.
+            {t('account.profileDetailsDesc')}
           </p>
         </div>
         <KeyRound className='size-5 text-muted-foreground' />
@@ -101,14 +101,14 @@ export default function AccountProfileForm({
                 <FieldLabel htmlFor={field.name} className='text-sm font-semibold text-gray-900 dark:text-gray-100'>
                   {t('label.name')}
                 </FieldLabel>
-                <span className='text-xs font-normal text-muted-foreground'>Required</span>
+                <span className='text-xs font-normal text-muted-foreground'>{t('account.required')}</span>
               </div>
               <div className='relative'>
                 <UserIcon className='absolute left-3.5 top-1/2 -translate-y-1/2 size-4 text-muted-foreground' />
                 <Input
                   {...field}
                   id={field.name}
-                  placeholder='e.g. John Doe'
+                  placeholder={t('account.namePlaceholder')}
                   className='pl-10 h-11 text-sm'
                   disabled={isSubmitting}
                   aria-invalid={fieldState.invalid}
@@ -116,7 +116,7 @@ export default function AccountProfileForm({
               </div>
               {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
               <FieldDescription className='text-xs text-muted-foreground'>
-                This name will appear in top navigation, activity records, and greeting headers.
+                {t('account.nameDesc')}
               </FieldDescription>
             </Field>
           )}
@@ -130,16 +130,16 @@ export default function AccountProfileForm({
             <Field data-invalid={fieldState.invalid} className='space-y-2'>
               <div className='flex items-center justify-between'>
                 <FieldLabel htmlFor={field.name} className='text-sm font-semibold text-gray-900 dark:text-gray-100'>
-                  Avatar Image URL
+                  {t('account.avatarUrl')}
                 </FieldLabel>
-                <span className='text-xs font-normal text-muted-foreground'>Optional</span>
+                <span className='text-xs font-normal text-muted-foreground'>{t('account.optional')}</span>
               </div>
               <div className='relative'>
                 <Camera className='absolute left-3.5 top-1/2 -translate-y-1/2 size-4 text-muted-foreground' />
                 <Input
                   {...field}
                   id={field.name}
-                  placeholder='https://images.unsplash.com/...'
+                  placeholder={t('account.avatarUrlPlaceholder')}
                   className='pl-10 h-11 text-sm'
                   disabled={isSubmitting}
                   aria-invalid={fieldState.invalid}
@@ -147,7 +147,7 @@ export default function AccountProfileForm({
               </div>
               {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
               <FieldDescription className='text-xs text-muted-foreground'>
-                Provide a direct HTTPS link to an image (PNG, JPG, SVG, WebP).
+                {t('account.avatarUrlDesc')}
               </FieldDescription>
             </Field>
           )}
@@ -160,7 +160,7 @@ export default function AccountProfileForm({
               {t('label.email')}
             </label>
             <span className='text-xs font-medium text-amber-600 dark:text-amber-400 flex items-center gap-1'>
-              <AlertCircle className='size-3' /> Read-only
+              <AlertCircle className='size-3' /> {t('account.readOnly')}
             </span>
           </div>
           <div className='relative'>
@@ -173,7 +173,7 @@ export default function AccountProfileForm({
             />
           </div>
           <p className='text-xs text-muted-foreground'>
-            Email address is linked to your primary login credentials and cannot be changed here.
+            {t('account.emailDesc')}
           </p>
         </div>
       </div>
@@ -189,7 +189,7 @@ export default function AccountProfileForm({
           onClick={handleResetForm}
           className='cursor-pointer'
         >
-          Reset
+          {t('account.reset')}
         </Button>
 
         <Button
@@ -200,12 +200,12 @@ export default function AccountProfileForm({
           {isSubmitting ? (
             <>
               <RefreshCw className='size-4 mr-2 animate-spin' />
-              Saving...
+              {t('account.saving')}
             </>
           ) : (
             <>
               <Save className='size-4 mr-2' />
-              Save Changes
+              {t('account.saveChanges')}
             </>
           )}
         </Button>

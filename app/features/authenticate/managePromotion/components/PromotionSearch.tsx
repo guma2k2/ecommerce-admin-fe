@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next"
 import Search, { type SearchProps } from "~/shared/components/Search"
 
 export interface PromotionSearchProps extends Omit<SearchProps, "placeholder"> {
@@ -5,8 +6,12 @@ export interface PromotionSearchProps extends Omit<SearchProps, "placeholder"> {
 }
 
 export default function PromotionSearch({
-  placeholder = "Search by promotion name or coupon code...",
+  placeholder,
   ...props
 }: PromotionSearchProps) {
-  return <Search placeholder={placeholder} {...props} />
+  const { t } = useTranslation()
+  const resolvedPlaceholder =
+    placeholder || t("promotion.searchPlaceholder", { defaultValue: "Search by promotion name or coupon code..." })
+
+  return <Search placeholder={resolvedPlaceholder} {...props} />
 }

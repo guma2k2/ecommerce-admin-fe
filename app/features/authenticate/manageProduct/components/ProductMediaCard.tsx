@@ -1,4 +1,5 @@
 import { useState } from "react"
+import { useTranslation } from "react-i18next"
 import { useFormContext, useWatch } from "react-hook-form"
 import {
   closestCenter,
@@ -25,6 +26,7 @@ import type { UploadType } from "~/shared/types"
 import { isVideoUrl } from "~/shared/utils/appUtils"
 
 export default function ProductMediaCard() {
+  const { t } = useTranslation()
   const { control, setValue, getValues } = useFormContext<ProductFormSchema>()
   const medias = useWatch({ control, name: "medias" }) || []
   const [isModalOpen, setIsModalOpen] = useState(false)
@@ -152,7 +154,7 @@ export default function ProductMediaCard() {
         <div>
           <h3 className="text-base font-semibold text-gray-900 dark:text-gray-100 flex items-center gap-2">
             <ImagePlus className="size-4 text-primary" />
-            Media Gallery
+            {t("product.media.gallery")}
           </h3>
         </div>
 
@@ -166,7 +168,7 @@ export default function ProductMediaCard() {
               className="h-8 gap-1.5 text-xs shadow-xs"
             >
               <Trash2 className="size-3.5" />
-              Delete ({checkedCount})
+              {t("product.media.deleteSelected", { count: checkedCount })}
             </Button>
           )}
 
@@ -178,7 +180,7 @@ export default function ProductMediaCard() {
             className="h-8 gap-1.5 text-xs font-medium border-gray-300 dark:border-zinc-700 bg-white dark:bg-zinc-800"
           >
             <FolderOpen className="size-3.5 text-primary" />
-            Add Media
+            {t("product.media.addMedia")}
           </Button>
         </div>
       </div>

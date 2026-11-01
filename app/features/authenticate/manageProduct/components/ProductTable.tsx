@@ -1,4 +1,5 @@
 import * as React from "react"
+import { useTranslation } from "react-i18next"
 import { PackageX, Image as ImageIcon } from "lucide-react"
 import type { ProductItem } from "~/shared/services/api/productService"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "~/core/components/shadcn/table"
@@ -23,6 +24,7 @@ export default function ProductTable({
   onToggleSelectAll,
   onEdit
 }: ProductTableProps) {
+  const { t } = useTranslation()
   const isAllSelected = products.length > 0 && products.every((product) => selectedIds.includes(product.id))
   const isSomeSelected = products.some((product) => selectedIds.includes(product.id)) && !isAllSelected
 
@@ -35,11 +37,11 @@ export default function ProductTable({
               <TableHead className='w-[48px] px-4'>
                 <Skeleton className='h-4 w-4 rounded-[4px]' />
               </TableHead>
-              <TableHead className='w-[80px]'>Image</TableHead>
-              <TableHead>Product Name</TableHead>
-              <TableHead className='w-[110px] text-right'>Price ($)</TableHead>
-              <TableHead className='w-[160px]'>Created At</TableHead>
-              <TableHead className='w-[160px]'>Updated At</TableHead>
+              <TableHead className='w-[80px]'>{t("product.table.image")}</TableHead>
+              <TableHead>{t("product.table.productName")}</TableHead>
+              <TableHead className='w-[110px] text-right'>{t("product.table.price")}</TableHead>
+              <TableHead className='w-[160px]'>{t("product.table.createdAt")}</TableHead>
+              <TableHead className='w-[160px]'>{t("product.table.updatedAt")}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -77,9 +79,11 @@ export default function ProductTable({
         <div className='mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-gray-100 dark:bg-zinc-800 text-gray-400'>
           <PackageX className='h-8 w-8' />
         </div>
-        <h3 className='mt-4 text-base font-semibold text-gray-900 dark:text-gray-100'>No products found</h3>
+        <h3 className='mt-4 text-base font-semibold text-gray-900 dark:text-gray-100'>
+          {t("product.table.noProductsFound")}
+        </h3>
         <p className='mt-1 text-sm text-gray-500 dark:text-gray-400 max-w-sm mx-auto'>
-          We couldn't find any products matching your search criteria. Try adjusting your query or filters.
+          {t("product.table.adjustSearchPrompt")}
         </p>
       </div>
     )
@@ -94,14 +98,14 @@ export default function ProductTable({
               <Checkbox
                 checked={isAllSelected ? true : isSomeSelected ? "indeterminate" : false}
                 onCheckedChange={() => onToggleSelectAll?.()}
-                aria-label='Select all products on current page'
+                aria-label={t("product.table.selectAll")}
               />
             </TableHead>
-            <TableHead className='w-[80px]'>Image</TableHead>
-            <TableHead>Product Name</TableHead>
-            <TableHead className='w-[110px] text-right'>Price ($)</TableHead>
-            <TableHead className='w-[160px]'>Created At</TableHead>
-            <TableHead className='w-[160px]'>Updated At</TableHead>
+            <TableHead className='w-[80px]'>{t("product.table.image")}</TableHead>
+            <TableHead>{t("product.table.productName")}</TableHead>
+            <TableHead className='w-[110px] text-right'>{t("product.table.price")}</TableHead>
+            <TableHead className='w-[160px]'>{t("product.table.createdAt")}</TableHead>
+            <TableHead className='w-[160px]'>{t("product.table.updatedAt")}</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -122,7 +126,7 @@ export default function ProductTable({
                   <Checkbox
                     checked={isSelected}
                     onCheckedChange={() => onToggleSelect?.(product.id)}
-                    aria-label={`Select ${product.name}`}
+                    aria-label={t("product.table.selectProduct", { name: product.name, defaultValue: `Select ${product.name}` })}
                     onClick={(e) => e.stopPropagation()}
                   />
                 </TableCell>

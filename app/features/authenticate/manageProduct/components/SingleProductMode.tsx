@@ -1,4 +1,5 @@
 import React from "react"
+import { useTranslation } from "react-i18next"
 import { DollarSign, Package } from "lucide-react"
 import { Input } from "~/core/components/shadcn/input"
 import PriceInput from "~/shared/components/PriceInput"
@@ -16,12 +17,14 @@ export default function SingleProductMode({
   onPriceChange,
   onQuantityChange
 }: SingleProductModeProps) {
+  const { t } = useTranslation()
+
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-1">
       <div className="space-y-1.5">
         <label className="text-xs font-medium text-gray-700 dark:text-gray-300 flex items-center gap-1">
           <DollarSign className="size-3.5 text-emerald-600" />
-          Price ($) *
+          {t("product.variants.price")}
         </label>
         <PriceInput
           value={price ? price : ""}
@@ -34,7 +37,7 @@ export default function SingleProductMode({
       <div className="space-y-1.5">
         <label className="text-xs font-medium text-gray-700 dark:text-gray-300 flex items-center gap-1">
           <Package className="size-3.5 text-blue-600" />
-          Available Stock *
+          {t("product.variants.stock")}
         </label>
         <Input
           type="number"

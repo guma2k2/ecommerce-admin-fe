@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react"
+import { useTranslation, Trans } from "react-i18next"
 import { Edit3, DollarSign, Package } from "lucide-react"
 import {
   Dialog,
@@ -25,6 +26,7 @@ export default function BulkEditVariantsDialog({
   selectedCount,
   onApply
 }: BulkEditVariantsDialogProps) {
+  const { t } = useTranslation()
   const [price, setPrice] = useState("")
   const [stock, setStock] = useState("")
 
@@ -64,14 +66,16 @@ export default function BulkEditVariantsDialog({
             <div className="size-7 rounded-lg bg-primary/10 text-primary flex items-center justify-center">
               <Edit3 className="size-4" />
             </div>
-            Bulk Edit Variants
+            {t("product.variants.bulkEditTitle")}
           </DialogTitle>
           <DialogDescription className="text-xs text-muted-foreground">
-            Update pricing and inventory across the{" "}
-            <span className="font-semibold text-foreground">
-              {selectedCount} selected variant{selectedCount > 1 ? "s" : ""}
-            </span>
-            .
+            <Trans
+              i18nKey="product.variants.bulkEditDesc"
+              values={{ count: selectedCount }}
+              components={{
+                1: <span className="font-semibold text-foreground" />
+              }}
+            />
           </DialogDescription>
         </DialogHeader>
 
@@ -81,10 +85,10 @@ export default function BulkEditVariantsDialog({
             <div className="flex items-center justify-between">
               <label className="text-xs font-medium text-gray-700 dark:text-gray-300 flex items-center gap-1.5">
                 <DollarSign className="size-3.5 text-emerald-600" />
-                Price ($)
+                {t("product.variants.price")}
               </label>
               <span className="text-xs text-muted-foreground">
-                Leave empty to keep current
+                {t("product.variants.leaveEmptyToKeep")}
               </span>
             </div>
             <PriceInput
@@ -100,10 +104,10 @@ export default function BulkEditVariantsDialog({
             <div className="flex items-center justify-between">
               <label className="text-xs font-medium text-gray-700 dark:text-gray-300 flex items-center gap-1.5">
                 <Package className="size-3.5 text-blue-600" />
-                Available Stock
+                {t("product.variants.stock")}
               </label>
               <span className="text-xs text-muted-foreground">
-                Leave empty to keep current
+                {t("product.variants.leaveEmptyToKeep")}
               </span>
             </div>
             <Input
@@ -125,7 +129,7 @@ export default function BulkEditVariantsDialog({
             onClick={() => onOpenChange(false)}
             className="text-xs"
           >
-            Cancel
+            {t("button.cancel")}
           </Button>
           <Button
             type="button"
@@ -134,7 +138,7 @@ export default function BulkEditVariantsDialog({
             onClick={handleApply}
             className="text-xs"
           >
-            Apply to {selectedCount} variant{selectedCount > 1 ? "s" : ""}
+            {t("product.variants.applyToCount", { count: selectedCount })}
           </Button>
         </DialogFooter>
       </DialogContent>

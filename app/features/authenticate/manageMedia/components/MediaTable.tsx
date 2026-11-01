@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import {
   Copy,
   Check,
@@ -32,6 +33,7 @@ interface MediaTableProps {
 }
 
 export default function MediaTable({ mediaList, isLoading, onPreview }: MediaTableProps) {
+  const { t } = useTranslation()
   const [copiedId, setCopiedId] = useState<string | null>(null)
 
   const handleCopyUrl = (url: string, id: string) => {
@@ -77,15 +79,15 @@ export default function MediaTable({ mediaList, isLoading, onPreview }: MediaTab
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Preview</TableHead>
-              <TableHead>Name & Alt Text</TableHead>
-              <TableHead>Type</TableHead>
-              <TableHead>Size</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead>URL</TableHead>
-              <TableHead>Created At</TableHead>
-              <TableHead>Updated At</TableHead>
-              <TableHead className='text-right'>Actions</TableHead>
+              <TableHead>{t('media.preview')}</TableHead>
+              <TableHead>{t('media.nameAndAlt')}</TableHead>
+              <TableHead>{t('media.type')}</TableHead>
+              <TableHead>{t('media.size')}</TableHead>
+              <TableHead>{t('media.status')}</TableHead>
+              <TableHead>{t('media.url')}</TableHead>
+              <TableHead>{t('media.createdAt')}</TableHead>
+              <TableHead>{t('media.updatedAt')}</TableHead>
+              <TableHead className='text-right'>{t('media.actions')}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -115,7 +117,7 @@ export default function MediaTable({ mediaList, isLoading, onPreview }: MediaTab
           <FileImage className='size-8' />
         </div>
         <div className='space-y-1'>
-          <p className='text-base font-semibold text-gray-900 dark:text-gray-100'>No media files found</p>
+          <p className='text-base font-semibold text-gray-900 dark:text-gray-100'>{t('media.empty')}</p>
           <p className='text-sm text-muted-foreground'>Try adjusting your search query or upload a new image or video.</p>
         </div>
       </div>
@@ -127,15 +129,15 @@ export default function MediaTable({ mediaList, isLoading, onPreview }: MediaTab
       <Table>
         <TableHeader className='bg-gray-50/80 dark:bg-zinc-800/50'>
           <TableRow>
-            <TableHead className='w-[70px]'>Preview</TableHead>
-            <TableHead className='font-semibold text-gray-700 dark:text-gray-200 min-w-[200px]'>Name / Alt Text</TableHead>
-            <TableHead className='font-semibold text-gray-700 dark:text-gray-200'>Type</TableHead>
-            <TableHead className='font-semibold text-gray-700 dark:text-gray-200'>Size</TableHead>
-            <TableHead className='font-semibold text-gray-700 dark:text-gray-200'>Status</TableHead>
-            <TableHead className='font-semibold text-gray-700 dark:text-gray-200 min-w-[180px]'>URL</TableHead>
-            <TableHead className='font-semibold text-gray-700 dark:text-gray-200 whitespace-nowrap'>Created At</TableHead>
-            <TableHead className='font-semibold text-gray-700 dark:text-gray-200 whitespace-nowrap'>Updated At</TableHead>
-            <TableHead className='font-semibold text-gray-700 dark:text-gray-200 text-right pr-6'>Actions</TableHead>
+            <TableHead className='w-[70px]'>{t('media.preview')}</TableHead>
+            <TableHead className='font-semibold text-gray-700 dark:text-gray-200 min-w-[200px]'>{t('media.nameAndAlt')}</TableHead>
+            <TableHead className='font-semibold text-gray-700 dark:text-gray-200'>{t('media.type')}</TableHead>
+            <TableHead className='font-semibold text-gray-700 dark:text-gray-200'>{t('media.size')}</TableHead>
+            <TableHead className='font-semibold text-gray-700 dark:text-gray-200'>{t('media.status')}</TableHead>
+            <TableHead className='font-semibold text-gray-700 dark:text-gray-200 min-w-[180px]'>{t('media.url')}</TableHead>
+            <TableHead className='font-semibold text-gray-700 dark:text-gray-200 whitespace-nowrap'>{t('media.createdAt')}</TableHead>
+            <TableHead className='font-semibold text-gray-700 dark:text-gray-200 whitespace-nowrap'>{t('media.updatedAt')}</TableHead>
+            <TableHead className='font-semibold text-gray-700 dark:text-gray-200 text-right pr-6'>{t('media.actions')}</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -208,7 +210,7 @@ export default function MediaTable({ mediaList, isLoading, onPreview }: MediaTab
                 {/* Active Status */}
                 <TableCell className='whitespace-nowrap'>
                   <Badge size='micro' variant={item.active ? 'default' : 'secondary'}>
-                    {item.active ? 'Active' : 'Inactive'}
+                    {item.active ? t('media.active') : t('media.inactive')}
                   </Badge>
                 </TableCell>
 
@@ -238,7 +240,7 @@ export default function MediaTable({ mediaList, isLoading, onPreview }: MediaTab
                           </Button>
                         </TooltipTrigger>
                         <TooltipContent>
-                          <p className='text-xs'>Copy Media URL</p>
+                          <p className='text-xs'>{t('media.copyUrl')}</p>
                         </TooltipContent>
                       </Tooltip>
                     </TooltipProvider>
@@ -266,16 +268,16 @@ export default function MediaTable({ mediaList, isLoading, onPreview }: MediaTab
                     <DropdownMenuContent align='end' className='w-40'>
                       <DropdownMenuItem onClick={() => onPreview(item)} className='cursor-pointer gap-2'>
                         <Eye className='size-4 text-blue-500' />
-                        Preview Details
+                        {t('media.preview')}
                       </DropdownMenuItem>
                       <DropdownMenuItem onClick={() => handleCopyUrl(item.url, item.id)} className='cursor-pointer gap-2'>
                         <Copy className='size-4 text-emerald-500' />
-                        Copy URL
+                        {t('media.copyUrl')}
                       </DropdownMenuItem>
                       <DropdownMenuItem asChild className='cursor-pointer gap-2'>
                         <a href={item.url} target='_blank' rel='noreferrer'>
                           <ExternalLink className='size-4 text-purple-500' />
-                          Open File
+                          {t('media.openFile')}
                         </a>
                       </DropdownMenuItem>
                     </DropdownMenuContent>

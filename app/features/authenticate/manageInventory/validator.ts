@@ -1,12 +1,13 @@
 import { z } from 'zod'
+import { validationMsg } from '~/shared/utils/appUtils'
 
 export const stockAdjustmentSchema = z.object({
   productVariantId: z.number().positive(),
   reason: z.enum(['RESTOCK', 'CORRECTION']),
   quantityChange: z
-    .number({ message: 'Quantity change must be a valid number' })
+    .number({ message: validationMsg('inventory.validation.quantityChangeValidNumber') })
     .refine((val) => val !== 0, {
-      message: 'Quantity change cannot be zero'
+      message: validationMsg('inventory.validation.quantityChangeNonZero')
     })
 })
 
@@ -15,9 +16,9 @@ export type StockAdjustmentFormValues = z.infer<typeof stockAdjustmentSchema>
 export const cycleCountSchema = z.object({
   productVariantId: z.number().positive(),
   physicalCount: z
-    .number({ message: 'Physical count must be a valid number' })
-    .int('Must be a whole integer')
-    .min(0, 'Physical count cannot be negative')
+    .number({ message: validationMsg('inventory.validation.physicalCountValidNumber') })
+    .int(validationMsg('inventory.validation.wholeInteger'))
+    .min(0, validationMsg('inventory.validation.physicalCountNegative'))
 })
 
 export type CycleCountFormValues = z.infer<typeof cycleCountSchema>

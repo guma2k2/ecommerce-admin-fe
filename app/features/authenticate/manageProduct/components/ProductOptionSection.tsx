@@ -1,4 +1,5 @@
 import React, { useState } from "react"
+import { useTranslation } from "react-i18next"
 import {
   closestCenter,
   DndContext,
@@ -49,6 +50,7 @@ export default function ProductOptionSection({
   onDoneOption,
   onDragEndOption
 }: ProductOptionSectionProps) {
+  const { t } = useTranslation()
   const [activeOptionId, setActiveOptionId] = useState<string | null>(null)
 
   const sensors = useSensors(
@@ -60,7 +62,7 @@ export default function ProductOptionSection({
     <div className="space-y-3">
       <div className="flex items-center justify-between">
         <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-          Variation Axes (Options)
+          {t("product.variants.variationAxes")}
         </h4>
       </div>
 
@@ -121,7 +123,7 @@ export default function ProductOptionSection({
                         <GripVertical className="size-4 text-primary shrink-0" />
                         <div className="space-y-1">
                           <div className="text-sm font-semibold text-gray-900 dark:text-gray-100">
-                            {activeOpt.name || "Untitled Option"}
+                            {activeOpt.name || t("product.variants.untitledOption")}
                           </div>
                           <div className="flex flex-wrap gap-1">
                             {activeOpt.values
@@ -150,7 +152,7 @@ export default function ProductOptionSection({
           className="w-full justify-start h-auto p-3.5 px-5 text-xs font-semibold text-gray-700 hover:text-gray-900 dark:text-gray-300 dark:hover:text-gray-100 hover:bg-gray-50/80 dark:hover:bg-zinc-800/50 rounded-none rounded-b-xl border-t border-gray-100 dark:border-zinc-800 select-none"
         >
           <Plus className="size-4 text-gray-500 shrink-0" />
-          <span>Add another option</span>
+          <span>{t("product.variants.addAnotherOption")}</span>
         </Button>
       </div>
     </div>

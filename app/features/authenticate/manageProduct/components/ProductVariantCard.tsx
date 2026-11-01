@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react"
+import { useTranslation } from "react-i18next"
 import { useFormContext, useFieldArray, useWatch } from "react-hook-form"
 import type { DragEndEvent } from "@dnd-kit/core"
 import { arrayMove } from "@dnd-kit/sortable"
@@ -29,6 +30,7 @@ export default function ProductVariantCard({
   initialSingleVariantId,
   initialVariants
 }: ProductVariantCardProps = {}) {
+  const { t } = useTranslation()
   const { control, setValue, getValues } = useFormContext<ProductFormSchema>()
   const hasOptions = useWatch({ control, name: "hasOptions" })
   const rawOptions = useWatch({ control, name: "options" })
@@ -741,7 +743,7 @@ export default function ProductVariantCard({
         <div>
           <h3 className="text-base font-semibold text-gray-900 dark:text-gray-100 flex items-center gap-2">
             <Layers className="size-4 text-primary" />
-            Variants
+            {t("product.variants.title")}
           </h3>
         
         </div>
@@ -752,7 +754,7 @@ export default function ProductVariantCard({
             checked={hasOptions}
             onCheckedChange={(checked) => handleToggleHasOptions(!!checked)}
           />
-          <span>Multiple variations</span>
+          <span>{t("product.variants.multipleVariations")}</span>
         </label>
       </div>
 

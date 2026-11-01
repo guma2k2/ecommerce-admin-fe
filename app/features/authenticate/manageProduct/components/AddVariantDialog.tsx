@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react"
+import { useTranslation } from "react-i18next"
 import { Plus, Tag, Layers, AlertCircle } from "lucide-react"
 import {
   Dialog,
@@ -48,6 +49,7 @@ export default function AddVariantDialog({
   defaultQuantity = 0,
   onSaveVariant
 }: AddVariantDialogProps) {
+  const { t } = useTranslation()
   const [selectedValues, setSelectedValues] = useState<Record<string, string>>({})
   const [price, setPrice] = useState<number>(defaultPrice)
   const [quantity, setQuantity] = useState<number>(defaultQuantity)
@@ -132,10 +134,10 @@ export default function AddVariantDialog({
             <div className="size-7 rounded-lg bg-primary/10 text-primary flex items-center justify-center">
               <Plus className="size-4" />
             </div>
-            Add Variant
+            {t("product.variants.addVariantTitle")}
           </DialogTitle>
           <DialogDescription className="text-xs text-muted-foreground">
-            Configure a specific variant combination with custom pricing and inventory.
+            {t("product.variants.variantAttrsDesc")}
           </DialogDescription>
         </DialogHeader>
 
@@ -157,10 +159,10 @@ export default function AddVariantDialog({
             <div className="flex-1 space-y-1">
               <div className="flex items-center gap-2 text-xs font-semibold text-gray-800 dark:text-gray-200">
                 <Layers className="size-3.5 text-primary" />
-                <span>Variant Attributes</span>
+                <span>{t("product.variants.variantAttributes")}</span>
               </div>
               <p className="text-xs text-muted-foreground">
-                Select from existing option values or enter a new value below.
+                {t("product.variants.variantAttrsDesc")}
               </p>
             </div>
           </div>
@@ -195,7 +197,7 @@ export default function AddVariantDialog({
                     {/* Chips for existing values to quickly select */}
                     {existingValues.length > 0 && (
                       <div className="flex flex-wrap items-center gap-1.5">
-                        <span className="text-2xs text-muted-foreground mr-1">Suggestions:</span>
+                        <span className="text-2xs text-muted-foreground mr-1">{t("product.variants.suggestions")}</span>
                         {existingValues.map((v) => {
                           const isSelected = currentVal.toLowerCase() === v.toLowerCase()
                           return (
@@ -225,7 +227,7 @@ export default function AddVariantDialog({
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1 border-t border-gray-100 dark:border-zinc-800">
             <div className="space-y-1.5">
               <label className="text-xs font-medium text-gray-700 dark:text-gray-300">
-                Price ($) *
+                {t("product.variants.price")}
               </label>
               <PriceInput
                 value={price}
@@ -237,7 +239,7 @@ export default function AddVariantDialog({
 
             <div className="space-y-1.5">
               <label className="text-xs font-medium text-gray-700 dark:text-gray-300">
-                Available Stock *
+                {t("product.variants.stock")}
               </label>
               <Input
                 type="number"
@@ -267,7 +269,7 @@ export default function AddVariantDialog({
             onClick={() => onOpenChange(false)}
             className="text-xs"
           >
-            Cancel
+            {t("button.cancel")}
           </Button>
           <Button
             type="button"
@@ -275,7 +277,7 @@ export default function AddVariantDialog({
             onClick={handleSave}
             className="text-xs"
           >
-            Save variant
+            {t("product.variants.saveVariant")}
           </Button>
         </DialogFooter>
       </DialogContent>
