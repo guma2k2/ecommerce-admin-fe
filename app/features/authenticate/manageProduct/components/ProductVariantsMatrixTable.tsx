@@ -1,16 +1,23 @@
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 import { Tag, Copy, Sliders, ChevronDown, ChevronUp, Check, Edit3, Plus, Trash2 } from "lucide-react"
-import { Checkbox } from "~/core/components/shadcn/checkbox"
-import { Button } from "~/core/components/shadcn/button"
-import { Input } from "~/core/components/shadcn/input"
 import {
+  Checkbox,
+  Button,
+  Input,
+  Label,
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
-  SelectValue
-} from "~/core/components/shadcn/select"
+  SelectValue,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow
+} from "~/core/components/shadcn"
 import DeleteConfirmDialog from "~/shared/components/DeleteConfirmDialog"
 import BulkEditVariantsDialog from "./BulkEditVariantsDialog"
 import ProductVariantRow, { type VariantRowItem } from "./ProductVariantRow"
@@ -268,26 +275,26 @@ export default function ProductVariantsMatrixTable({
 
       {/* Clean Table Container (Zero Horizontal Scroll) */}
       <div className="rounded-xl border border-gray-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 overflow-hidden shadow-2xs">
-        <table className="w-full text-left text-xs">
-          <thead className="bg-gray-50/80 dark:bg-zinc-800/50 text-gray-600 dark:text-gray-400 font-semibold border-b border-gray-200 dark:border-zinc-800 select-none">
-            <tr>
-              <th className="py-2.5 px-3 w-8"></th>
-              <th className="py-2.5 px-3 w-14">{t("media.preview")}</th>
-              <th className="py-2.5 px-3 min-w-[150px]">{t("product.variants.title")}</th>
-              <th className="py-2.5 px-3 w-28">{t("product.variants.price")}</th>
-              <th className="py-2.5 px-3 w-24">{t("product.variants.stock")}</th>
+        <Table className="w-full text-left text-xs">
+          <TableHeader className="bg-gray-50/80 dark:bg-zinc-800/50 text-gray-600 dark:text-gray-400 font-semibold border-b border-gray-200 dark:border-zinc-800 select-none">
+            <TableRow className="hover:bg-transparent">
+              <TableHead className="h-auto py-2.5 px-3 w-8"></TableHead>
+              <TableHead className="h-auto py-2.5 px-3 w-14">{t("media.preview")}</TableHead>
+              <TableHead className="h-auto py-2.5 px-3 min-w-[150px]">{t("product.variants.title")}</TableHead>
+              <TableHead className="h-auto py-2.5 px-3 w-28">{t("product.variants.price")}</TableHead>
+              <TableHead className="h-auto py-2.5 px-3 w-24">{t("product.variants.stock")}</TableHead>
               {totalAttrs > 0 && (
-                <th className="py-2.5 px-3 min-w-[140px]">
+                <TableHead className="h-auto py-2.5 px-3 min-w-[140px]">
                   <span className="flex items-center gap-1">
                     <Tag className="size-3 text-indigo-500" />
                     {t("product.attributes.title")}
                   </span>
-                </th>
+                </TableHead>
               )}
-              <th className="py-2.5 px-3 w-10 text-right"></th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-gray-100 dark:divide-zinc-800">
+              <TableHead className="h-auto py-2.5 px-3 w-10 text-right"></TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody className="divide-y divide-gray-100 dark:divide-zinc-800">
             {variants.map((v, index) => {
               const isSelected = selectedIndices.includes(index)
               const isExpanded = expandedIndices.has(index)
@@ -329,8 +336,8 @@ export default function ProductVariantsMatrixTable({
 
                   {/* Expandable Specifications Sub-Row Accordion */}
                   {isExpanded && totalAttrs > 0 && (
-                    <tr className="bg-indigo-50/20 dark:bg-indigo-950/15 border-b border-gray-200 dark:border-zinc-800">
-                      <td colSpan={colSpan} className="py-3 px-4 pl-12">
+                    <TableRow className="bg-indigo-50/20 dark:bg-indigo-950/15 border-b border-gray-200 dark:border-zinc-800 hover:bg-indigo-50/20 dark:hover:bg-indigo-950/15">
+                      <TableCell colSpan={colSpan} className="py-3 px-4 pl-12 whitespace-normal">
                         <div className="rounded-xl border border-indigo-100 dark:border-indigo-900/60 bg-white dark:bg-zinc-900 p-4 space-y-3.5 shadow-2xs">
                           {/* Sub-row Header */}
                           <div className="flex flex-wrap items-center justify-between gap-2 pb-2.5 border-b border-gray-100 dark:border-zinc-800">
@@ -385,12 +392,12 @@ export default function ProductVariantsMatrixTable({
                                   className="space-y-1.5 p-2.5 rounded-lg bg-gray-50/70 dark:bg-zinc-800/40 border border-gray-200/80 dark:border-zinc-800"
                                 >
                                   <div className="flex items-center justify-between text-xs font-medium text-foreground">
-                                    <label className="flex items-center gap-1.5 truncate" title={attr.name}>
+                                    <Label className="flex items-center gap-1.5 truncate text-xs" title={attr.name}>
                                       <Tag className="size-3 text-indigo-500 shrink-0" />
                                       <span className="truncate font-semibold">
                                         {attr.name || `Attr #${attr.productAttributeId}`}
                                       </span>
-                                    </label>
+                                    </Label>
                                     {val && (
                                       <span className="flex items-center gap-0.5 text-2xs text-emerald-600 dark:text-emerald-400 font-semibold">
                                         <Check className="size-2.5" />
@@ -416,14 +423,14 @@ export default function ProductVariantsMatrixTable({
                             })}
                           </div>
                         </div>
-                      </td>
-                    </tr>
+                      </TableCell>
+                    </TableRow>
                   )}
                 </React.Fragment>
               )
             })}
-          </tbody>
-        </table>
+          </TableBody>
+        </Table>
       </div>
 
       {/* Bulk Edit Price & Stock Modal Dialog */}

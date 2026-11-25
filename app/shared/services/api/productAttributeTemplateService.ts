@@ -206,21 +206,16 @@ export const deleteTemplate = deleteProductAttributeTemplate
  * Fetches all product templates for product form selection with pre-populated attributes.
  */
 export async function getAllProductAttributeTemplates(): Promise<ProductAttributeTemplateItem[]> {
-  try {
-    const res = await getTemplatesPage({
-      pageNumber: 0,
-      pageSize: 1000,
-      isIncludeAttributes: true
-    })
-    return (res.content || []).map((t) => ({
-      ...t,
-      attributes: t.attributes || [],
-      attributeIds: (t.attributes || []).map((a) => Number(a.id))
-    }))
-  } catch (err) {
-    console.error('Failed to load all product templates:', err)
-    return []
-  }
+  const res = await getTemplatesPage({
+    pageNumber: 0,
+    pageSize: 1000,
+    isIncludeAttributes: true
+  })
+  return (res.content || []).map((t) => ({
+    ...t,
+    attributes: t.attributes || [],
+    attributeIds: (t.attributes || []).map((a) => Number(a.id))
+  }))
 }
 
 export const productTemplateService = {

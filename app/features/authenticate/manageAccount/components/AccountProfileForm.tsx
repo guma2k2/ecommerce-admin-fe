@@ -12,10 +12,7 @@ import {
   AlertCircle
 } from 'lucide-react'
 
-import { Button } from '~/core/components/shadcn/button'
-import { Input } from '~/core/components/shadcn/input'
-import { Separator } from '~/core/components/shadcn/separator'
-import { Field, FieldLabel, FieldDescription, FieldError } from '~/core/components/shadcn/field'
+import { Button, Input, Label, Separator, Field, FieldLabel, FieldDescription, FieldError } from '~/core/components/shadcn'
 import { accountProfileSchema, type AccountProfileSchema } from '../validator'
 
 export interface AccountProfileFormProps {
@@ -156,9 +153,9 @@ export default function AccountProfileForm({
         {/* Readonly Email Field */}
         <div className='space-y-2'>
           <div className='flex items-center justify-between'>
-            <label className='text-sm font-semibold text-gray-900 dark:text-gray-100 flex items-center gap-1'>
+            <Label className='text-sm font-semibold text-gray-900 dark:text-gray-100 flex items-center gap-1'>
               {t('label.email')}
-            </label>
+            </Label>
             <span className='text-xs font-medium text-amber-600 dark:text-amber-400 flex items-center gap-1'>
               <AlertCircle className='size-3' /> {t('account.readOnly')}
             </span>

@@ -6,7 +6,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "~
 import { Checkbox } from "~/core/components/shadcn/checkbox"
 import { Button } from "~/core/components/shadcn/button"
 import { Skeleton } from "~/core/components/shadcn/skeleton"
-import { cn } from "~/shared/utils/appUtils"
+import { cn, formatDateParts } from "~/shared/utils"
 
 export type { BrandSortField }
 
@@ -20,27 +20,6 @@ interface BrandTableProps {
   sortOrder?: SortDirection
   onSort: (field: BrandSortField) => void
   onEdit: (brand: BrandItem) => void
-}
-
-function formatDate(isoString?: string | null): { dateStr: string; timeStr: string } {
-  if (!isoString) return { dateStr: "-", timeStr: "" }
-  try {
-    const d = new Date(isoString)
-    if (isNaN(d.getTime())) return { dateStr: isoString, timeStr: "" }
-    const dateStr = d.toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "short",
-      day: "2-digit"
-    })
-    const timeStr = d.toLocaleTimeString("en-US", {
-      hour: "2-digit",
-      minute: "2-digit",
-      hour12: true
-    })
-    return { dateStr, timeStr }
-  } catch {
-    return { dateStr: isoString, timeStr: "" }
-  }
 }
 
 export default function BrandTable({
@@ -176,8 +155,8 @@ export default function BrandTable({
             </TableRow>
           ) : (
             brands.map((brand) => {
-              const created = formatDate(brand.createdAt)
-              const updated = formatDate(brand.updatedAt)
+              const created = formatDateParts(brand.createdAt)
+              const updated = formatDateParts(brand.updatedAt)
               const isImgFailed = failedImages[String(brand.id)]
               const isSelected = selectedIds.includes(brand.id)
 
@@ -218,14 +197,15 @@ export default function BrandTable({
 
                   {/* Brand Name (clickable) */}
                   <TableCell className='py-3.5'>
-                    <button
+                    <Button
                       type='button'
+                      variant='tableLink'
                       onClick={() => onEdit(brand)}
-                      className='font-semibold text-gray-900 dark:text-gray-100 hover:text-primary hover:underline transition-colors text-sm text-left cursor-pointer focus:outline-none focus-visible:ring-1 focus-visible:ring-ring rounded-xs'
+                      className='font-semibold'
                       title={`Edit ${brand.name}`}
                     >
                       {brand.name}
-                    </button>
+                    </Button>
                   </TableCell>
 
                   {/* Description */}

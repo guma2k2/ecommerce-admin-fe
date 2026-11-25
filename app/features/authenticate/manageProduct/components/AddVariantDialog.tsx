@@ -9,8 +9,7 @@ import {
   DialogHeader,
   DialogTitle
 } from "~/core/components/shadcn/dialog"
-import { Button } from "~/core/components/shadcn/button"
-import { Input } from "~/core/components/shadcn/input"
+import { Button, Input, Label } from "~/core/components/shadcn"
 import FileUpload from "~/shared/components/FileUpload"
 import PriceInput from "~/shared/components/PriceInput"
 import type { ProductOptionForm } from "~/features/authenticate/manageProduct/validator"
@@ -179,10 +178,10 @@ export default function AddVariantDialog({
               return (
                 <div key={String(opt.id || opt.productOptionId || optName)} className="space-y-1.5">
                   <div className="flex items-center justify-between">
-                    <label className="text-xs font-medium text-gray-700 dark:text-gray-300 flex items-center gap-1.5">
+                    <Label variant="field">
                       <Tag className="size-3.5 text-indigo-500" />
                       {optName} *
-                    </label>
+                    </Label>
                   </div>
 
                   {/* Input with Quick Value Chips */}
@@ -201,18 +200,16 @@ export default function AddVariantDialog({
                         {existingValues.map((v) => {
                           const isSelected = currentVal.toLowerCase() === v.toLowerCase()
                           return (
-                            <button
+                            <Button
                               type="button"
+                              variant="chip"
+                              size="xs"
+                              data-state={isSelected ? "active" : "inactive"}
                               key={v}
                               onClick={() => handleOptionValueChange(optName, v)}
-                              className={`px-2 py-0.5 rounded text-xs font-medium border transition-colors ${
-                                isSelected
-                                  ? "bg-primary text-primary-foreground border-primary"
-                                  : "bg-gray-100 dark:bg-zinc-800 text-gray-700 dark:text-gray-300 border-gray-200 dark:border-zinc-700 hover:bg-gray-200 dark:hover:bg-zinc-700"
-                              }`}
                             >
                               {v}
-                            </button>
+                            </Button>
                           )
                         })}
                       </div>
@@ -226,9 +223,9 @@ export default function AddVariantDialog({
           {/* Pricing & Stock Fields */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1 border-t border-gray-100 dark:border-zinc-800">
             <div className="space-y-1.5">
-              <label className="text-xs font-medium text-gray-700 dark:text-gray-300">
+              <Label variant="field">
                 {t("product.variants.price")}
-              </label>
+              </Label>
               <PriceInput
                 value={price}
                 onChange={(val) => setPrice(Number(val) || 0)}
@@ -238,9 +235,9 @@ export default function AddVariantDialog({
             </div>
 
             <div className="space-y-1.5">
-              <label className="text-xs font-medium text-gray-700 dark:text-gray-300">
+              <Label variant="field">
                 {t("product.variants.stock")}
-              </label>
+              </Label>
               <Input
                 type="number"
                 min="0"

@@ -4,8 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { useTranslation } from "react-i18next"
 import {
   productFormSchema,
-  type ProductFormSchema,
-  type ProductVariantOptionValueItem
+  type ProductFormSchema
 } from "~/features/authenticate/manageProduct/validator"
 import {
   getInitialProductFormValues,
@@ -66,58 +65,7 @@ const ProductForm = forwardRef<ProductFormHandle, ProductFormProps>(function Pro
     !initialHasOptions && initialData?.variants?.[0]?.id ? initialData.variants[0].id : null
 
   // Retain initial variant records so re-enabling multi-variant mode preserves original DB variant IDs
-  const initialVariants = useMemo(
-    () =>
-      (initialData?.variants || []).map((v) => {
-        let optionValues: ProductVariantOptionValueItem[] = (v.productOptionValueIds || []).map((valId) => {
-          const opt = initialData?.options?.find((o) => o.values?.some((val) => val.id === valId))
-          const val = opt?.values?.find((val) => val.id === valId)
-          return {
-            optionId: opt?.productOptionId ?? null,
-            optionName: opt?.name || "",
-            optionValueId: valId,
-            value: val?.value || ""
-          }
-        })
-
-        // Fallback: infer optionValues from title if productOptionValueIds was empty in database
-        if (
-          optionValues.length === 0 &&
-          v.title &&
-          initialData?.options &&
-          initialData.options.length > 0
-        ) {
-          const titleParts = v.title.split("/").map((p) => p.trim())
-          if (titleParts.length === initialData.options.length) {
-            optionValues = titleParts.map((part, idx) => {
-              const opt = initialData.options![idx]
-              const matchedVal = opt.values?.find(
-                (val) => val.value?.trim().toLowerCase() === part.toLowerCase()
-              )
-              return {
-                optionId: opt.productOptionId ?? null,
-                optionName: opt.name || "",
-                optionValueId: matchedVal?.id ?? null,
-                value: part
-              }
-            })
-          }
-        }
-
-        return {
-          id: v.id,
-          title: v.title,
-          sku: v.sku,
-          price: v.price,
-          quantity: v.quantity,
-          mediaId: v.mediaId || undefined,
-          image: v.mediaUrl || initialData?.medias?.find((m) => m.mediaId === v.mediaId)?.url || "",
-          productOptionValueIds: v.productOptionValueIds,
-          optionValues
-        }
-      }),
-    [initialData]
-  )
+  const initialVariants = initialData?.variants?.length ? defaultValues.variants : []
 
   const methods = useForm<ProductFormSchema>({
     resolver: zodResolver(productFormSchema),

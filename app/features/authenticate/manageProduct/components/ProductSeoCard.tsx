@@ -2,8 +2,7 @@ import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 import { useFormContext, useWatch } from "react-hook-form"
 import { Globe, ChevronDown, ChevronUp } from "lucide-react"
-import { Input } from "~/core/components/shadcn/input"
-import { Button } from "~/core/components/shadcn/button"
+import { Button, Input, Label, Textarea } from "~/core/components/shadcn"
 import type { ProductFormSchema } from "~/features/authenticate/manageProduct/validator"
 
 export default function ProductSeoCard() {
@@ -67,7 +66,7 @@ export default function ProductSeoCard() {
           {/* Page Meta Title */}
           <div className="space-y-1.5">
             <div className="flex justify-between items-center text-xs">
-              <label className="font-medium text-gray-700 dark:text-gray-300">{t("product.seo.pageTitle")}</label>
+              <Label variant="field">{t("product.seo.pageTitle")}</Label>
               <span className="text-xs text-muted-foreground">
                 {t("product.seo.characters", { count: (metaTitle || "").length, max: 70 })}
               </span>
@@ -83,25 +82,25 @@ export default function ProductSeoCard() {
           {/* Meta Description */}
           <div className="space-y-1.5">
             <div className="flex justify-between items-center text-xs">
-              <label className="font-medium text-gray-700 dark:text-gray-300">{t("product.seo.metaDescription")}</label>
+              <Label variant="field">{t("product.seo.metaDescription")}</Label>
               <span className="text-xs text-muted-foreground">
                 {t("product.seo.characters", { count: (metaDescription || "").length, max: 160 })}
               </span>
             </div>
-            <textarea
+            <Textarea
+              variant="subtle"
               rows={3}
               placeholder={t("product.seo.metaDescriptionPlaceholder")}
               value={metaDescription || ""}
               onChange={(e) => setValue("metaDescription", e.target.value, { shouldDirty: true })}
-              className="w-full rounded-md border border-gray-200 dark:border-zinc-700 bg-gray-50/50 dark:bg-zinc-800/40 p-2.5 text-xs text-gray-900 dark:text-gray-100 outline-none focus:ring-1 focus:ring-primary"
             />
           </div>
 
           {/* Meta Keywords */}
           <div className="space-y-1.5">
-            <label className="text-xs font-medium text-gray-700 dark:text-gray-300">
+            <Label variant="field">
               {t("product.seo.metaKeywords")}
-            </label>
+            </Label>
             <Input
               placeholder={t("product.seo.metaKeywordsPlaceholder")}
               value={metaKeyword || ""}

@@ -1,9 +1,7 @@
 import React from "react"
 import { useTranslation } from "react-i18next"
 import { Tag, ChevronDown, Trash2 } from "lucide-react"
-import { Checkbox } from "~/core/components/shadcn/checkbox"
-import { Button } from "~/core/components/shadcn/button"
-import { Input } from "~/core/components/shadcn/input"
+import { Checkbox, Button, Input, TableRow, TableCell } from "~/core/components/shadcn"
 import FileUpload from "~/shared/components/FileUpload"
 import PriceInput from "~/shared/components/PriceInput"
 import { cn } from "~/shared/utils/appUtils"
@@ -62,20 +60,20 @@ export default function ProductVariantRow({
   }).length
 
   return (
-    <tr
+    <TableRow
       className={cn(
         "hover:bg-gray-50/50 dark:hover:bg-zinc-800/30 transition-colors",
         isSelected && "bg-primary/5",
         isExpanded && "bg-indigo-50/30 dark:bg-indigo-950/20"
       )}
     >
-      <td className="py-2.5 px-3">
+      <TableCell className="py-2.5 px-3">
         <Checkbox
           checked={isSelected}
           onCheckedChange={(checked) => onSelect(!!checked)}
         />
-      </td>
-      <td className="py-2 px-3">
+      </TableCell>
+      <TableCell className="py-2 px-3">
         <div className="w-10 h-10 rounded-lg border overflow-hidden bg-gray-50 dark:bg-zinc-800 shrink-0">
           <FileUpload
             variant="compact"
@@ -84,8 +82,8 @@ export default function ProductVariantRow({
             onChange={onImageChange}
           />
         </div>
-      </td>
-      <td className="py-2.5 px-3 font-medium text-gray-900 dark:text-gray-100 min-w-[150px]">
+      </TableCell>
+      <TableCell className="py-2.5 px-3 font-medium text-gray-900 dark:text-gray-100 min-w-[150px]">
         <div className="flex flex-col">
           <span>{variant.title || `Variant ${index + 1}`}</span>
           {variant.id && (
@@ -94,16 +92,16 @@ export default function ProductVariantRow({
             </span>
           )}
         </div>
-      </td>
-      <td className="py-2 px-3 w-28 min-w-[100px]">
+      </TableCell>
+      <TableCell className="py-2 px-3 w-28 min-w-[100px]">
         <PriceInput
           value={variant.price ?? 0}
           onChange={onPriceChange}
           placeholder="0.00"
           className="h-8 text-xs bg-transparent font-medium"
         />
-      </td>
-      <td className="py-2 px-3 w-24 min-w-[80px]">
+      </TableCell>
+      <TableCell className="py-2 px-3 w-24 min-w-[80px]">
         <Input
           type="number"
           min="0"
@@ -111,11 +109,11 @@ export default function ProductVariantRow({
           onChange={(e) => onQuantityChange(parseInt(e.target.value, 10) || 0)}
           className="h-8 text-xs bg-transparent"
         />
-      </td>
+      </TableCell>
 
       {/* Specifications Trigger Column */}
       {totalAttrs > 0 && (
-        <td className="py-2 px-3 min-w-[140px]">
+        <TableCell className="py-2 px-3 min-w-[140px]">
           <Button
             type="button"
             variant={configuredCount > 0 ? "outline" : "ghost"}
@@ -145,11 +143,11 @@ export default function ProductVariantRow({
               )}
             />
           </Button>
-        </td>
+        </TableCell>
       )}
 
       {/* Action Column: Delete */}
-      <td className="py-2 px-2 w-10 text-right">
+      <TableCell className="py-2 px-2 w-10 text-right">
         {onDelete && (
           <Button
             type="button"
@@ -163,7 +161,7 @@ export default function ProductVariantRow({
             <Trash2 className="size-3.5" />
           </Button>
         )}
-      </td>
-    </tr>
+      </TableCell>
+    </TableRow>
   )
 }

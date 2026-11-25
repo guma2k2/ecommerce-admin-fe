@@ -2,14 +2,15 @@ import React, { useEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { useFormContext, useWatch } from "react-hook-form"
 import { FolderTree, Tag, Eye } from "lucide-react"
-import { Button } from "~/core/components/shadcn/button"
 import {
+  Button,
+  Label,
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue
-} from "~/core/components/shadcn/select"
+} from "~/core/components/shadcn"
 import { getAllCategories } from "~/shared/services/api/categoryService"
 import { getAllBrands } from "~/shared/services/api/brandService"
 import type { CategoryItem, BrandItem } from "~/shared/types"
@@ -95,10 +96,10 @@ export default function ProductClassificationCard({
 
       {/* 2. Category Hierarchy */}
       <div className="space-y-2">
-        <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+        <Label variant="section">
           <FolderTree className="size-3.5 text-primary" />
           {t("product.classification.category")}
-        </label>
+        </Label>
         <Select
           value={selectedCategoryId ? String(selectedCategoryId) : "none"}
           onValueChange={(val) => {
@@ -127,10 +128,10 @@ export default function ProductClassificationCard({
 
       {/* 3. Brand Selection */}
       <div className="space-y-2">
-        <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+        <Label variant="section">
           <Tag className="size-3.5 text-primary" />
           {t("product.classification.brand")}
-        </label>
+        </Label>
         <Select
           value={selectedBrandId ? String(selectedBrandId) : "none"}
           onValueChange={(val) => {

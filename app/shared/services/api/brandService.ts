@@ -120,13 +120,8 @@ export async function deleteBrand(brandId: number | string): Promise<void> {
  * Fetches all brands for selection dropdowns.
  */
 export async function getAllBrands(): Promise<BrandResponse[]> {
-  try {
-    const res = await getBrandsPage({ pageNumber: 0, pageSize: 1000 })
-    return res.content || []
-  } catch (err) {
-    console.error('Failed to load all brands:', err)
-    return []
-  }
+  const res = await getBrandsPage({ pageNumber: 0, pageSize: 1000 })
+  return res.content
 }
 
 export const brandService = {

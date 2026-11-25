@@ -228,22 +228,24 @@ export default function FileUpload({
               />
               {!disabled && (
                 <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-1.5 p-1">
-                  <button
+                  <Button
                     type="button"
+                    variant="overlay"
+                    size="icon-xs"
                     onClick={handleClickTrigger}
-                    className="p-1 rounded-full bg-white/20 hover:bg-white/40 text-white transition-colors"
                     title={t("upload.changeImage", "Change Image")}
                   >
                     <RotateCw className="size-3.5" />
-                  </button>
-                  <button
+                  </Button>
+                  <Button
                     type="button"
+                    variant="overlayDestructive"
+                    size="icon-xs"
                     onClick={handleRemove}
-                    className="p-1 rounded-full bg-red-600/80 hover:bg-red-600 text-white transition-colors"
                     title={t("upload.removeImage", "Remove Image")}
                   >
                     <X className="size-3.5" />
-                  </button>
+                  </Button>
                 </div>
               )}
             </div>
@@ -309,22 +311,24 @@ export default function FileUpload({
               />
               {!disabled && (
                 <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
-                  <button
+                  <Button
                     type="button"
+                    variant="overlay"
+                    size="icon-sm"
                     onClick={handleClickTrigger}
-                    className="p-1.5 rounded-full bg-white/20 hover:bg-white/40 text-white"
                     title={t("upload.changeImage", "Change Image")}
                   >
                     <RotateCw className="size-4" />
-                  </button>
-                  <button
+                  </Button>
+                  <Button
                     type="button"
+                    variant="overlayDestructive"
+                    size="icon-sm"
                     onClick={handleRemove}
-                    className="p-1.5 rounded-full bg-red-600/80 hover:bg-red-600 text-white"
                     title={t("upload.removeImage", "Remove Image")}
                   >
                     <X className="size-4" />
-                  </button>
+                  </Button>
                 </div>
               )}
             </div>
@@ -387,14 +391,16 @@ export default function FileUpload({
             />
 
             {!disabled && (
-              <button
+              <Button
                 type="button"
+                variant="overlayDestructive"
+                size="icon-xs"
                 onClick={handleRemove}
-                className="absolute top-2.5 right-2.5 p-1.5 rounded-full bg-black/60 hover:bg-red-600 text-white transition-colors duration-150 shadow-sm cursor-pointer"
+                className="absolute top-2.5 right-2.5 bg-black/60 shadow-sm cursor-pointer"
                 title={t("upload.removeImage", "Remove Image")}
               >
                 <X className="size-4" />
-              </button>
+              </Button>
             )}
           </div>
 

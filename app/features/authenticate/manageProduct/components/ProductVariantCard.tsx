@@ -4,7 +4,7 @@ import { useFormContext, useFieldArray, useWatch } from "react-hook-form"
 import type { DragEndEvent } from "@dnd-kit/core"
 import { arrayMove } from "@dnd-kit/sortable"
 import { Layers } from "lucide-react"
-import { Checkbox } from "~/core/components/shadcn/checkbox"
+import { Checkbox, Label } from "~/core/components/shadcn"
 import { cartesian } from "~/shared/utils/appUtils"
 import type {
   ProductFormSchema,
@@ -749,13 +749,13 @@ export default function ProductVariantCard({
         </div>
 
         {/* Toggle Switch for Multi-variant */}
-        <label className="flex items-center gap-2.5 cursor-pointer bg-gray-50 dark:bg-zinc-800/80 px-3 py-1.5 rounded-lg border border-gray-200 dark:border-zinc-700 text-xs font-medium">
+        <Label className="flex items-center gap-2.5 cursor-pointer bg-gray-50 dark:bg-zinc-800/80 px-3 py-1.5 rounded-lg border border-gray-200 dark:border-zinc-700 text-xs font-medium">
           <Checkbox
             checked={hasOptions}
             onCheckedChange={(checked) => handleToggleHasOptions(!!checked)}
           />
           <span>{t("product.variants.multipleVariations")}</span>
-        </label>
+        </Label>
       </div>
 
       {/* 1. SINGLE PRODUCT MODE */}

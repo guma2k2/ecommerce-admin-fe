@@ -310,13 +310,15 @@ export default function InfiniteSelect<T extends Record<string, any>>({
                 className='pl-8 pr-8 h-8 text-xs bg-white dark:bg-zinc-950 border-gray-200 dark:border-zinc-800 focus-visible:ring-1'
               />
               {searchQuery && (
-                <button
+                <Button
                   type='button'
+                  variant='ghost'
+                  size='icon-xs'
                   onClick={() => setSearchQuery('')}
-                  className='absolute right-2.5 text-muted-foreground hover:text-foreground p-0.5'
+                  className='absolute right-2 size-5 p-0.5 text-muted-foreground hover:text-foreground hover:bg-transparent'
                 >
                   <X className='size-3.5' />
-                </button>
+                </Button>
               )}
             </div>
           </div>

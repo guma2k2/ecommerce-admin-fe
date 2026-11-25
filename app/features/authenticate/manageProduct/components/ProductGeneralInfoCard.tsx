@@ -3,7 +3,14 @@ import { useTranslation } from "react-i18next"
 import { useFormContext, useWatch } from "react-hook-form"
 import { Lock, Unlock, Sparkles } from "lucide-react"
 import { FormInput, FormTextEditor } from "~/shared/components/Form"
-import { Button } from "~/core/components/shadcn/button"
+import {
+  Button,
+  InputGroup,
+  InputGroupAddon,
+  InputGroupInput,
+  InputGroupText,
+  Label
+} from "~/core/components/shadcn"
 import { generateSlug } from "~/shared/utils"
 import type { ProductFormSchema } from "~/features/authenticate/manageProduct/validator"
 
@@ -53,14 +60,14 @@ export default function ProductGeneralInfoCard() {
         {/* URL Slug Generator */}
         <div className="space-y-1.5">
           <div className="flex items-center justify-between">
-            <label className="text-xs font-medium text-gray-700 dark:text-gray-300 flex items-center gap-1.5">
+            <Label variant="field">
               {t("product.basicInfo.slugLabel")}
               {isSlugLocked && (
                 <span className="text-xs text-muted-foreground font-normal">
                   {t("product.basicInfo.slugAutoSynced")}
                 </span>
               )}
-            </label>
+            </Label>
             <div className="flex items-center gap-1.5">
               <Button
                 type="button"
@@ -95,11 +102,13 @@ export default function ProductGeneralInfoCard() {
             </div>
           </div>
 
-          <div className="flex items-center rounded-lg border border-gray-200 dark:border-zinc-700 bg-gray-50/50 dark:bg-zinc-800/40 px-3 py-1.5 focus-within:ring-1 focus-within:ring-primary focus-within:border-primary">
-            <span className="text-xs text-gray-400 select-none shrink-0 pr-1">
-              https://store.com/products/
-            </span>
-            <input
+          <InputGroup className="h-auto rounded-lg border-gray-200 dark:border-zinc-700 bg-gray-50/50 dark:bg-zinc-800/40 py-1.5 shadow-none">
+            <InputGroupAddon align="inline-start" className="py-0 pr-1">
+              <InputGroupText className="text-xs text-gray-400">
+                https://store.com/products/
+              </InputGroupText>
+            </InputGroupAddon>
+            <InputGroupInput
               type="text"
               value={slug || ""}
               disabled={isSlugLocked}
@@ -110,9 +119,9 @@ export default function ProductGeneralInfoCard() {
                 })
               }}
               placeholder={t("product.basicInfo.slugPlaceholder")}
-              className="w-full bg-transparent text-xs font-mono text-gray-800 dark:text-gray-200 outline-none disabled:opacity-75 disabled:cursor-not-allowed"
+              className="h-auto py-0 pl-0 text-xs md:text-xs font-mono text-gray-800 dark:text-gray-200"
             />
-          </div>
+          </InputGroup>
         </div>
 
         {/* Product Description */}

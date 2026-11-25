@@ -21,12 +21,21 @@ const buttonVariants = cva(
         link: "text-primary underline-offset-4 hover:underline",
         segmented:
           "text-gray-500 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200 hover:bg-transparent data-[state=active]:bg-white dark:data-[state=active]:bg-zinc-900 data-[state=active]:text-gray-900 dark:data-[state=active]:text-gray-100 data-[state=active]:shadow-2xs data-[state=active]:font-semibold",
+        tableLink:
+          "h-auto p-0 font-medium text-gray-900 dark:text-gray-100 group-hover:text-primary hover:text-primary hover:underline underline-offset-4 text-sm text-left cursor-pointer rounded-xs focus-visible:ring-1",
+        chip:
+          "rounded border border-gray-200 dark:border-zinc-700 bg-gray-100 dark:bg-zinc-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-zinc-700 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:border-primary",
+        overlay:
+          "rounded-full bg-white/20 hover:bg-white/40 text-white hover:text-white",
+        overlayDestructive:
+          "rounded-full bg-red-600/80 hover:bg-red-600 text-white hover:text-white",
       },
       size: {
         default: "h-9 px-4 py-2 has-[>svg]:px-3",
         sm: "h-8 rounded-md gap-1.5 px-3 text-xs has-[>svg]:px-2.5",
         xs: "h-auto px-2.5 py-1 text-xs gap-1.5 rounded-md",
         lg: "h-10 rounded-md px-6 has-[>svg]:px-4",
+        none: "h-auto p-0 gap-1",
         icon: "size-9",
         "icon-sm": "size-8",
         "icon-xs": "size-6 p-0 [&_svg]:size-3.5",
