@@ -189,14 +189,15 @@ export default function ProductOptionTable({
                       <div className='size-8 rounded-md bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform'>
                         <SlidersHorizontal className='size-4' />
                       </div>
-                      <button
+                      <Button
                         type='button'
+                        variant='tableLink'
                         onClick={() => onEdit(option)}
-                        className='font-medium text-gray-900 dark:text-gray-100 text-sm hover:text-indigo-600 dark:hover:text-indigo-400 hover:underline transition-colors text-left cursor-pointer focus:outline-none focus-visible:ring-1 focus-visible:ring-ring rounded-xs'
+                        className='hover:text-indigo-600 dark:hover:text-indigo-400'
                         title={`Edit ${option.name}`}
                       >
                         {option.name}
-                      </button>
+                      </Button>
                       {["color", "size", "material", "storage", "style"].includes(option.name.toLowerCase()) && (
                         <Badge
                           size='micro'

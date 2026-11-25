@@ -1,4 +1,4 @@
-import { useState, useCallback, useMemo } from 'react'
+import { useState } from 'react'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm, useWatch } from 'react-hook-form'
 import {
@@ -188,10 +188,10 @@ export default function ProductAttributeTemplateForm({
     control,
     name: 'attributeIds'
   })
-  const attributeIds = useMemo(() => watchedAttributeIds || [], [watchedAttributeIds])
+  const attributeIds = watchedAttributeIds || []
 
   // Add selected attribute to the template
-  const handleAddAttribute = useCallback(() => {
+  const handleAddAttribute = () => {
     if (!selectedAttrId) return
 
     const stringIds = attributeIds.map(String)
@@ -210,21 +210,18 @@ export default function ProductAttributeTemplateForm({
     // Reset dropdown selection
     setSelectedAttrId('')
     setSelectedAttrItem(null)
-  }, [selectedAttrId, selectedAttrItem, attributeIds, setValue])
+  }
 
   // Remove attribute from template
-  const handleRemoveAttribute = useCallback(
-    (idToRemove: string) => {
-      const nextIds = attributeIds.filter((id) => String(id) !== String(idToRemove))
-      setValue('attributeIds', nextIds, { shouldValidate: true, shouldDirty: true })
-    },
-    [attributeIds, setValue]
-  )
+  const handleRemoveAttribute = (idToRemove: string) => {
+    const nextIds = attributeIds.filter((id) => String(id) !== String(idToRemove))
+    setValue('attributeIds', nextIds, { shouldValidate: true, shouldDirty: true })
+  }
 
   // Clear all attached attributes
-  const handleClearAll = useCallback(() => {
+  const handleClearAll = () => {
     setValue('attributeIds', [], { shouldValidate: true, shouldDirty: true })
-  }, [setValue])
+  }
 
   // Drag and Drop reordering handlers
   const handleDragStart = (event: DragStartEvent) => {

@@ -9,8 +9,7 @@ import {
   DialogHeader,
   DialogTitle
 } from "~/core/components/shadcn/dialog"
-import { Button } from "~/core/components/shadcn/button"
-import { Input } from "~/core/components/shadcn/input"
+import { Button, Input, Label } from "~/core/components/shadcn"
 import PriceInput from "~/shared/components/PriceInput"
 
 export interface BulkEditVariantsDialogProps {
@@ -83,10 +82,10 @@ export default function BulkEditVariantsDialog({
           {/* Price Field */}
           <div className="space-y-1.5">
             <div className="flex items-center justify-between">
-              <label className="text-xs font-medium text-gray-700 dark:text-gray-300 flex items-center gap-1.5">
+              <Label variant="field">
                 <DollarSign className="size-3.5 text-emerald-600" />
                 {t("product.variants.price")}
-              </label>
+              </Label>
               <span className="text-xs text-muted-foreground">
                 {t("product.variants.leaveEmptyToKeep")}
               </span>
@@ -102,10 +101,10 @@ export default function BulkEditVariantsDialog({
           {/* Available Stock Field */}
           <div className="space-y-1.5">
             <div className="flex items-center justify-between">
-              <label className="text-xs font-medium text-gray-700 dark:text-gray-300 flex items-center gap-1.5">
+              <Label variant="field">
                 <Package className="size-3.5 text-blue-600" />
                 {t("product.variants.stock")}
-              </label>
+              </Label>
               <span className="text-xs text-muted-foreground">
                 {t("product.variants.leaveEmptyToKeep")}
               </span>

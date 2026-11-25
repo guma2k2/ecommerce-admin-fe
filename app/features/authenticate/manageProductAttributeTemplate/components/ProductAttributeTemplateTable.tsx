@@ -5,7 +5,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "~
 import { Checkbox } from "~/core/components/shadcn/checkbox"
 import { Button } from "~/core/components/shadcn/button"
 import { Skeleton } from "~/core/components/shadcn/skeleton"
-import { cn } from "~/shared/utils/appUtils"
+import { cn, formatDateParts } from "~/shared/utils"
 
 export type { ProductAttributeTemplateSortField }
 
@@ -19,27 +19,6 @@ interface ProductAttributeTemplateTableProps {
   sortOrder?: SortDirection
   onSort: (field: ProductAttributeTemplateSortField) => void
   onEdit: (template: ProductAttributeTemplateItem) => void
-}
-
-function formatDate(isoString?: string | null): { dateStr: string; timeStr: string } {
-  if (!isoString) return { dateStr: "-", timeStr: "" }
-  try {
-    const d = new Date(isoString)
-    if (isNaN(d.getTime())) return { dateStr: isoString, timeStr: "" }
-    const dateStr = d.toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "short",
-      day: "2-digit"
-    })
-    const timeStr = d.toLocaleTimeString("en-US", {
-      hour: "2-digit",
-      minute: "2-digit",
-      hour12: true
-    })
-    return { dateStr, timeStr }
-  } catch {
-    return { dateStr: isoString, timeStr: "" }
-  }
 }
 
 export default function ProductAttributeTemplateTable({
@@ -161,8 +140,8 @@ export default function ProductAttributeTemplateTable({
             </TableRow>
           ) : (
             templates.map((template) => {
-              const created = formatDate(template.createdAt)
-              const updated = formatDate(template.updatedAt)
+              const created = formatDateParts(template.createdAt)
+              const updated = formatDateParts(template.updatedAt)
               const isSelected = selectedIds.includes(template.id)
 
               return (
@@ -190,14 +169,14 @@ export default function ProductAttributeTemplateTable({
                       <div className='w-8 h-8 rounded-lg bg-teal-500/10 text-teal-600 dark:text-teal-400 flex items-center justify-center shrink-0'>
                         <LayoutTemplate className='size-4' />
                       </div>
-                      <button
+                      <Button
                         type='button'
+                        variant='tableLink'
                         onClick={() => onEdit(template)}
-                        className='font-medium text-gray-900 dark:text-gray-100 group-hover:text-primary hover:underline transition-colors text-sm text-left cursor-pointer focus:outline-none focus-visible:ring-1 focus-visible:ring-ring rounded-xs'
                         title={`Edit ${template.name}`}
                       >
                         {template.name}
-                      </button>
+                      </Button>
                     </div>
                   </TableCell>
 

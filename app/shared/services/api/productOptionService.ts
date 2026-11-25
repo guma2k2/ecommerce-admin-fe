@@ -136,13 +136,8 @@ export async function deleteOption(id: number | string): Promise<void> {
  * Fetches all product options for selection dropdowns.
  */
 export async function getAllOptions(): Promise<ProductOptionResponse[]> {
-  try {
-    const res = await getOptionsPage({ pageNumber: 0, pageSize: 1000 })
-    return res.content || []
-  } catch (err) {
-    console.error('Failed to load all product options:', err)
-    return []
-  }
+  const res = await getOptionsPage({ pageNumber: 0, pageSize: 1000 })
+  return res.content
 }
 
 export const productOptionService = {

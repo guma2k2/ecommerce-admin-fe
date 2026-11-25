@@ -196,13 +196,8 @@ export async function deleteCategory(categoryId: number | string): Promise<void>
  * Fetches all categories and flattens tree for select dropdowns.
  */
 export async function getAllCategories(): Promise<CategoryItem[]> {
-  try {
-    const res = await getCategoriesPage({ pageNumber: 0, pageSize: 1000 })
-    return flattenCategoryTree(res.content || [])
-  } catch (err) {
-    console.error('Failed to load all categories:', err)
-    return []
-  }
+  const res = await getCategoriesPage({ pageNumber: 0, pageSize: 1000 })
+  return flattenCategoryTree(res.content)
 }
 
 export const categoryService = {

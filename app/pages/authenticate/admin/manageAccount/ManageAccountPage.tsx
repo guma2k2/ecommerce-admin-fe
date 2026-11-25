@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Sparkles, RefreshCw } from 'lucide-react'
 import { Button } from '~/core/components/shadcn/button'
@@ -42,13 +42,13 @@ export default function ManageAccountPage() {
     }
   }
 
-  const handleAvatarChange = useCallback((url: string) => {
+  const handleAvatarChange = (url: string) => {
     setAvatarPreview(url)
-  }, [])
+  }
 
-  const handleReset = useCallback(() => {
+  const handleReset = () => {
     setAvatarPreview(user?.avatar || '')
-  }, [user?.avatar])
+  }
 
   const handleSaveProfile = async (values: AccountProfileSchema) => {
     try {

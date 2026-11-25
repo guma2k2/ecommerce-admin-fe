@@ -19,12 +19,11 @@ import {
 } from "@dnd-kit/sortable"
 import { CSS } from "@dnd-kit/utilities"
 import { Database, GripVertical, Tag } from "lucide-react"
-import { Button } from "~/core/components/shadcn/button"
-import { Input } from "~/core/components/shadcn/input"
+import { Button, Input, Label } from "~/core/components/shadcn"
 import InfiniteSelect from "~/shared/components/InfiniteSelect"
 import { getOptionsPage } from "~/shared/services/api/productOptionService"
 import type { ProductOptionResponse } from "~/shared/types"
-import { cn } from "~/shared/utils/appUtils"
+import { cn, getColorHex } from "~/shared/utils"
 import SortableOptionValueItem from "./SortableOptionValueItem"
 
 export interface OptionValueItem {
@@ -56,30 +55,6 @@ export interface SortableOptionAxisCardProps {
   onToggleShowing: (showing: boolean) => void
   onDone?: (pendingValue?: string) => void
   disabledOptionNames?: string[]
-}
-
-const COLOR_MAP: Record<string, string> = {
-  blue: "#2563eb",
-  white: "#ffffff",
-  black: "#000000",
-  red: "#dc2626",
-  green: "#16a34a",
-  yellow: "#eab308",
-  orange: "#f97316",
-  purple: "#a855f7",
-  pink: "#ec4899",
-  gray: "#6b7280",
-  grey: "#6b7280",
-  navy: "#1e3a8a",
-  brown: "#78350f",
-  beige: "#f5f5dc"
-}
-
-function getColorHex(val: string): string | null {
-  const clean = val.trim().toLowerCase()
-  if (COLOR_MAP[clean]) return COLOR_MAP[clean]
-  if (/^#([0-9a-f]{3}|[0-9a-f]{6})$/i.test(clean)) return clean
-  return null
 }
 
 function SortableOptionAxisCardComponent({
@@ -258,9 +233,9 @@ function SortableOptionAxisCardComponent({
       {/* Option Name Section */}
       <div className="space-y-1.5">
         <div className="flex items-center justify-between">
-          <label className="text-xs font-medium text-gray-700 dark:text-gray-300">
+          <Label variant="field">
             {t("product.variants.optionName")}
-          </label>
+          </Label>
           <div className="size-7 rounded-md flex items-center justify-center text-blue-500 bg-blue-50/80 dark:bg-blue-950/40 border border-blue-100 dark:border-blue-900/30">
             <Database className="size-3.5" />
           </div>
@@ -311,9 +286,9 @@ function SortableOptionAxisCardComponent({
 
       {/* Option Values Section */}
       <div className="space-y-2 pt-1">
-        <label className="text-xs font-medium text-gray-700 dark:text-gray-300 block">
+        <Label variant="field" className="block">
           {t("product.variants.optionValues")}
-        </label>
+        </Label>
 
         {/* Sortable List of Values */}
         {valueItems.length > 0 && (

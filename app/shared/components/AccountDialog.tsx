@@ -9,9 +9,7 @@ import {
   DialogHeader,
   DialogTitle
 } from '~/core/components/shadcn/dialog'
-import { Badge } from '~/core/components/shadcn/badge'
-import { Button } from '~/core/components/shadcn/button'
-import { Input } from '~/core/components/shadcn/input'
+import { Badge, Button, Input, Label } from '~/core/components/shadcn'
 import { useAuthStore } from '~/stores'
 import { updateAdminProfile } from '~/shared/services/api/authApi'
 import { showToast } from '~/shared/utils/toast'
@@ -67,7 +65,7 @@ export function AccountDialog({ open, onOpenChange }: AccountDialogProps) {
     setIsEditing(false)
   }
 
-  const userId = user.userId || (user as any).id || 'N/A'
+  const userId = user.userId || 'N/A'
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -106,7 +104,7 @@ export function AccountDialog({ open, onOpenChange }: AccountDialogProps) {
             {isEditing ? (
               <>
                 <div className='space-y-1.5'>
-                  <label className='text-xs font-medium text-muted-foreground'>{t('label.name')}</label>
+                  <Label variant='muted'>{t('label.name')}</Label>
                   <Input
                     value={name}
                     onChange={(e) => setName(e.target.value)}
@@ -115,7 +113,7 @@ export function AccountDialog({ open, onOpenChange }: AccountDialogProps) {
                   />
                 </div>
                 <div className='space-y-1.5'>
-                  <label className='text-xs font-medium text-muted-foreground'>Avatar URL</label>
+                  <Label variant='muted'>Avatar URL</Label>
                   <Input
                     value={avatar}
                     onChange={(e) => setAvatar(e.target.value)}

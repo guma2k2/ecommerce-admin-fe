@@ -6,7 +6,7 @@ import { Checkbox } from "~/core/components/shadcn/checkbox"
 import { Button } from "~/core/components/shadcn/button"
 import { Badge } from "~/core/components/shadcn/badge"
 import { Skeleton } from "~/core/components/shadcn/skeleton"
-import { cn } from "~/shared/utils/appUtils"
+import { cn, formatDateParts } from "~/shared/utils"
 
 export type { SortField, CategorySortField }
 
@@ -20,27 +20,6 @@ interface CategoryTableProps {
   sortOrder?: SortDirection
   onSort: (field: SortField) => void
   onEdit: (category: CategoryItem) => void
-}
-
-function formatDate(isoString?: string | null): { dateStr: string; timeStr: string } {
-  if (!isoString) return { dateStr: "-", timeStr: "" }
-  try {
-    const d = new Date(isoString)
-    if (isNaN(d.getTime())) return { dateStr: isoString, timeStr: "" }
-    const dateStr = d.toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "short",
-      day: "2-digit"
-    })
-    const timeStr = d.toLocaleTimeString("en-US", {
-      hour: "2-digit",
-      minute: "2-digit",
-      hour12: true
-    })
-    return { dateStr, timeStr }
-  } catch {
-    return { dateStr: isoString, timeStr: "" }
-  }
 }
 
 export default function CategoryTable({
@@ -176,8 +155,8 @@ export default function CategoryTable({
             </TableRow>
           ) : (
             categories.map((category) => {
-              const created = formatDate(category.createdAt)
-              const updated = formatDate(category.updatedAt)
+              const created = formatDateParts(category.createdAt)
+              const updated = formatDateParts(category.updatedAt)
               const isSelected = selectedIds.includes(category.id)
 
               return (
@@ -205,14 +184,14 @@ export default function CategoryTable({
                       <div className='w-8 h-8 rounded-lg bg-primary/10 text-primary flex items-center justify-center shrink-0'>
                         <Folder className='size-4' />
                       </div>
-                      <button
+                      <Button
                         type='button'
+                        variant='tableLink'
                         onClick={() => onEdit(category)}
-                        className='font-medium text-gray-900 dark:text-gray-100 group-hover:text-primary hover:underline transition-colors text-sm text-left cursor-pointer focus:outline-none focus-visible:ring-1 focus-visible:ring-ring rounded-xs'
                         title={`Edit ${category.name}`}
                       >
                         {category.name}
-                      </button>
+                      </Button>
                     </div>
                   </TableCell>
 

@@ -95,39 +95,28 @@ export async function getProducts(
   const zeroBasedPage = Math.max(0, uiPageNumber - 1)
   const pageSize = params.pageSize ?? 10
 
-  try {
-    const pageData = await getProductsPage({
-      ...params,
-      pageNumber: zeroBasedPage,
-      pageSize
+  const pageData = await getProductsPage({
+    ...params,
+    pageNumber: zeroBasedPage,
+    pageSize
+  })
+
+  let content = pageData.content || []
+
+  if (params.sortField) {
+    content = [...content].sort((a, b) => {
+      const field = params.sortField as keyof ProductItem
+      const valA = String(a[field] ?? '')
+      const valB = String(b[field] ?? '')
+      const comp = valA.localeCompare(valB)
+      return params.sortDir === 'desc' ? -comp : comp
     })
+  }
 
-    let content = pageData.content || []
-
-    if (params.sortField) {
-      content = [...content].sort((a, b) => {
-        const field = params.sortField as keyof ProductItem
-        const valA = String(a[field] ?? '')
-        const valB = String(b[field] ?? '')
-        const comp = valA.localeCompare(valB)
-        return params.sortDir === 'desc' ? -comp : comp
-      })
-    }
-
-    return {
-      ...pageData,
-      content,
-      pageNumber: uiPageNumber
-    }
-  } catch {
-    // If error occurs or network is offline, return fallback empty page
-    return {
-      content: [],
-      pageNumber: uiPageNumber,
-      pageSize,
-      totalElements: 0,
-      totalPages: 1
-    }
+  return {
+    ...pageData,
+    content,
+    pageNumber: uiPageNumber
   }
 }
 

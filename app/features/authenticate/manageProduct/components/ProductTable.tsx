@@ -2,6 +2,7 @@ import * as React from "react"
 import { useTranslation } from "react-i18next"
 import { PackageX, Image as ImageIcon } from "lucide-react"
 import type { ProductItem } from "~/shared/services/api/productService"
+import { Button } from "~/core/components/shadcn"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "~/core/components/shadcn/table"
 import { Checkbox } from "~/core/components/shadcn/checkbox"
 import { Skeleton } from "~/core/components/shadcn/skeleton"
@@ -155,14 +156,15 @@ export default function ProductTable({
                   </div>
                 </TableCell>
                 <TableCell className='max-w-[280px]'>
-                  <button
+                  <Button
                     type='button'
+                    variant='tableLink'
                     onClick={() => onEdit?.(product)}
-                    className='font-medium text-gray-900 dark:text-gray-100 hover:text-primary hover:underline transition-colors text-left truncate block w-full cursor-pointer focus:outline-none focus-visible:ring-1 focus-visible:ring-ring rounded-xs'
+                    className='truncate block w-full'
                     title={`Edit ${product.name}`}
                   >
                     {product.name}
-                  </button>
+                  </Button>
                 </TableCell>
                 <TableCell className='text-xs font-semibold text-right text-gray-800 dark:text-gray-200 whitespace-nowrap'>
                   {typeof product.price === "number" ? `$${product.price.toFixed(2)}` : "—"}

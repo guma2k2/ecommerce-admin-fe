@@ -142,13 +142,8 @@ export const deleteAttribute = deleteProductAttribute
  * Fetches all product attributes for selection dropdowns and template associations.
  */
 export async function getAllProductAttributes(): Promise<ProductAttributeResponse[]> {
-  try {
-    const res = await getAttributesPage({ pageNumber: 0, pageSize: 1000 })
-    return res.content || []
-  } catch (err) {
-    console.error('Failed to load all product attributes:', err)
-    return []
-  }
+  const res = await getAttributesPage({ pageNumber: 0, pageSize: 1000 })
+  return res.content
 }
 
 export const productAttributeService = {

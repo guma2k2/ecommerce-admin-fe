@@ -187,10 +187,16 @@ export default function MediaPreviewModal({ media, open, onOpenChange }: MediaPr
           <div className='space-y-2 pt-2'>
             <div className='flex items-center justify-between text-xs text-muted-foreground font-medium'>
               <span>{t('media.fullUrl')}</span>
-              <button onClick={handleCopyUrl} className='text-primary hover:underline flex items-center gap-1 cursor-pointer'>
+              <Button
+                type='button'
+                variant='link'
+                size='none'
+                onClick={handleCopyUrl}
+                className='text-xs cursor-pointer'
+              >
                 {copied ? <Check className='size-3 text-emerald-500' /> : <Copy className='size-3' />}
                 {copied ? t('media.copied') : t('media.copyLink')}
-              </button>
+              </Button>
             </div>
             <div className='p-2.5 bg-gray-100 dark:bg-zinc-800 rounded-lg border border-gray-200 dark:border-zinc-700 font-mono text-xs text-gray-800 dark:text-zinc-200 break-all select-all'>
               {media.url}

@@ -48,7 +48,6 @@ class AxiosClient {
 
   constructor() {
     const baseURL = import.meta.env.VITE_API_SERVER_URL || 'http://localhost:8080/api/v1'
-    console.log('AxiosClient initialized with base URL:', baseURL)
 
     this.instance = axios.create({
       baseURL,
@@ -181,8 +180,6 @@ class AxiosClient {
   }
 
   private showError(errorKey: string): void {
-    console.log("Show error for key:", errorKey);
-
     // Translate the error message using i18next
     const translatedMessage = i18next.t(`errors.${errorKey}`);
 

@@ -1,7 +1,7 @@
 import React from "react"
 import { useTranslation } from "react-i18next"
 import { DollarSign, Package } from "lucide-react"
-import { Input } from "~/core/components/shadcn/input"
+import { Input, Label } from "~/core/components/shadcn"
 import PriceInput from "~/shared/components/PriceInput"
 
 export interface SingleProductModeProps {
@@ -22,10 +22,10 @@ export default function SingleProductMode({
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-1">
       <div className="space-y-1.5">
-        <label className="text-xs font-medium text-gray-700 dark:text-gray-300 flex items-center gap-1">
+        <Label variant="field" className="gap-1">
           <DollarSign className="size-3.5 text-emerald-600" />
           {t("product.variants.price")}
-        </label>
+        </Label>
         <PriceInput
           value={price ? price : ""}
           onChange={onPriceChange}
@@ -35,10 +35,10 @@ export default function SingleProductMode({
       </div>
 
       <div className="space-y-1.5">
-        <label className="text-xs font-medium text-gray-700 dark:text-gray-300 flex items-center gap-1">
+        <Label variant="field" className="gap-1">
           <Package className="size-3.5 text-blue-600" />
           {t("product.variants.stock")}
-        </label>
+        </Label>
         <Input
           type="number"
           min="0"

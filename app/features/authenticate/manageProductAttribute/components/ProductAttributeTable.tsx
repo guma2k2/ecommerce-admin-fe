@@ -5,7 +5,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "~
 import { Checkbox } from "~/core/components/shadcn/checkbox"
 import { Button } from "~/core/components/shadcn/button"
 import { Skeleton } from "~/core/components/shadcn/skeleton"
-import { cn } from "~/shared/utils/appUtils"
+import { cn, formatDateParts } from "~/shared/utils"
 
 export type { ProductAttributeSortField }
 
@@ -19,27 +19,6 @@ interface ProductAttributeTableProps {
   sortOrder?: SortDirection
   onSort: (field: ProductAttributeSortField) => void
   onEdit: (attribute: ProductAttributeResponse) => void
-}
-
-function formatDate(isoString?: string | null): { dateStr: string; timeStr: string } {
-  if (!isoString) return { dateStr: "-", timeStr: "" }
-  try {
-    const d = new Date(isoString)
-    if (isNaN(d.getTime())) return { dateStr: isoString, timeStr: "" }
-    const dateStr = d.toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "short",
-      day: "2-digit"
-    })
-    const timeStr = d.toLocaleTimeString("en-US", {
-      hour: "2-digit",
-      minute: "2-digit",
-      hour12: true
-    })
-    return { dateStr, timeStr }
-  } catch {
-    return { dateStr: isoString, timeStr: "" }
-  }
 }
 
 export default function ProductAttributeTable({
@@ -161,8 +140,8 @@ export default function ProductAttributeTable({
             </TableRow>
           ) : (
             attributes.map((attribute) => {
-              const created = formatDate(attribute.createdAt)
-              const updated = formatDate(attribute.updatedAt)
+              const created = formatDateParts(attribute.createdAt)
+              const updated = formatDateParts(attribute.updatedAt)
               const isSelected = selectedIds.includes(attribute.id)
 
               return (
@@ -190,14 +169,14 @@ export default function ProductAttributeTable({
                       <div className='w-8 h-8 rounded-lg bg-primary/10 text-primary flex items-center justify-center shrink-0'>
                         <SlidersHorizontal className='size-4' />
                       </div>
-                      <button
+                      <Button
                         type='button'
+                        variant='tableLink'
                         onClick={() => onEdit(attribute)}
-                        className='font-medium text-gray-900 dark:text-gray-100 group-hover:text-primary hover:underline transition-colors text-sm text-left cursor-pointer focus:outline-none focus-visible:ring-1 focus-visible:ring-ring rounded-xs'
                         title={`Edit ${attribute.name}`}
                       >
                         {attribute.name}
-                      </button>
+                      </Button>
                     </div>
                   </TableCell>
 

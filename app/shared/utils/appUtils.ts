@@ -315,3 +315,27 @@ export function isVideoMedia(media: { type?: string; fileType?: string; url?: st
 export function validationMsg(key: string, params?: Record<string, unknown>): string {
   return params ? JSON.stringify({ key, ...params }) : key
 }
+
+const COLOR_MAP: Record<string, string> = {
+  blue: '#2563eb',
+  white: '#ffffff',
+  black: '#000000',
+  red: '#dc2626',
+  green: '#16a34a',
+  yellow: '#eab308',
+  orange: '#f97316',
+  purple: '#a855f7',
+  pink: '#ec4899',
+  gray: '#6b7280',
+  grey: '#6b7280',
+  navy: '#1e3a8a',
+  brown: '#78350f',
+  beige: '#f5f5dc'
+}
+
+export function getColorHex(val: string): string | null {
+  const clean = val.trim().toLowerCase()
+  if (COLOR_MAP[clean]) return COLOR_MAP[clean]
+  if (/^#([0-9a-f]{3}|[0-9a-f]{6})$/i.test(clean)) return clean
+  return null
+}
